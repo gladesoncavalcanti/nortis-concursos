@@ -1,0 +1,263 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* NORTIS CONCURSOS Official Brand Colors */
+    --primary: 220 73% 12%; /* #0B2340 */
+    --primary-light: 220 35% 28%; /* #294761 */
+    --primary-foreground: 0 0% 100%; /* White */
+    
+    --secondary: 220 35% 28%; /* #294761 */
+    --secondary-foreground: 0 0% 100%; /* White */
+    
+    --accent: 44 55% 50%; /* #C5A13A */
+    --accent-foreground: 220 73% 12%; /* Dark Blue */
+
+    --background: 220 10% 15%; /* #202630 */
+    --foreground: 0 0% 100%; /* White */
+    
+    --muted: 220 35% 28%; 
+    --muted-foreground: 220 20% 85%;
+    
+    --border: 220 35% 28%;
+    --input: 220 35% 28%;
+    --ring: 44 55% 50%;
+    
+    --card: 220 73% 12%;
+    --card-foreground: 0 0% 100%;
+    
+    --popover: 220 73% 12%;
+    --popover-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --radius: 0.5rem;
+
+    /* Continuous Banner Theme Variables */
+    --nortis-primary: 11, 35, 64;
+    --nortis-secondary: 41, 71, 97;
+    --nortis-dark: 32, 38, 48;
+    --nortis-gold: 197, 161, 58;
+
+    /* Standarized Nortis Palette (HSL for proper Tailwind integration) */
+    --nortis-primary-blue: 213 71% 15%; /* hsl for #0B2340 */
+    --nortis-secondary-blue: 208 40% 27%; /* hsl for #294761 */
+    --nortis-golden: 44 55% 50%; /* hsl for #C5A13A */
+    --nortis-dark-navy: 218 20% 16%; /* hsl for #202630 */
+  }
+
+  .dark {
+    --primary: 220 73% 12%; 
+    --primary-light: 220 35% 28%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 220 35% 28%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 44 55% 50%;
+    --accent-foreground: 220 73% 12%;
+    
+    --background: 220 10% 15%;
+    --foreground: 0 0% 100%;
+    
+    --muted: 220 35% 28%;
+    --muted-foreground: 220 20% 85%;
+    
+    --border: 220 35% 28%;
+    --input: 220 35% 28%;
+    --ring: 44 55% 50%;
+    
+    --card: 220 73% 12%;
+    --card-foreground: 0 0% 100%;
+    
+    --popover: 220 73% 12%;
+    --popover-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Continuous Banner Theme Variables */
+    --nortis-primary: 11, 35, 64;
+    --nortis-secondary: 41, 71, 97;
+    --nortis-dark: 32, 38, 48;
+    --nortis-gold: 197, 161, 58;
+
+    /* Standarized Nortis Palette */
+    --nortis-primary-blue: 213 71% 15%; 
+    --nortis-secondary-blue: 208 40% 27%; 
+    --nortis-golden: 44 55% 50%; 
+    --nortis-dark-navy: 218 20% 16%; 
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    scroll-behavior: smooth;
+    min-height: 100%;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
+    line-height: 1.5;
+    min-height: 100vh;
+    margin: 0;
+    
+    /* Global Nortis Banner Background */
+    background-color: rgb(var(--nortis-primary));
+    background-image: 
+      /* Depth gradients using secondary and dark blues */
+      radial-gradient(circle at 90% 10%, rgba(var(--nortis-secondary), 0.45) 0%, transparent 60%),
+      radial-gradient(circle at 10% 90%, rgba(var(--nortis-dark), 0.9) 0%, transparent 60%),
+      /* Golden diagonal repeating lines */
+      repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 150px,
+        rgba(var(--nortis-gold), 0.06) 150px,
+        rgba(var(--nortis-gold), 0.06) 152px
+      );
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Geometric side elements using pseudo-elements */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 20vw;
+    max-width: 400px;
+    z-index: -1;
+    pointer-events: none;
+  }
+  
+  body::before {
+    left: 0;
+    background: linear-gradient(135deg, rgba(var(--nortis-gold), 0.04) 0%, transparent 60%);
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+  
+  body::after {
+    right: 0;
+    background: linear-gradient(-135deg, rgba(var(--nortis-secondary), 0.2) 0%, transparent 70%);
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    text-wrap: balance;
+    margin-bottom: 0.5em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .font-heading {
+    font-family: 'Poppins', sans-serif;
+  }
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .bg-gradient-premium {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+  }
+  .shadow-premium {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
+  }
+  .transition-premium {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .section-seamless {
+    border: none !important;
+    margin-top: -1px;
+    padding-top: 1px;
+  }
+
+  /* Nortis specific continuous banner classes */
+  .nortis-bg-container {
+    position: relative;
+    width: 100%;
+    background: transparent !important;
+  }
+  
+  .nortis-section {
+    background: transparent !important;
+    border: none !important;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .nortis-gold-accent {
+    position: relative;
+  }
+  .nortis-gold-accent::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgb(var(--nortis-gold)), transparent);
+    border-radius: 2px;
+  }
+
+  /* Standarized Reusable Nortis Gradient Background */
+  .nortis-gradient-bg {
+    position: relative;
+    background: linear-gradient(135deg, hsl(var(--nortis-primary-blue)), hsl(var(--nortis-secondary-blue))) !important;
+    overflow: hidden;
+  }
+  
+  .nortis-gradient-bg::before {
+    content: '';
+    position: absolute;
+    top: 0; 
+    left: 0; 
+    bottom: 0; 
+    width: 25vw; 
+    max-width: 300px;
+    background: linear-gradient(135deg, hsla(var(--nortis-golden), 0.15) 0%, transparent 60%);
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  .nortis-gradient-bg::after {
+    content: '';
+    position: absolute;
+    top: 0; 
+    right: 0; 
+    bottom: 0; 
+    width: 25vw; 
+    max-width: 300px;
+    background: linear-gradient(-135deg, hsla(var(--nortis-secondary-blue), 0.4) 0%, transparent 60%);
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .nortis-gradient-bg > * {
+    position: relative;
+    z-index: 1;
+  }
+}

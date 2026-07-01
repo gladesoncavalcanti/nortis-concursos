@@ -1,0 +1,60 @@
+ESTRUTURA DO PROJETO
+=====================
+
+apps/web/
+├── public/
+│   └── [arquivos estáticos]
+├── src/
+│   ├── api/
+│   │   └── EcommerceApi.js
+│   ├── components/
+│   │   ├── FloatingWhatsAppButton.jsx
+│   │   ├── Footer.jsx
+│   │   ├── Header.jsx
+│   │   ├── ProductsList.jsx
+│   │   ├── ProtectedRoute.jsx
+│   │   ├── ScrollToTop.jsx
+│   │   ├── ShoppingCart.jsx
+│   │   └── ui/ (55 componentes)
+│   ├── contexts/
+│   │   └── AuthContext.jsx
+│   ├── hooks/
+│   │   ├── use-mobile.jsx
+│   │   ├── use-toast.js
+│   │   └── useCart.jsx
+│   ├── lib/
+│   │   └── utils.js
+│   ├── pages/
+│   │   ├── ApostilasPage.jsx
+│   │   ├── AtualizacoesPage.jsx
+│   │   ├── ContatoPage.jsx
+│   │   ├── HomePage.jsx
+│   │   ├── LoginPage.jsx
+│   │   ├── MateriaisGratuitosPage.jsx
+│   │   ├── MyAccountPage.jsx
+│   │   ├── PoliticaPrivacidadePage.jsx
+│   │   ├── ProductDetailPage.jsx
+│   │   ├── SignupPage.jsx
+│   │   ├── SobreNortisPage.jsx
+│   │   ├── SuccessPage.jsx
+│   │   └── TermosUsoPage.jsx
+│   ├── utils/
+│   │   └── LeadsCollection.js
+│   ├── App.jsx
+│   ├── index.css
+│   └── main.jsx
+├── plugins/
+│   ├── selection-mode/
+│   ├── utils/
+│   ├── visual-editor/
+│   └── [outros plugins]
+├── tools/
+│   ├── generate-llms.js
+│   └── install-missing-components.js
+├── components.json
+├── eslint.config.mjs
+├── jsconfig.json
+├── package.json
+├── postcss.config.js
+├── tailwind.config.js
+└── vite.config.js

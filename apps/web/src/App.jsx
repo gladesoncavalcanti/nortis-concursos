@@ -1,0 +1,93 @@
+import React, { useState } from 'react';
+import { Route, Routes, BrowserRouter as Router } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
+import { Toaster } from '@/components/ui/sonner.jsx';
+import { AuthProvider } from '@/contexts/AuthContext.jsx';
+import { CartProvider } from '@/hooks/useCart.jsx';
+import ScrollToTop from '@/components/ScrollToTop.jsx';
+import Header from '@/components/Header.jsx';
+import Footer from '@/components/Footer.jsx';
+import FloatingWhatsAppButton from '@/components/FloatingWhatsAppButton.jsx';
+import ShoppingCart from '@/components/ShoppingCart.jsx';
+import ProtectedRoute from '@/components/ProtectedRoute.jsx';
+
+import HomePage from '@/pages/HomePage.jsx';
+import ApostilasPage from '@/pages/ApostilasPage.jsx';
+import MateriaisGratuitosPage from '@/pages/MateriaisGratuitosPage.jsx';
+import SobreNortisPage from '@/pages/SobreNortisPage.jsx';
+import ContatoPage from '@/pages/ContatoPage.jsx';
+import PoliticaPrivacidadePage from '@/pages/PoliticaPrivacidadePage.jsx';
+import TermosUsoPage from '@/pages/TermosUsoPage.jsx';
+import LoginPage from '@/pages/LoginPage.jsx';
+import SignupPage from '@/pages/SignupPage.jsx';
+import MyAccountPage from '@/pages/MyAccountPage.jsx';
+import ProductDetailPage from '@/pages/ProductDetailPage.jsx';
+import SuccessPage from '@/pages/SuccessPage.jsx';
+
+function App() {
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  return (
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <ScrollToTop />
+          <Helmet>
+            <title>NORTIS CONCURSOS | O Norte da sua Aprovação</title>
+            <meta name="description" content="Apostilas digitais premium, elaboradas para alta performance em concursos públicos. Conteúdo focado e atualizado." />
+            <meta name="keywords" content="concurso público, apostilas para concursos, SEDES DF 2026, apostila PDF, concursos Distrito Federal, apostila digital, preparação para concursos, questões comentadas, legislação distrital" />
+            <meta property="og:title" content="NORTIS CONCURSOS | O Norte da sua Aprovação" />
+            <meta property="og:description" content="Apostilas digitais premium, elaboradas para alta performance em concursos públicos." />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content="https://nortisconcursos.com.br" />
+            <meta property="og:image" content="https://images.unsplash.com/photo-1620837913485-75ec3d6fea99" />
+          </Helmet>
+
+          <div className="flex flex-col min-h-screen bg-background">
+            <Header setIsCartOpen={setIsCartOpen} />
+            <main className="flex-grow">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/apostilas" element={<ApostilasPage />} />
+                <Route path="/materiais-gratuitos" element={<MateriaisGratuitosPage />} />
+                <Route path="/sobre" element={<SobreNortisPage />} />
+                <Route path="/contato" element={<ContatoPage />} />
+                <Route path="/politica-privacidade" element={<PoliticaPrivacidadePage />} />
+                <Route path="/termos-uso" element={<TermosUsoPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
+                <Route path="/product/:id" element={<ProductDetailPage />} />
+                <Route path="/success" element={<SuccessPage />} />
+                <Route 
+                  path="/minha-conta" 
+                  element={
+                    <ProtectedRoute>
+                      <MyAccountPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="*" element={
+                  <div className="min-h-screen flex items-center justify-center bg-background">
+                    <div className="text-center">
+                      <h1 className="text-6xl font-bold font-heading text-foreground mb-4">404</h1>
+                      <p className="text-xl text-muted-foreground mb-8">Página não encontrada</p>
+                      <a href="/" className="text-[hsl(var(--primary))] hover:text-[hsl(var(--secondary))] font-bold underline transition-colors">
+                        Voltar para o início
+                      </a>
+                    </div>
+                  </div>
+                } />
+              </Routes>
+            </main>
+            <Footer />
+            <FloatingWhatsAppButton />
+            <ShoppingCart isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
+          </div>
+          <Toaster />
+        </Router>
+      </CartProvider>
+    </AuthProvider>
+  );
+}
+
+export default App;
