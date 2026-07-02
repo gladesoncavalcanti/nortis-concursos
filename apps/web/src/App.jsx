@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { Route, Routes, BrowserRouter as Router } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Toaster } from '@/components/ui/sonner.jsx';
@@ -23,6 +23,11 @@ import SignupPage from '@/pages/SignupPage.jsx';
 import MyAccountPage from '@/pages/MyAccountPage.jsx';
 import ProductDetailPage from '@/pages/ProductDetailPage.jsx';
 import SuccessPage from '@/pages/SuccessPage.jsx';
+
+// Carregada sob demanda (React.lazy) e só existe como rota em modo dev,
+// para não inflar o bundle principal de produção nem ficar acessível
+// para visitantes reais do site.
+const SupabaseProductsCheckPage = lazy(() => import('@/pages/dev/SupabaseProductsCheckPage.jsx'));
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -58,6 +63,16 @@ function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/success" element={<SuccessPage />} />
+                {import.meta.env.DEV && (
+                  <Route
+                    path="/dev/supabase-products"
+                    element={
+                      <Suspense fallback={<div className="p-8">Carregando...</div>}>
+                        <SupabaseProductsCheckPage />
+                      </Suspense>
+                    }
+                  />
+                )}
                 <Route 
                   path="/minha-conta" 
                   element={
