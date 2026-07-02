@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import { getProduct } from '@/api/EcommerceApi';
+import { getSupabaseProductByIdOrSlug } from '@/api/supabaseProducts';
+import { adaptSupabaseProduct } from '@/api/productsAdapter';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -24,7 +26,18 @@ const ProductDetailPage = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const data = await getProduct(id);
+        setError(null);
+
+        // Tenta primeiro no Supabase (id ou slug). A vitrine (/apostilas)
+        // já liga pra cá usando o id do produto Supabase.
+        const supabaseResult = await getSupabaseProductByIdOrSlug(id);
+
+        const data = supabaseResult.data
+          ? adaptSupabaseProduct(supabaseResult.data)
+          // Fallback conservador: produto não encontrado no Supabase,
+          // pode ser um produto antigo cadastrado só na Hostinger.
+          : await getProduct(id);
+
         setProduct(data);
         if (data.variants && data.variants.length > 0) {
           setSelectedVariant(data.variants[0]);

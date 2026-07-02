@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ShoppingCart, Loader2 } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
-import { getProducts, getProductQuantities } from '@/api/EcommerceApi';
+import { getSupabaseProducts } from '@/api/supabaseProducts';
+import { adaptSupabaseProduct } from '@/api/productsAdapter';
 
 const placeholderImage = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzlDQTNBRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K";
 
@@ -95,47 +96,30 @@ const ProductsList = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchProductsWithQuantities = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    let isMounted = true;
 
-        const productsResponse = await getProducts();
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError(null);
 
-        if (productsResponse.products.length === 0) {
-          setProducts([]);
-          return;
-        }
+      const result = await getSupabaseProducts();
 
-        const productIds = productsResponse.products.map(product => product.id);
+      if (!isMounted) return;
 
-        const quantitiesResponse = await getProductQuantities({
-          fields: 'inventory_quantity',
-          product_ids: productIds
-        });
-
-        const variantQuantityMap = new Map();
-        quantitiesResponse.variants.forEach(variant => {
-          variantQuantityMap.set(variant.id, variant.inventory_quantity);
-        });
-
-        const productsWithQuantities = productsResponse.products.map(product => ({
-          ...product,
-          variants: product.variants.map(variant => ({
-            ...variant,
-            inventory_quantity: variantQuantityMap.get(variant.id) ?? variant.inventory_quantity
-          }))
-        }));
-
-        setProducts(productsWithQuantities);
-      } catch (err) {
-        setError(err.message || 'Failed to load products');
-      } finally {
-        setLoading(false);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setProducts(result.data.map(adaptSupabaseProduct));
       }
+
+      setLoading(false);
     };
 
-    fetchProductsWithQuantities();
+    fetchProducts();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   if (loading) {
