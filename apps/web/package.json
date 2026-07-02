@@ -9,7 +9,8 @@
     "start": "vite preview --outDir ../../dist/apps/web --host :: --port 3000",
     "lint": "eslint . --quiet",
     "lint:warn": "eslint .",
-    "test:supabase": "node scripts/test-supabase-connection.mjs"
+    "test:supabase": "node scripts/test-supabase-connection.mjs",
+    "test:adapter": "node scripts/test-products-adapter.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
