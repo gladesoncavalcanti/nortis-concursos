@@ -28,6 +28,9 @@ import SuccessPage from '@/pages/SuccessPage.jsx';
 // para não inflar o bundle principal de produção nem ficar acessível
 // para visitantes reais do site.
 const SupabaseProductsCheckPage = lazy(() => import('@/pages/dev/SupabaseProductsCheckPage.jsx'));
+const SupabaseProductsAdaptedCheckPage = lazy(() =>
+  import('@/pages/dev/SupabaseProductsAdaptedCheckPage.jsx')
+);
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -69,6 +72,16 @@ function App() {
                     element={
                       <Suspense fallback={<div className="p-8">Carregando...</div>}>
                         <SupabaseProductsCheckPage />
+                      </Suspense>
+                    }
+                  />
+                )}
+                {import.meta.env.DEV && (
+                  <Route
+                    path="/dev/supabase-products-adapted"
+                    element={
+                      <Suspense fallback={<div className="p-8">Carregando...</div>}>
+                        <SupabaseProductsAdaptedCheckPage />
                       </Suspense>
                     }
                   />
