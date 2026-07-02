@@ -32,6 +32,13 @@ const SupabaseProductsAdaptedCheckPage = lazy(() =>
   import('@/pages/dev/SupabaseProductsAdaptedCheckPage.jsx')
 );
 
+// Rota de comparação dev-only — carregada sob demanda, sem link no
+// menu principal, sem addToCart, sem afetar /apostilas, e sem ficar
+// exposta em produção (mesmo padrão das outras rotas /dev/*).
+const ApostilasSupabasePreviewPage = lazy(() =>
+  import('@/pages/ApostilasSupabasePreviewPage.jsx')
+);
+
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -82,6 +89,16 @@ function App() {
                     element={
                       <Suspense fallback={<div className="p-8">Carregando...</div>}>
                         <SupabaseProductsAdaptedCheckPage />
+                      </Suspense>
+                    }
+                  />
+                )}
+                {import.meta.env.DEV && (
+                  <Route
+                    path="/dev/apostilas-supabase-preview"
+                    element={
+                      <Suspense fallback={<div className="p-8">Carregando...</div>}>
+                        <ApostilasSupabasePreviewPage />
                       </Suspense>
                     }
                   />
