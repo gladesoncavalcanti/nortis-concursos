@@ -1,17 +1,23 @@
 import React, { useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart as ShoppingCartIcon, X, Tag } from 'lucide-react';
+import { ShoppingCart as ShoppingCartIcon, X, Tag, Loader2 } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { initializeCheckout } from '@/api/EcommerceApi';
+import { createAsaasCheckout } from '@/api/orders';
 import { useToast } from '@/hooks/use-toast';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
   const { toast } = useToast();
+  const { isAuthenticated, user } = useAuth();
   const { cartItems, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
   const [coupon, setCoupon] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [guestEmail, setGuestEmail] = useState('');
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const handleApplyCoupon = () => {
     if (!coupon) return;
@@ -44,32 +50,49 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
       return;
     }
 
+    if (!isAuthenticated && !EMAIL_REGEX.test(guestEmail)) {
+      toast({
+        title: 'E-mail necessário',
+        description: 'Informe um e-mail válido para receber a confirmação da compra.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsCheckingOut(true);
+
     try {
-      const items = cartItems.map(item => ({
-        variant_id: item.variant.id,
+      const items = cartItems.map((item) => ({
+        productId: item.product.id,
         quantity: item.quantity,
       }));
 
-      const successUrl = `${window.location.origin}/success`;
-      const cancelUrl = window.location.href;
-
       toast({
         title: 'Iniciando checkout seguro...',
-        description: 'Você será redirecionado em instantes.',
+        description: 'Você será redirecionado para a página de pagamento da Asaas.',
       });
 
-      const { url } = await initializeCheckout({ items, successUrl, cancelUrl });
+      const { checkoutUrl, error } = await createAsaasCheckout({
+        items,
+        guestEmail: isAuthenticated ? undefined : guestEmail,
+        guestName: isAuthenticated ? user?.name : undefined,
+      });
+
+      if (error || !checkoutUrl) {
+        throw new Error(error || 'Não foi possível gerar o checkout.');
+      }
 
       clearCart();
-      window.location.href = url;
+      window.location.href = checkoutUrl;
     } catch (error) {
+      setIsCheckingOut(false);
       toast({
         title: 'Erro no Checkout',
-        description: 'Houve um problema ao iniciar o pagamento. Tente novamente.',
+        description: error.message || 'Houve um problema ao iniciar o pagamento. Tente novamente.',
         variant: 'destructive',
       });
     }
-  }, [cartItems, clearCart, toast]);
+  }, [cartItems, clearCart, toast, isAuthenticated, guestEmail, user]);
 
   return (
     <AnimatePresence>
@@ -136,13 +159,13 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
                     <Tag className="w-4 h-4" /> Cupom de Desconto
                   </label>
                   <div className="flex gap-2">
-                    <Input 
+                    <Input
                       value={coupon}
                       onChange={(e) => setCoupon(e.target.value)}
-                      placeholder="Ex: BEMVINDO10" 
+                      placeholder="Ex: BEMVINDO10"
                       className="uppercase"
                     />
-                    <Button 
+                    <Button
                       onClick={handleApplyCoupon}
                       disabled={!coupon || isApplyingCoupon}
                       variant="outline"
@@ -152,13 +175,40 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
                   </div>
                 </div>
 
+                {!isAuthenticated && (
+                  <div className="mb-6">
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                      Seu e-mail (para receber a confirmação e o acesso)
+                    </label>
+                    <Input
+                      type="email"
+                      value={guestEmail}
+                      onChange={(e) => setGuestEmail(e.target.value)}
+                      placeholder="seu@email.com"
+                    />
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center mb-6 text-card-foreground">
                   <span className="text-lg font-medium">Total</span>
                   <span className="text-2xl font-bold text-[hsl(var(--secondary))]">{getCartTotal()}</span>
                 </div>
-                <Button onClick={handleCheckout} className="w-full bg-[hsl(var(--primary))] hover:bg-[hsl(var(--secondary))] text-white hover:text-[hsl(var(--primary))] font-bold py-6 text-lg transition-colors">
-                  Finalizar Compra
+                <Button
+                  onClick={handleCheckout}
+                  disabled={isCheckingOut}
+                  className="w-full bg-[hsl(var(--primary))] hover:bg-[hsl(var(--secondary))] text-white hover:text-[hsl(var(--primary))] font-bold py-6 text-lg transition-colors"
+                >
+                  {isCheckingOut ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" /> Redirecionando...
+                    </>
+                  ) : (
+                    'Finalizar Compra'
+                  )}
                 </Button>
+                <p className="text-xs text-muted-foreground text-center mt-3">
+                  Pagamento via Pix ou cartão, processado com segurança pela Asaas. A Nortis não armazena dados de cartão.
+                </p>
               </div>
             )}
           </motion.div>

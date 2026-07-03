@@ -23,6 +23,9 @@ import SignupPage from '@/pages/SignupPage.jsx';
 import MyAccountPage from '@/pages/MyAccountPage.jsx';
 import ProductDetailPage from '@/pages/ProductDetailPage.jsx';
 import SuccessPage from '@/pages/SuccessPage.jsx';
+import PedidoSucessoPage from '@/pages/PedidoSucessoPage.jsx';
+import PedidoPendentePage from '@/pages/PedidoPendentePage.jsx';
+import PedidoErroPage from '@/pages/PedidoErroPage.jsx';
 
 // Carregada sob demanda (React.lazy) e só existe como rota em modo dev,
 // para não inflar o bundle principal de produção nem ficar acessível
@@ -73,6 +76,9 @@ function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/success" element={<SuccessPage />} />
+                <Route path="/pedido/sucesso" element={<PedidoSucessoPage />} />
+                <Route path="/pedido/pendente" element={<PedidoPendentePage />} />
+                <Route path="/pedido/erro" element={<PedidoErroPage />} />
                 {import.meta.env.DEV && (
                   <Route
                     path="/dev/supabase-products"
