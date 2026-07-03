@@ -32,16 +32,20 @@ const Header = ({ setIsCartOpen }) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-[hsl(var(--primary))] text-[hsl(var(--background))] shadow-lg border-b border-[hsl(var(--accent))]/20">
+    <header className="sticky top-0 z-50 bg-[hsl(var(--primary))] text-[hsl(var(--background))] shadow-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <img 
-              src="https://horizons-cdn.hostinger.com/2547f642-7924-40ef-a160-8a0896ff1615/1b3e79f233b1713fcfabf05596e25ff8.jpg" 
-              alt="Nortis Concursos Logo" 
-              className="h-12 w-12 rounded-full object-cover transition-transform duration-300 group-hover:scale-105"
+          <Link to="/" className="flex items-center gap-3 group shrink-0">
+            <img
+              src="https://horizons-cdn.hostinger.com/2547f642-7924-40ef-a160-8a0896ff1615/1b3e79f233b1713fcfabf05596e25ff8.jpg"
+              alt="Nortis Concursos"
+              className="h-10 w-10 md:h-11 md:w-11 rounded-full object-cover ring-2 ring-white/10 transition-transform duration-300 group-hover:scale-105"
             />
+            <span className="hidden sm:flex flex-col leading-none font-heading">
+              <span className="text-base md:text-lg font-bold text-white tracking-wide">NORTIS</span>
+              <span className="text-[10px] md:text-xs font-medium text-[hsl(var(--accent))] tracking-[0.2em]">CONCURSOS</span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}

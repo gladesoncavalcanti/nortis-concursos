@@ -15,19 +15,18 @@ const ApostilasPage = () => {
 
       <div className="min-h-screen bg-background pb-24">
         {/* Premium Page Header */}
-        <section className="bg-[hsl(var(--primary))] border-b border-[hsl(var(--secondary))]/20 py-20 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[hsl(var(--secondary))]/5"></div>
+        <section className="bg-[hsl(var(--primary))] py-16 md:py-20 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="text-4xl md:text-5xl font-bold font-heading text-white mb-6 tracking-tight">
+              <h1 className="text-4xl md:text-5xl font-bold font-heading text-white mb-4 tracking-tight">
                 Nossas Apostilas
               </h1>
-              <div className="h-1 w-24 bg-[hsl(var(--secondary))] mx-auto rounded-full mb-6"></div>
-              <p className="text-xl text-white/90 max-w-2xl mx-auto font-body font-light">
+              <div className="h-1 w-20 bg-[hsl(var(--accent))] mx-auto rounded-full mb-6"></div>
+              <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-body font-light">
                 Materiais completos, elaborados por especialistas e focados nas especificidades das principais bancas examinadoras.
               </p>
             </motion.div>
@@ -35,7 +34,7 @@ const ApostilasPage = () => {
         </section>
 
         {/* Promotional Banner Section */}
-        <section className="pt-10 pb-20 nortis-gradient-bg section-seamless w-full overflow-hidden">
+        <section className="pt-10 pb-16 bg-background section-seamless w-full overflow-hidden">
           <div className="w-full px-0 mx-0">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

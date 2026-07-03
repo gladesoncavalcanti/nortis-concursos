@@ -54,16 +54,15 @@ const ProductCard = ({ product, index }) => {
       className="h-full"
     >
       <Link to={`/product/${product.id}`} className="block h-full">
-        <div className="rounded-xl border border-border bg-card text-card-foreground shadow-sm overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full">
-          <div className="relative h-56 overflow-hidden">
+        <div className="rounded-lg border border-border bg-card text-card-foreground shadow-sm overflow-hidden group transition-all duration-300 hover:shadow-premium hover:-translate-y-0.5 flex flex-col h-full">
+          <div className="relative h-56 overflow-hidden bg-muted">
             <img
               src={product.image || placeholderImage}
               alt={product.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-all duration-300" />
             {product.ribbon_text && (
-              <div className="absolute top-3 left-3 bg-[hsl(var(--secondary))] text-[hsl(var(--primary))] text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+              <div className="absolute top-3 left-3 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] text-xs font-bold px-3 py-1 rounded-full shadow-md">
                 {product.ribbon_text}
               </div>
             )}
@@ -71,15 +70,15 @@ const ProductCard = ({ product, index }) => {
           <div className="p-6 flex flex-col flex-grow">
             <h3 className="text-lg font-bold font-heading text-card-foreground mb-2 line-clamp-2">{product.title}</h3>
             <p className="text-sm text-muted-foreground mb-6 flex-grow line-clamp-3">{product.subtitle || product.description?.replace(/<[^>]*>?/gm, '') || 'Material completo e atualizado.'}</p>
-            
-            <div className="mt-auto">
+
+            <div className="mt-auto pt-4 border-t border-border">
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-bold text-[hsl(var(--secondary))]">{displayPrice}</span>
+                <span className="text-2xl font-bold text-[hsl(var(--primary))]">{displayPrice}</span>
                 {hasSale && (
                   <span className="text-sm line-through text-muted-foreground">{originalPrice}</span>
                 )}
               </div>
-              <Button onClick={handleAddToCart} className="w-full bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--primary))] font-semibold transition-colors duration-300">
+              <Button onClick={handleAddToCart} className="w-full bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90 font-semibold transition-colors duration-300">
                 <ShoppingCart className="mr-2 h-4 w-4" /> Comprar Agora
               </Button>
             </div>

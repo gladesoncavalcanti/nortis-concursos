@@ -119,7 +119,7 @@ const ProductDetailPage = () => {
                   className="w-full max-w-md rounded-xl shadow-2xl object-cover"
                 />
                 {product.ribbon_text && (
-                  <div className="absolute top-6 left-6 bg-[hsl(var(--secondary))] text-[hsl(var(--primary))] text-sm font-bold px-4 py-1.5 rounded-full shadow-lg">
+                  <div className="absolute top-6 left-6 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] text-sm font-bold px-4 py-1.5 rounded-full shadow-md">
                     {product.ribbon_text}
                   </div>
                 )}
@@ -132,12 +132,15 @@ const ProductDetailPage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                  <h1 className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-4 leading-tight">
+                  <h1 className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-2 leading-tight">
                     {product.title}
                   </h1>
-                  
+                  {product.subtitle && (
+                    <p className="text-base text-muted-foreground mb-5">{product.subtitle}</p>
+                  )}
+
                   <div className="flex items-baseline gap-3 mb-6">
-                    <span className="text-4xl font-bold text-[hsl(var(--secondary))]">{displayPrice}</span>
+                    <span className="text-4xl font-bold text-[hsl(var(--primary))]">{displayPrice}</span>
                     {hasSale && (
                       <span className="text-lg line-through text-muted-foreground">{originalPrice}</span>
                     )}
@@ -169,25 +172,25 @@ const ProductDetailPage = () => {
                       <span className="px-4 font-medium">{quantity}</span>
                       <Button onClick={() => setQuantity(quantity + 1)} variant="ghost" className="px-4 hover:bg-muted">+</Button>
                     </div>
-                    <Button 
-                      onClick={handleAddToCart} 
-                      className="flex-1 h-12 bg-[hsl(var(--secondary))] text-[hsl(var(--primary))] hover:bg-[hsl(var(--secondary))]/90 font-bold text-lg transition-all"
+                    <Button
+                      onClick={handleAddToCart}
+                      className="flex-1 h-12 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold text-lg transition-all shadow-md"
                     >
                       <ShoppingCart className="mr-2 h-5 w-5" /> Comprar Agora
                     </Button>
                   </div>
 
-                  <div className="space-y-4 pt-8 border-t border-border">
+                  <div className="space-y-3 pt-6 border-t border-border">
                     <div className="flex items-center text-sm text-muted-foreground">
-                      <ShieldCheck className="w-5 h-5 text-green-500 mr-3" />
+                      <ShieldCheck className="w-5 h-5 text-[hsl(var(--accent))] mr-3 flex-shrink-0" />
                       Compra 100% segura e garantida
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
-                      <CheckCircle2 className="w-5 h-5 text-[hsl(var(--secondary))] mr-3" />
+                      <CheckCircle2 className="w-5 h-5 text-[hsl(var(--accent))] mr-3 flex-shrink-0" />
                       Acesso imediato após a confirmação do pagamento
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
-                      <CheckCircle2 className="w-5 h-5 text-[hsl(var(--secondary))] mr-3" />
+                      <CheckCircle2 className="w-5 h-5 text-[hsl(var(--accent))] mr-3 flex-shrink-0" />
                       Atualizações gratuitas até a data da prova
                     </div>
                   </div>

@@ -75,7 +75,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-[hsl(var(--accent))]/20 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <p className="text-sm text-white/60">
-            © 2026 Nortis Concursos – Todos os direitos reservados.
+            © 2026 Nortis Concursos – nortisconcursos.com.br – Todos os direitos reservados.
           </p>
           <div className="flex space-x-6">
             <Link to="/politica-privacidade" className="text-sm text-white/60 hover:text-[hsl(var(--accent))] transition-colors duration-200">
