@@ -10,14 +10,73 @@ import { useToast } from '@/hooks/use-toast';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const EMPTY_BUYER = {
+  name: '',
+  email: '',
+  cpfCnpj: '',
+  phone: '',
+  postalCode: '',
+  address: '',
+  addressNumber: '',
+  complement: '',
+  province: '',
+  city: '',
+  state: '',
+};
+
+// Campos exigidos pela Asaas para criar o checkout (customerData) —
+// complement fica de fora de propósito, é o único opcional.
+const REQUIRED_BUYER_FIELDS = [
+  'name',
+  'email',
+  'cpfCnpj',
+  'phone',
+  'postalCode',
+  'address',
+  'addressNumber',
+  'province',
+  'city',
+  'state',
+];
+
+function onlyDigits(value) {
+  return String(value ?? '').replace(/\D/g, '');
+}
+
+function getBuyerValidationError(buyer) {
+  for (const field of REQUIRED_BUYER_FIELDS) {
+    if (!buyer[field] || !String(buyer[field]).trim()) {
+      return 'Preencha todos os dados obrigatórios para pagamento.';
+    }
+  }
+  if (!EMAIL_REGEX.test(buyer.email)) {
+    return 'Informe um e-mail válido.';
+  }
+  const cpfCnpjDigits = onlyDigits(buyer.cpfCnpj);
+  if (cpfCnpjDigits.length !== 11 && cpfCnpjDigits.length !== 14) {
+    return 'Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) válido.';
+  }
+  if (onlyDigits(buyer.postalCode).length !== 8) {
+    return 'Informe um CEP válido (8 dígitos).';
+  }
+  if (buyer.state.trim().length !== 2) {
+    return 'Informe a UF com 2 letras (ex: DF).';
+  }
+  return null;
+}
+
 const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
   const { toast } = useToast();
   const { isAuthenticated, user } = useAuth();
   const { cartItems, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
   const [coupon, setCoupon] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
-  const [guestEmail, setGuestEmail] = useState('');
+  const [buyer, setBuyer] = useState(EMPTY_BUYER);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const updateBuyerField = (field) => (e) => {
+    setBuyer((prev) => ({ ...prev, [field]: e.target.value }));
+  };
 
   const handleApplyCoupon = () => {
     if (!coupon) return;
@@ -50,10 +109,12 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
       return;
     }
 
-    if (!isAuthenticated && !EMAIL_REGEX.test(guestEmail)) {
+    const effectiveBuyer = isAuthenticated ? { ...buyer, name: buyer.name || user?.name } : buyer;
+    const validationError = getBuyerValidationError(effectiveBuyer);
+    if (validationError) {
       toast({
-        title: 'E-mail necessário',
-        description: 'Informe um e-mail válido para receber a confirmação da compra.',
+        title: 'Dados de pagamento incompletos',
+        description: validationError,
         variant: 'destructive',
       });
       return;
@@ -74,8 +135,13 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
 
       const { checkoutUrl, error } = await createAsaasCheckout({
         items,
-        guestEmail: isAuthenticated ? undefined : guestEmail,
-        guestName: isAuthenticated ? user?.name : undefined,
+        buyer: {
+          ...effectiveBuyer,
+          cpfCnpj: onlyDigits(effectiveBuyer.cpfCnpj),
+          phone: onlyDigits(effectiveBuyer.phone),
+          postalCode: onlyDigits(effectiveBuyer.postalCode),
+          state: effectiveBuyer.state.trim().toUpperCase(),
+        },
       });
 
       if (error || !checkoutUrl) {
@@ -92,7 +158,7 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
         variant: 'destructive',
       });
     }
-  }, [cartItems, clearCart, toast, isAuthenticated, guestEmail, user]);
+  }, [cartItems, clearCart, toast, isAuthenticated, buyer, user]);
 
   return (
     <AnimatePresence>
@@ -175,19 +241,79 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
                   </div>
                 </div>
 
-                {!isAuthenticated && (
-                  <div className="mb-6">
-                    <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                      Seu e-mail (para receber a confirmação e o acesso)
-                    </label>
+                <div className="mb-6">
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                    Dados para pagamento (exigidos pela Asaas)
+                  </label>
+                  <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                    <Input
+                      value={buyer.name}
+                      onChange={updateBuyerField('name')}
+                      placeholder="Nome completo"
+                    />
                     <Input
                       type="email"
-                      value={guestEmail}
-                      onChange={(e) => setGuestEmail(e.target.value)}
-                      placeholder="seu@email.com"
+                      value={buyer.email}
+                      onChange={updateBuyerField('email')}
+                      placeholder="Seu e-mail"
                     />
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        value={buyer.cpfCnpj}
+                        onChange={updateBuyerField('cpfCnpj')}
+                        placeholder="CPF ou CNPJ"
+                      />
+                      <Input
+                        value={buyer.phone}
+                        onChange={updateBuyerField('phone')}
+                        placeholder="Telefone"
+                      />
+                    </div>
+                    <Input
+                      value={buyer.postalCode}
+                      onChange={updateBuyerField('postalCode')}
+                      placeholder="CEP"
+                    />
+                    <Input
+                      value={buyer.address}
+                      onChange={updateBuyerField('address')}
+                      placeholder="Endereço"
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        value={buyer.addressNumber}
+                        onChange={updateBuyerField('addressNumber')}
+                        placeholder="Número"
+                      />
+                      <Input
+                        value={buyer.complement}
+                        onChange={updateBuyerField('complement')}
+                        placeholder="Complemento (opcional)"
+                      />
+                    </div>
+                    <Input
+                      value={buyer.province}
+                      onChange={updateBuyerField('province')}
+                      placeholder="Bairro"
+                    />
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="col-span-2">
+                        <Input
+                          value={buyer.city}
+                          onChange={updateBuyerField('city')}
+                          placeholder="Cidade"
+                        />
+                      </div>
+                      <Input
+                        value={buyer.state}
+                        onChange={updateBuyerField('state')}
+                        placeholder="UF"
+                        maxLength={2}
+                        className="uppercase"
+                      />
+                    </div>
                   </div>
-                )}
+                </div>
 
                 <div className="flex justify-between items-center mb-6 text-card-foreground">
                   <span className="text-lg font-medium">Total</span>

@@ -20,7 +20,15 @@
 //
 // Comprador pode ser:
 //   - um usuário Supabase Auth real (JWT no header Authorization)
-//   - um convidado (guest_email obrigatório nesse caso)
+//   - um convidado (identificado por buyer.email nesse caso)
+//
+// A Asaas exige um customerData completo pra criar o checkout — o corpo
+// da requisição precisa vir com:
+//   buyer: {
+//     name, email, cpfCnpj, phone, postalCode, address, addressNumber,
+//     province,              // obrigatórios (validados abaixo)
+//     complement, city, state // opcionais, enviados se vierem
+//   }
 //
 // Secrets necessários (configurar em Project Settings → Edge Functions
 // → Secrets, ou via painel de cada function):
@@ -50,6 +58,10 @@ function jsonResponse(body: unknown, status = 200) {
   });
 }
 
+function onlyDigits(value: unknown): string {
+  return String(value ?? '').replace(/\D/g, '');
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS_HEADERS });
@@ -77,28 +89,43 @@ Deno.serve(async (req) => {
         ? [{ product_id: body.product_id, slug: body.slug, quantity: body.quantity ?? 1 }]
         : [];
 
-  const { guest_email, guest_name } = body ?? {};
+  const { buyer } = body ?? {};
 
   if (requestedItems.length === 0) {
     return jsonResponse({ error: 'Informe items[] ou product_id/slug.' }, 400);
   }
 
+  // A Asaas exige esses campos em customerData pra criar o checkout
+  // (erro real já visto em produção: cpfCnpj, phone, address,
+  // addressNumber, postalCode e province são obrigatórios).
+  const REQUIRED_BUYER_FIELDS = [
+    'name',
+    'email',
+    'cpfCnpj',
+    'phone',
+    'postalCode',
+    'address',
+    'addressNumber',
+    'province',
+  ];
+  const missingBuyerFields = REQUIRED_BUYER_FIELDS.filter((field) => !buyer?.[field]);
+  if (missingBuyerFields.length > 0) {
+    return jsonResponse(
+      { error: `Dados do comprador incompletos: ${missingBuyerFields.join(', ')}` },
+      400
+    );
+  }
+
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-  // 1. Identifica o comprador: usuário logado (JWT) ou convidado (guest_email)
+  // 1. Identifica o comprador: usuário logado (JWT) ou convidado (e-mail
+  //    de buyer.email, já validado como obrigatório acima)
   let userId: string | null = null;
   const authHeader = req.headers.get('Authorization');
   if (authHeader) {
     const token = authHeader.replace('Bearer ', '');
     const { data: userData } = await supabase.auth.getUser(token);
     userId = userData?.user?.id ?? null;
-  }
-
-  if (!userId && !guest_email) {
-    return jsonResponse(
-      { error: 'Checkout sem login exige guest_email. Envie guest_email ou um usuário autenticado.' },
-      400
-    );
   }
 
   // 2. Resolve cada item contra o Supabase de verdade — nunca confia em
@@ -135,7 +162,7 @@ Deno.serve(async (req) => {
     .from('orders')
     .insert({
       user_id: userId,
-      guest_email: userId ? null : guest_email,
+      guest_email: userId ? null : buyer.email,
       status: 'pending',
       total_cents: totalCents,
     })
@@ -175,8 +202,17 @@ Deno.serve(async (req) => {
       expiredUrl: `${SITE_URL}/pedido/erro?order_id=${order.id}&motivo=expirado`,
     },
     customerData: {
-      name: guest_name || 'Cliente Nortis',
-      email: guest_email || undefined,
+      name: buyer.name,
+      email: buyer.email,
+      cpfCnpj: onlyDigits(buyer.cpfCnpj),
+      phone: onlyDigits(buyer.phone),
+      postalCode: onlyDigits(buyer.postalCode),
+      address: buyer.address,
+      addressNumber: buyer.addressNumber,
+      complement: buyer.complement || undefined,
+      province: buyer.province,
+      city: buyer.city || undefined,
+      state: buyer.state || undefined,
     },
     items: resolvedItems.map(({ product, quantity }) => ({
       name: product.title,
