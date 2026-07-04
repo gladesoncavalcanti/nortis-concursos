@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getProduct } from '@/api/EcommerceApi';
 import { getSupabaseProductByIdOrSlug } from '@/api/supabaseProducts';
 import { adaptSupabaseProduct } from '@/api/productsAdapter';
+import ProductCover from '@/components/ProductCover.jsx';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -55,6 +56,12 @@ const ProductDetailPage = () => {
   const hasSale = useMemo(() => selectedVariant && selectedVariant.sale_price_in_cents !== null, [selectedVariant]);
   const displayPrice = useMemo(() => hasSale ? selectedVariant?.sale_price_formatted : selectedVariant?.price_formatted, [selectedVariant, hasSale]);
   const originalPrice = useMemo(() => hasSale ? selectedVariant?.price_formatted : null, [selectedVariant, hasSale]);
+
+  // A arte de capa hospedada externamente para este produto traz uma
+  // contagem de páginas desatualizada (671, o correto é 741) e não pode
+  // ser editada por aqui. Em vez de mostrar essa imagem, renderizamos uma
+  // capa 100% HTML/CSS para este produto específico.
+  const isNexoSocial = product?.title?.includes('Nexo Social');
 
   const handleAddToCart = async () => {
     if (!product || !selectedVariant) return;
@@ -110,25 +117,28 @@ const ProductDetailPage = () => {
             <div className="grid md:grid-cols-2 gap-0">
               {/* Image Section */}
               <div className="bg-muted p-8 flex items-center justify-center relative">
-                <motion.img
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5 }}
-                  src={product.image || "https://horizons-cdn.hostinger.com/2547f642-7924-40ef-a160-8a0896ff1615/4d1535b54ffb46bf29453d9b264366e6.png"}
-                  alt={product.title}
-                  className="w-full max-w-md rounded-xl shadow-2xl object-cover"
-                />
+                {isNexoSocial ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="w-full max-w-md aspect-[3/4]"
+                  >
+                    <ProductCover variant="detail" className="shadow-2xl" />
+                  </motion.div>
+                ) : (
+                  <motion.img
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                    src={product.image || "https://horizons-cdn.hostinger.com/2547f642-7924-40ef-a160-8a0896ff1615/4d1535b54ffb46bf29453d9b264366e6.png"}
+                    alt={product.title}
+                    className="w-full max-w-md rounded-xl shadow-2xl object-cover"
+                  />
+                )}
                 {product.ribbon_text && (
                   <div className="absolute top-6 left-6 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] text-sm font-bold px-4 py-1.5 rounded-full shadow-md">
                     {product.ribbon_text}
-                  </div>
-                )}
-                {/* Correção visual: a arte da capa traz uma contagem de
-                    páginas desatualizada. Selo sobreposto, fora da imagem,
-                    com o número real (741), até a arte ser substituída. */}
-                {product.title?.includes('Nexo Social') && (
-                  <div className="absolute bottom-6 left-6 bg-[hsl(var(--primary))] text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-md border border-white/10">
-                    741 páginas
                   </div>
                 )}
               </div>

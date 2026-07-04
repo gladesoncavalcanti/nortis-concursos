@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { createAsaasCheckout } from '@/api/orders';
 import { useToast } from '@/hooks/use-toast';
+import ProductCover from '@/components/ProductCover.jsx';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -200,7 +201,13 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
                 ) : (
                   cartItems.map(item => (
                     <div key={item.variant.id} className="flex items-center gap-4 bg-card border border-border p-4 rounded-xl shadow-sm">
-                      <img src={item.product.image} alt={item.product.title} className="w-20 h-20 object-cover rounded-lg border border-border" />
+                      {item.product.title?.includes('Nexo Social') ? (
+                        <div className="w-20 h-20 shrink-0 border border-border rounded-lg overflow-hidden">
+                          <ProductCover variant="thumbnail" />
+                        </div>
+                      ) : (
+                        <img src={item.product.image} alt={item.product.title} className="w-20 h-20 object-cover rounded-lg border border-border" />
+                      )}
                       <div className="flex-grow">
                         <h3 className="font-semibold text-card-foreground text-sm line-clamp-2 mb-1">{item.product.title}</h3>
                         <p className="text-xs text-muted-foreground mb-2">{item.variant.title}</p>

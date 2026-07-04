@@ -7,6 +7,7 @@ import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import { getSupabaseProducts } from '@/api/supabaseProducts';
 import { adaptSupabaseProduct } from '@/api/productsAdapter';
+import ProductCover from '@/components/ProductCover.jsx';
 
 const placeholderImage = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzlDQTNBRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K";
 
@@ -19,6 +20,12 @@ const ProductCard = ({ product, index }) => {
   const hasSale = useMemo(() => displayVariant && displayVariant.sale_price_in_cents !== null, [displayVariant]);
   const displayPrice = useMemo(() => hasSale ? displayVariant.sale_price_formatted : displayVariant.price_formatted, [displayVariant, hasSale]);
   const originalPrice = useMemo(() => hasSale ? displayVariant.price_formatted : null, [displayVariant, hasSale]);
+
+  // A arte de capa hospedada externamente para este produto traz uma
+  // contagem de páginas desatualizada (671, o correto é 741) e não pode
+  // ser editada por aqui. Em vez de mostrar essa imagem, renderizamos uma
+  // capa 100% HTML/CSS para este produto específico.
+  const isNexoSocial = product.title?.includes('Nexo Social');
 
   const handleAddToCart = useCallback(async (e) => {
     e.preventDefault();
@@ -55,23 +62,19 @@ const ProductCard = ({ product, index }) => {
     >
       <Link to={`/product/${product.id}`} className="block h-full">
         <div className="rounded-lg border border-border bg-card text-card-foreground shadow-sm overflow-hidden group transition-all duration-300 hover:shadow-premium hover:-translate-y-0.5 flex flex-col h-full">
-          <div className="relative h-56 overflow-hidden bg-muted">
-            <img
-              src={product.image || placeholderImage}
-              alt={product.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-            {product.ribbon_text && (
-              <div className="absolute top-3 left-3 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                {product.ribbon_text}
-              </div>
+          <div className="relative h-56 overflow-hidden bg-muted p-2">
+            {isNexoSocial ? (
+              <ProductCover variant="card" />
+            ) : (
+              <img
+                src={product.image || placeholderImage}
+                alt={product.title}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 rounded-lg"
+              />
             )}
-            {/* Correção visual: a arte da capa traz uma contagem de páginas
-                desatualizada. Selo sobreposto, fora da imagem, com o número
-                real (741), até a arte ser substituída. */}
-            {product.title?.includes('Nexo Social') && (
-              <div className="absolute bottom-3 left-3 bg-[hsl(var(--primary))] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md border border-white/10">
-                741 páginas
+            {product.ribbon_text && (
+              <div className="absolute top-4 left-4 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                {product.ribbon_text}
               </div>
             )}
           </div>

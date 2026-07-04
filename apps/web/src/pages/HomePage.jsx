@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button.jsx';
 import { Input } from '@/components/ui/input.jsx';
 import { Textarea } from '@/components/ui/textarea.jsx';
 import { toast } from 'sonner';
+import ProductCover from '@/components/ProductCover.jsx';
+import ProductFeaturesSection from '@/components/ProductFeaturesSection.jsx';
 
 const HomePage = () => {
   const [leadForm, setLeadForm] = useState({ name: '', email: '' });
@@ -131,48 +133,24 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Veja por dentro da apostila Nexo Social – SEDES-DF 2026 */}
-      <section className="py-12 bg-background section-seamless w-full overflow-hidden">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 text-center mb-6">
-          <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Nexo Social – SEDES DF 2026 · Banca Quadrix ·{' '}
-            <span className="text-[hsl(var(--primary))] font-bold">741 páginas</span>
-          </p>
-        </div>
-        <div className="w-full px-0 mx-0">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="w-full flex justify-center"
-          >
-            <img
-              src="https://horizons-cdn.hostinger.com/2547f642-7924-40ef-a160-8a0896ff1615/f3900e46957cb834c668c50a24f1adb2.png"
-              alt="Veja por dentro da apostila Nexo Social – SEDES-DF 2026"
-              className="w-full h-auto object-contain"
-            />
-          </motion.div>
-        </div>
-      </section>
+      {/* Conheça o Que Você Recebe — substitui a antiga imagem composta
+          (desfocada no mobile e com contagem de páginas errada) por uma
+          seção real em HTML/CSS. */}
+      <ProductFeaturesSection />
 
       {/* Featured Apostila */}
       <section className="py-12 lg:py-16 bg-background section-seamless">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-3">O Que Você Recebe</h2>
+            <h2 className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-3">Apostila em Destaque</h2>
             <div className="h-1 w-20 bg-[hsl(var(--accent))] mx-auto rounded-full mb-3"></div>
           </div>
 
           <div className="bg-card rounded-xl overflow-hidden shadow-premium max-w-5xl mx-auto border border-border">
             <div className="grid md:grid-cols-2 gap-0">
-              <div className="relative h-64 md:h-auto bg-muted">
-                <img
-                  src="https://horizons-cdn.hostinger.com/2547f642-7924-40ef-a160-8a0896ff1615/92a96de5b50a82d706116606aa01fa00.jpg"
-                  alt="Nexo Social – SEDES DF 2026"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 left-4 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+              <div className="relative h-72 md:h-full bg-muted p-4">
+                <ProductCover variant="detail" />
+                <div className="absolute top-8 right-8 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
                   LANÇAMENTO
                 </div>
               </div>
