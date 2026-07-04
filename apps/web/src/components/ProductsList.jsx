@@ -66,6 +66,14 @@ const ProductCard = ({ product, index }) => {
                 {product.ribbon_text}
               </div>
             )}
+            {/* Correção visual: a arte da capa traz uma contagem de páginas
+                desatualizada. Selo sobreposto, fora da imagem, com o número
+                real (741), até a arte ser substituída. */}
+            {product.title?.includes('Nexo Social') && (
+              <div className="absolute bottom-3 left-3 bg-[hsl(var(--primary))] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md border border-white/10">
+                741 páginas
+              </div>
+            )}
           </div>
           <div className="p-6 flex flex-col flex-grow">
             <h3 className="text-lg font-bold font-heading text-card-foreground mb-2 line-clamp-2">{product.title}</h3>

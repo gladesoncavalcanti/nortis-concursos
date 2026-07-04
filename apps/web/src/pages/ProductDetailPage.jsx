@@ -123,6 +123,14 @@ const ProductDetailPage = () => {
                     {product.ribbon_text}
                   </div>
                 )}
+                {/* Correção visual: a arte da capa traz uma contagem de
+                    páginas desatualizada. Selo sobreposto, fora da imagem,
+                    com o número real (741), até a arte ser substituída. */}
+                {product.title?.includes('Nexo Social') && (
+                  <div className="absolute bottom-6 left-6 bg-[hsl(var(--primary))] text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-md border border-white/10">
+                    741 páginas
+                  </div>
+                )}
               </div>
 
               {/* Details Section */}

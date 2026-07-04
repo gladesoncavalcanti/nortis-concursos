@@ -5,7 +5,7 @@ import { Mail, Phone, Instagram, Linkedin, Facebook, Youtube } from 'lucide-reac
 const Footer = () => {
   return (
     <footer className="nortis-gradient-bg text-primary-foreground border-t border-[hsl(var(--accent))]/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-28 md:pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div className="lg:col-span-1">

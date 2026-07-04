@@ -8,13 +8,17 @@ export const formatCurrency = (priceInCents, currencyInfo) => {
 
   const { code, symbol, template } = currencyInfo;
   const currencyDisplay = symbol || code || "€";
-  const amount = (priceInCents / 100).toFixed(2);
+  // Formato brasileiro: vírgula decimal, ponto de milhar (ex: R$ 1.234,56)
+  const amount = (priceInCents / 100).toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
   if (template) {
     return template.replace("$1", amount);
   }
 
-  return `${currencyDisplay}${amount}`;
+  return `${currencyDisplay} ${amount}`;
 };
 
 const extractVariantOptions = (options) => {

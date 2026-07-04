@@ -74,12 +74,13 @@ const HomePage = () => {
 
       {/* Hero Section */}
       <section
-        className="relative w-full min-h-[420px] sm:min-h-[460px] md:min-h-[520px] lg:min-h-[600px] bg-cover bg-center bg-no-repeat section-seamless flex items-end"
+        className="relative w-full min-h-[560px] sm:min-h-[600px] md:min-h-[640px] lg:min-h-[680px] bg-cover bg-center bg-no-repeat section-seamless flex items-end"
         style={{
           backgroundImage: 'url(https://horizons-cdn.hostinger.com/2547f642-7924-40ef-a160-8a0896ff1615/dfa641e7b824a816b202b4fe423ec000.png)'
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--primary))] via-[hsl(var(--primary))]/20 to-transparent" />
+        <div className="absolute inset-0 bg-[hsl(var(--primary))]/80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--primary))] via-[hsl(var(--primary))]/70 to-[hsl(var(--primary))]/50" />
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 md:pb-14">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -90,21 +91,39 @@ const HomePage = () => {
             <p className="text-[hsl(var(--accent))] font-heading font-semibold tracking-wide uppercase text-sm mb-3">
               Nortis Concursos
             </p>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-white leading-tight mb-4">
-              O norte da sua aprovação
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-white leading-tight mb-3">
+              Nexo Social – SEDES DF 2026
             </h1>
-            <p className="text-base md:text-lg text-white/85 font-body leading-relaxed mb-8 max-w-xl">
-              Apostilas estratégicas para concursos públicos, com conteúdo atualizado, questões comentadas e foco na banca examinadora.
+            <p className="text-base md:text-lg text-white/85 font-body leading-relaxed mb-5 max-w-xl">
+              Apostila focada na banca Quadrix, com questões comentadas e conteúdo 100% atualizado para sua aprovação.
             </p>
+
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span className="text-xs font-semibold uppercase tracking-wide bg-white/10 text-white px-3 py-1.5 rounded-full border border-white/20">
+                Banca Quadrix
+              </span>
+              <span className="text-xs font-semibold uppercase tracking-wide bg-white/10 text-white px-3 py-1.5 rounded-full border border-white/20">
+                741 páginas
+              </span>
+              <span className="text-xs font-semibold uppercase tracking-wide bg-white/10 text-white px-3 py-1.5 rounded-full border border-white/20">
+                PDF – acesso imediato
+              </span>
+            </div>
+
+            <div className="flex items-baseline gap-3 mb-8">
+              <span className="text-4xl md:text-5xl font-bold font-heading text-white">R$ 39,90</span>
+              <span className="text-lg text-white/60 line-through">R$ 49,90</span>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-3">
               <Link to="/apostilas">
                 <Button className="w-full sm:w-auto bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold px-8 py-6 text-base transition-premium shadow-md">
-                  Ver apostilas
+                  Comprar agora
                 </Button>
               </Link>
               <Link to="/apostilas">
                 <Button variant="outline" className="w-full sm:w-auto border-2 border-white/40 text-white bg-white/5 hover:bg-white hover:text-[hsl(var(--primary))] font-bold px-8 py-6 text-base transition-premium">
-                  Comprar apostila
+                  Ver todas as apostilas
                 </Button>
               </Link>
             </div>
@@ -114,6 +133,12 @@ const HomePage = () => {
 
       {/* Veja por dentro da apostila Nexo Social – SEDES-DF 2026 */}
       <section className="py-12 bg-background section-seamless w-full overflow-hidden">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 text-center mb-6">
+          <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            Nexo Social – SEDES DF 2026 · Banca Quadrix ·{' '}
+            <span className="text-[hsl(var(--primary))] font-bold">741 páginas</span>
+          </p>
+        </div>
         <div className="w-full px-0 mx-0">
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -122,9 +147,9 @@ const HomePage = () => {
             transition={{ duration: 0.5 }}
             className="w-full flex justify-center"
           >
-            <img 
-              src="https://horizons-cdn.hostinger.com/2547f642-7924-40ef-a160-8a0896ff1615/f3900e46957cb834c668c50a24f1adb2.png" 
-              alt="Veja por dentro da apostila Nexo Social – SEDES-DF 2026" 
+            <img
+              src="https://horizons-cdn.hostinger.com/2547f642-7924-40ef-a160-8a0896ff1615/f3900e46957cb834c668c50a24f1adb2.png"
+              alt="Veja por dentro da apostila Nexo Social – SEDES-DF 2026"
               className="w-full h-auto object-contain"
             />
           </motion.div>
@@ -135,7 +160,7 @@ const HomePage = () => {
       <section className="py-12 lg:py-16 bg-background section-seamless">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-3">Apostila em Destaque</h2>
+            <h2 className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-3">O Que Você Recebe</h2>
             <div className="h-1 w-20 bg-[hsl(var(--accent))] mx-auto rounded-full mb-3"></div>
           </div>
 

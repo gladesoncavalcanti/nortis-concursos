@@ -35,6 +35,12 @@ const ApostilasPage = () => {
 
         {/* Promotional Banner Section */}
         <section className="pt-10 pb-16 bg-background section-seamless w-full overflow-hidden">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 text-center mb-4">
+            <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Nexo Social – SEDES DF 2026 · Banca Quadrix ·{' '}
+              <span className="text-[hsl(var(--primary))] font-bold">741 páginas</span>
+            </p>
+          </div>
           <div className="w-full px-0 mx-0">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
