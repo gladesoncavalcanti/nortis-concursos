@@ -175,10 +175,10 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="absolute right-0 top-0 h-full w-full max-w-md bg-card text-card-foreground shadow-2xl flex flex-col"
+            className="absolute right-0 top-0 h-full max-h-screen w-full max-w-md bg-card text-card-foreground shadow-2xl flex flex-col overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-6 border-b border-border bg-[hsl(var(--primary))] text-white">
+            <div className="shrink-0 flex items-center justify-between p-6 border-b border-border bg-[hsl(var(--primary))] text-white">
               <h2 className="text-xl font-bold font-heading flex items-center gap-2">
                 <ShoppingCartIcon className="w-5 h-5 text-[hsl(var(--secondary))]" />
                 Seu Carrinho
@@ -187,135 +187,145 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
                 <X />
               </Button>
             </div>
-            
-            <div className="flex-grow p-6 overflow-y-auto space-y-4 bg-muted/30">
-              {cartItems.length === 0 ? (
-                <div className="text-center text-muted-foreground h-full flex flex-col items-center justify-center">
-                  <ShoppingCartIcon size={48} className="mb-4 opacity-20" />
-                  <p className="font-medium">Seu carrinho está vazio.</p>
-                </div>
-              ) : (
-                cartItems.map(item => (
-                  <div key={item.variant.id} className="flex items-center gap-4 bg-card border border-border p-4 rounded-xl shadow-sm">
-                    <img src={item.product.image} alt={item.product.title} className="w-20 h-20 object-cover rounded-lg border border-border" />
-                    <div className="flex-grow">
-                      <h3 className="font-semibold text-card-foreground text-sm line-clamp-2 mb-1">{item.product.title}</h3>
-                      <p className="text-xs text-muted-foreground mb-2">{item.variant.title}</p>
-                      <p className="text-sm text-[hsl(var(--secondary))] font-bold">
-                        {item.variant.sale_price_formatted || item.variant.price_formatted}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-3">
-                      <div className="flex items-center border border-border rounded-md bg-muted/50">
-                        <Button onClick={() => updateQuantity(item.variant.id, Math.max(1, item.quantity - 1))} size="sm" variant="ghost" className="h-8 px-2 text-card-foreground hover:bg-muted">-</Button>
-                        <span className="px-2 text-sm font-medium">{item.quantity}</span>
-                        <Button onClick={() => updateQuantity(item.variant.id, item.quantity + 1)} size="sm" variant="ghost" className="h-8 px-2 text-card-foreground hover:bg-muted">+</Button>
+
+            {/* Região rolável: itens + cupom + dados de pagamento. O rodapé
+                (Total + Finalizar Compra) fica fora daqui, sempre visível. */}
+            <div className="flex-1 min-h-0 overflow-y-auto bg-muted/30">
+              <div className="p-6 space-y-4">
+                {cartItems.length === 0 ? (
+                  <div className="text-center text-muted-foreground h-full flex flex-col items-center justify-center py-12">
+                    <ShoppingCartIcon size={48} className="mb-4 opacity-20" />
+                    <p className="font-medium">Seu carrinho está vazio.</p>
+                  </div>
+                ) : (
+                  cartItems.map(item => (
+                    <div key={item.variant.id} className="flex items-center gap-4 bg-card border border-border p-4 rounded-xl shadow-sm">
+                      <img src={item.product.image} alt={item.product.title} className="w-20 h-20 object-cover rounded-lg border border-border" />
+                      <div className="flex-grow">
+                        <h3 className="font-semibold text-card-foreground text-sm line-clamp-2 mb-1">{item.product.title}</h3>
+                        <p className="text-xs text-muted-foreground mb-2">{item.variant.title}</p>
+                        <p className="text-sm text-[hsl(var(--secondary))] font-bold">
+                          {item.variant.sale_price_formatted || item.variant.price_formatted}
+                        </p>
                       </div>
-                      <Button onClick={() => removeFromCart(item.variant.id)} size="sm" variant="ghost" className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 text-xs h-6 px-2">Remover</Button>
+                      <div className="flex flex-col items-end gap-3">
+                        <div className="flex items-center border border-border rounded-md bg-muted/50">
+                          <Button onClick={() => updateQuantity(item.variant.id, Math.max(1, item.quantity - 1))} size="sm" variant="ghost" className="h-8 px-2 text-card-foreground hover:bg-muted">-</Button>
+                          <span className="px-2 text-sm font-medium">{item.quantity}</span>
+                          <Button onClick={() => updateQuantity(item.variant.id, item.quantity + 1)} size="sm" variant="ghost" className="h-8 px-2 text-card-foreground hover:bg-muted">+</Button>
+                        </div>
+                        <Button onClick={() => removeFromCart(item.variant.id)} size="sm" variant="ghost" className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 text-xs h-6 px-2">Remover</Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {cartItems.length > 0 && (
+                <div className="px-6 pb-6 bg-card border-t border-border pt-6">
+                  <div className="mb-6">
+                    <label className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                      <Tag className="w-4 h-4" /> Cupom de Desconto
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={coupon}
+                        onChange={(e) => setCoupon(e.target.value)}
+                        placeholder="Ex: BEMVINDO10"
+                        className="uppercase"
+                      />
+                      <Button
+                        onClick={handleApplyCoupon}
+                        disabled={!coupon || isApplyingCoupon}
+                        variant="outline"
+                      >
+                        Aplicar
+                      </Button>
                     </div>
                   </div>
-                ))
-              )}
-            </div>
 
-            {cartItems.length > 0 && (
-              <div className="p-6 border-t border-border bg-card">
-                <div className="mb-6">
-                  <label className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
-                    <Tag className="w-4 h-4" /> Cupom de Desconto
-                  </label>
-                  <div className="flex gap-2">
-                    <Input
-                      value={coupon}
-                      onChange={(e) => setCoupon(e.target.value)}
-                      placeholder="Ex: BEMVINDO10"
-                      className="uppercase"
-                    />
-                    <Button
-                      onClick={handleApplyCoupon}
-                      disabled={!coupon || isApplyingCoupon}
-                      variant="outline"
-                    >
-                      Aplicar
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="mb-6">
-                  <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                    Dados para pagamento (exigidos pela Asaas)
-                  </label>
-                  <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                    <Input
-                      value={buyer.name}
-                      onChange={updateBuyerField('name')}
-                      placeholder="Nome completo"
-                    />
-                    <Input
-                      type="email"
-                      value={buyer.email}
-                      onChange={updateBuyerField('email')}
-                      placeholder="Seu e-mail"
-                    />
-                    <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                      Dados para pagamento (exigidos pela Asaas)
+                    </label>
+                    <div className="space-y-2">
                       <Input
-                        value={buyer.cpfCnpj}
-                        onChange={updateBuyerField('cpfCnpj')}
-                        placeholder="CPF ou CNPJ"
+                        value={buyer.name}
+                        onChange={updateBuyerField('name')}
+                        placeholder="Nome completo"
                       />
                       <Input
-                        value={buyer.phone}
-                        onChange={updateBuyerField('phone')}
-                        placeholder="Telefone"
+                        type="email"
+                        value={buyer.email}
+                        onChange={updateBuyerField('email')}
+                        placeholder="Seu e-mail"
                       />
-                    </div>
-                    <Input
-                      value={buyer.postalCode}
-                      onChange={updateBuyerField('postalCode')}
-                      placeholder="CEP"
-                    />
-                    <Input
-                      value={buyer.address}
-                      onChange={updateBuyerField('address')}
-                      placeholder="Endereço"
-                    />
-                    <div className="grid grid-cols-2 gap-2">
-                      <Input
-                        value={buyer.addressNumber}
-                        onChange={updateBuyerField('addressNumber')}
-                        placeholder="Número"
-                      />
-                      <Input
-                        value={buyer.complement}
-                        onChange={updateBuyerField('complement')}
-                        placeholder="Complemento (opcional)"
-                      />
-                    </div>
-                    <Input
-                      value={buyer.province}
-                      onChange={updateBuyerField('province')}
-                      placeholder="Bairro"
-                    />
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="col-span-2">
+                      <div className="grid grid-cols-2 gap-2">
                         <Input
-                          value={buyer.city}
-                          onChange={updateBuyerField('city')}
-                          placeholder="Cidade"
+                          value={buyer.cpfCnpj}
+                          onChange={updateBuyerField('cpfCnpj')}
+                          placeholder="CPF ou CNPJ"
+                        />
+                        <Input
+                          value={buyer.phone}
+                          onChange={updateBuyerField('phone')}
+                          placeholder="Telefone"
                         />
                       </div>
                       <Input
-                        value={buyer.state}
-                        onChange={updateBuyerField('state')}
-                        placeholder="UF"
-                        maxLength={2}
-                        className="uppercase"
+                        value={buyer.postalCode}
+                        onChange={updateBuyerField('postalCode')}
+                        placeholder="CEP"
                       />
+                      <Input
+                        value={buyer.address}
+                        onChange={updateBuyerField('address')}
+                        placeholder="Endereço"
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          value={buyer.addressNumber}
+                          onChange={updateBuyerField('addressNumber')}
+                          placeholder="Número"
+                        />
+                        <Input
+                          value={buyer.complement}
+                          onChange={updateBuyerField('complement')}
+                          placeholder="Complemento (opcional)"
+                        />
+                      </div>
+                      <Input
+                        value={buyer.province}
+                        onChange={updateBuyerField('province')}
+                        placeholder="Bairro"
+                      />
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="col-span-2">
+                          <Input
+                            value={buyer.city}
+                            onChange={updateBuyerField('city')}
+                            placeholder="Cidade"
+                          />
+                        </div>
+                        <Input
+                          value={buyer.state}
+                          onChange={updateBuyerField('state')}
+                          placeholder="UF"
+                          maxLength={2}
+                          className="uppercase"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
+              )}
+            </div>
 
-                <div className="flex justify-between items-center mb-6 text-card-foreground">
+            {/* Rodapé fixo: Total + Finalizar Compra ficam sempre visíveis,
+                independente de quantos campos de pagamento existam acima. */}
+            {cartItems.length > 0 && (
+              <div className="shrink-0 p-6 border-t border-border bg-card shadow-[0_-4px_12px_-4px_rgba(0,0,0,0.08)] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+                <div className="flex justify-between items-center mb-4 text-card-foreground">
                   <span className="text-lg font-medium">Total</span>
                   <span className="text-2xl font-bold text-[hsl(var(--secondary))]">{getCartTotal()}</span>
                 </div>
