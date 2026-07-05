@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ProductsList from '@/components/ProductsList.jsx';
 import ProductFeaturesSection from '@/components/ProductFeaturesSection.jsx';
+import MarketplacePreviewSection from '@/components/MarketplacePreviewSection.jsx';
 import { Button } from '@/components/ui/button.jsx';
 
 const ApostilasPage = () => {
@@ -67,6 +68,12 @@ const ApostilasPage = () => {
             <ProductsList />
           </div>
         </section>
+
+        {/* Catálogo Nortis em expansão (Fase 20) — prévia institucional,
+            100% visual. Categorias planejadas, não produtos à venda.
+            O produto real (Nexo Social) continua listado acima, sem
+            alteração no ProductsList/fluxo de compra. */}
+        <MarketplacePreviewSection />
       </div>
     </>
   );
