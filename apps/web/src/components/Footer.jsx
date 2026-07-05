@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, Instagram, Linkedin, Facebook, Youtube } from 'lucide-react';
+import { NORTIS_WHATSAPP_DISPLAY, NORTIS_WHATSAPP_URL } from '@/config/contact.js';
 
 const Footer = () => {
   return (
@@ -51,9 +52,9 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="https://wa.me/5561991168987" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-white/80 hover:text-[hsl(var(--accent))] transition-colors duration-200 group">
+                <a href={NORTIS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-white/80 hover:text-[hsl(var(--accent))] transition-colors duration-200 group">
                   <Phone className="w-5 h-5 mr-3 flex-shrink-0 text-[hsl(var(--accent))] group-hover:scale-110 transition-transform" />
-                  <span>+55 61 99116-8987</span>
+                  <span>{NORTIS_WHATSAPP_DISPLAY}</span>
                 </a>
               </li>
             </ul>

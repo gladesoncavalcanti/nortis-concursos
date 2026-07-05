@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import ProductFeaturesSection from '@/components/ProductFeaturesSection.jsx';
 import ApostilaPreview from '@/components/ApostilaPreview.jsx';
 import MethodComparison from '@/components/MethodComparison.jsx';
+import { NORTIS_WHATSAPP_DISPLAY, NORTIS_WHATSAPP_URL } from '@/config/contact.js';
 
 const HomePage = () => {
   const location = useLocation();
@@ -458,8 +459,8 @@ const HomePage = () => {
                   <Headphones className="w-6 h-6 text-[hsl(var(--accent))] mr-4" />
                   <div>
                     <h4 className="font-bold text-white">WhatsApp</h4>
-                    <a href="https://wa.me/5561991168987" target="_blank" rel="noopener noreferrer" className="text-white/75 hover:text-[hsl(var(--accent))] transition-colors">
-                      +55 61 99116-8987
+                    <a href={NORTIS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-white/75 hover:text-[hsl(var(--accent))] transition-colors">
+                      {NORTIS_WHATSAPP_DISPLAY}
                     </a>
                   </div>
                 </div>

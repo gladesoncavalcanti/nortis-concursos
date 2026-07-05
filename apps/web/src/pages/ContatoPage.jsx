@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button.jsx';
 import { Input } from '@/components/ui/input.jsx';
 import { Textarea } from '@/components/ui/textarea.jsx';
 import { toast } from 'sonner';
+import { NORTIS_WHATSAPP_DISPLAY, NORTIS_WHATSAPP_URL } from '@/config/contact.js';
 
 const ContatoPage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -88,8 +89,8 @@ const ContatoPage = () => {
                     <Phone className="w-8 h-8 text-[hsl(var(--accent))] mr-4 flex-shrink-0" />
                     <div>
                       <h3 className="text-lg font-semibold font-heading text-card-foreground mb-1">WhatsApp</h3>
-                      <a href="https://wa.me/5561991168987" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-[hsl(var(--primary))] transition-colors">
-                        +55 61 99116-8987
+                      <a href={NORTIS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-[hsl(var(--primary))] transition-colors">
+                        {NORTIS_WHATSAPP_DISPLAY}
                       </a>
                     </div>
                   </div>
