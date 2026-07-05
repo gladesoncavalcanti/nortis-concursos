@@ -105,7 +105,7 @@ const Header = ({ setIsCartOpen }) => {
             >
               <ShoppingCart className="w-5 h-5" />
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+                <span className="absolute -top-1 -right-1 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm ring-2 ring-[hsl(var(--primary))]">
                   {cartItemCount}
                 </span>
               )}
@@ -121,7 +121,7 @@ const Header = ({ setIsCartOpen }) => {
             >
               <ShoppingCart className="w-6 h-6" />
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center ring-2 ring-[hsl(var(--primary))]">
                   {cartItemCount}
                 </span>
               )}

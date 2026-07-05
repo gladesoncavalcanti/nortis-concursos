@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart as ShoppingCartIcon, X, Tag, Loader2 } from 'lucide-react';
+import { ShoppingCart as ShoppingCartIcon, X, Tag, Loader2, ShieldCheck } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -74,6 +75,7 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [buyer, setBuyer] = useState(EMPTY_BUYER);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const updateBuyerField = (field) => (e) => {
     setBuyer((prev) => ({ ...prev, [field]: e.target.value }));
@@ -179,14 +181,30 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
             className="absolute right-0 top-0 h-full max-h-screen w-full max-w-md bg-card text-card-foreground shadow-2xl flex flex-col overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="shrink-0 flex items-center justify-between p-6 border-b border-border bg-[hsl(var(--primary))] text-white">
-              <h2 className="text-xl font-bold font-heading flex items-center gap-2">
-                <ShoppingCartIcon className="w-5 h-5 text-[hsl(var(--accent))]" />
-                Seu Carrinho
-              </h2>
-              <Button onClick={() => setIsCartOpen(false)} variant="ghost" size="icon" className="text-white hover:bg-white/10">
-                <X />
-              </Button>
+            <div
+              className="shrink-0 p-6"
+              style={{
+                background: 'linear-gradient(90deg, #071622 0%, #071522 45%, #06121f 100%)',
+                borderBottom: '1px solid rgba(211,165,47,0.25)',
+              }}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <h2
+                  className="text-xl font-bold flex items-center gap-2"
+                  style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: '#f4efe4' }}
+                >
+                  <ShoppingCartIcon className="w-5 h-5" style={{ color: '#f1c85b' }} />
+                  Seu carrinho
+                </h2>
+                <Button onClick={() => setIsCartOpen(false)} variant="ghost" size="icon" className="text-[#f4efe4] hover:bg-white/10">
+                  <X />
+                </Button>
+              </div>
+              <p className="text-xs text-[#f4efe4]/60">
+                {cartItems.length > 0
+                  ? `${itemCount} ${itemCount === 1 ? 'item' : 'itens'} · Revise seu pedido antes de finalizar a compra.`
+                  : 'Revise seu pedido antes de finalizar a compra.'}
+              </p>
             </div>
 
             {/* Região rolável: itens + cupom + dados de pagamento. O rodapé
@@ -194,13 +212,19 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
             <div className="flex-1 min-h-0 overflow-y-auto bg-muted/30">
               <div className="p-6 space-y-4">
                 {cartItems.length === 0 ? (
-                  <div className="text-center text-muted-foreground h-full flex flex-col items-center justify-center py-12">
+                  <div className="text-center text-muted-foreground h-full flex flex-col items-center justify-center py-16 px-4">
                     <ShoppingCartIcon size={48} className="mb-4 opacity-20" />
-                    <p className="font-medium">Seu carrinho está vazio.</p>
+                    <p className="font-semibold text-card-foreground mb-1">Seu carrinho está vazio.</p>
+                    <p className="text-sm text-muted-foreground mb-6">Adicione a apostila para iniciar sua preparação.</p>
+                    <Link to="/apostilas" onClick={() => setIsCartOpen(false)}>
+                      <Button className="font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90">
+                        Ver apostilas
+                      </Button>
+                    </Link>
                   </div>
                 ) : (
                   cartItems.map(item => (
-                    <div key={item.variant.id} className="flex items-center gap-4 bg-card border border-border p-4 rounded-xl shadow-sm">
+                    <div key={item.variant.id} className="flex items-center gap-4 bg-card border border-[hsl(var(--accent))]/25 p-4 rounded-xl shadow-sm">
                       {item.product.title?.includes('Nexo Social') ? (
                         <div className="w-20 h-20 shrink-0 border border-border rounded-lg overflow-hidden">
                           <ProductCover variant="thumbnail" />
@@ -331,27 +355,47 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
             {/* Rodapé fixo: Total + Finalizar Compra ficam sempre visíveis,
                 independente de quantos campos de pagamento existam acima. */}
             {cartItems.length > 0 && (
-              <div className="shrink-0 p-6 border-t border-border bg-card shadow-[0_-4px_12px_-4px_rgba(0,0,0,0.08)] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-                <div className="flex justify-between items-center mb-4 text-card-foreground">
-                  <span className="text-lg font-medium">Total</span>
-                  <span className="text-2xl font-bold font-heading tracking-tight text-[hsl(var(--primary))]">{getCartTotal()}</span>
+              <div
+                className="shrink-0 p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+                style={{
+                  background: 'linear-gradient(90deg, #071622 0%, #071522 45%, #06121f 100%)',
+                  borderTop: '1px solid rgba(211,165,47,0.3)',
+                }}
+              >
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium text-[#f4efe4]/70">
+                    Total ({itemCount} {itemCount === 1 ? 'item' : 'itens'})
+                  </span>
+                  <span
+                    className="text-2xl font-bold tracking-tight"
+                    style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: '#f4efe4' }}
+                  >
+                    {getCartTotal()}
+                  </span>
                 </div>
+                <p className="text-[11px] text-[#f4efe4]/40 mb-4">Pagamento único.</p>
                 <Button
                   onClick={handleCheckout}
                   disabled={isCheckingOut}
-                  className="w-full bg-[hsl(var(--primary))] hover:bg-[hsl(var(--secondary))] text-white hover:text-[hsl(var(--primary))] font-bold py-6 text-lg transition-colors"
+                  className="w-full font-bold py-6 text-lg bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium"
                 >
                   {isCheckingOut ? (
                     <>
                       <Loader2 className="w-5 h-5 mr-2 animate-spin" /> Redirecionando...
                     </>
                   ) : (
-                    'Finalizar Compra'
+                    'Finalizar compra'
                   )}
                 </Button>
-                <p className="text-xs text-muted-foreground text-center mt-3">
-                  Pagamento via Pix ou cartão, processado com segurança pela Asaas. A Nortis não armazena dados de cartão.
-                </p>
+                <div className="mt-4 space-y-1">
+                  <p className="text-[11px] text-[#f4efe4]/50 flex items-center gap-1.5">
+                    <ShieldCheck className="w-3 h-3 shrink-0" style={{ color: '#f1c85b' }} />
+                    Pagamento seguro via Asaas.
+                  </p>
+                  <p className="text-[11px] text-[#f4efe4]/50">Pix ou cartão, conforme disponibilidade.</p>
+                  <p className="text-[11px] text-[#f4efe4]/50">Acesso ao PDF após confirmação do pagamento.</p>
+                  <p className="text-[11px] text-[#f4efe4]/50">A Nortis não armazena dados de cartão.</p>
+                </div>
               </div>
             )}
           </motion.div>
