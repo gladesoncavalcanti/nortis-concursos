@@ -10,6 +10,7 @@ import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
 import FloatingWhatsAppButton from '@/components/FloatingWhatsAppButton.jsx';
 import ShoppingCart from '@/components/ShoppingCart.jsx';
+import MobileStickyCTA from '@/components/MobileStickyCTA.jsx';
 import ProtectedRoute from '@/components/ProtectedRoute.jsx';
 
 import HomePage from '@/pages/HomePage.jsx';
@@ -137,6 +138,7 @@ function App() {
             <Footer />
             <FloatingWhatsAppButton />
             <ShoppingCart isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
+            <MobileStickyCTA isCartOpen={isCartOpen} />
           </div>
           <Toaster />
         </Router>
