@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea.jsx';
 import { toast } from 'sonner';
 import ProductFeaturesSection from '@/components/ProductFeaturesSection.jsx';
 import ApostilaPreview from '@/components/ApostilaPreview.jsx';
+import MethodComparison from '@/components/MethodComparison.jsx';
 
 const HomePage = () => {
   const [leadForm, setLeadForm] = useState({ name: '', email: '' });
@@ -199,6 +200,10 @@ const HomePage = () => {
       {/* Veja por dentro da apostila (Fase 4) — leitor mockup + card
           comercial, estilo Executive Minimal Dark. */}
       <ApostilaPreview />
+
+      {/* Por que o Método Nortis faz diferença? (Fase 6) — comparativo
+          Apostila comum x Método Nortis. */}
+      <MethodComparison />
 
       {/* Featured Apostila — card editorial: capa em painel navy à
           esquerda, conteúdo comercial hierarquizado à direita. */}
