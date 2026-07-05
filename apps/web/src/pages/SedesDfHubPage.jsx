@@ -30,6 +30,7 @@ import ExamCountdown from '@/components/ExamCountdown.jsx';
 import ContestTimeline from '@/components/ContestTimeline.jsx';
 import StudyPlanner from '@/components/StudyPlanner.jsx';
 import StudentDashboardPreview from '@/components/StudentDashboardPreview.jsx';
+import AuthorityBlogSection from '@/components/AuthorityBlogSection.jsx';
 import { SEDES_DF_2026_EXAM_DATE } from '@/config/contestDates.js';
 
 /**
@@ -256,6 +257,10 @@ const SedesDfHubPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Conteúdo estratégico / autoridade (Fase 12) — seção editorial
+          estática, sem CMS, sem página de artigo, sem dados inventados. */}
+      <AuthorityBlogSection />
 
       {/* 6. Produto recomendado */}
       <section className="py-16 lg:py-20 bg-muted/40 section-seamless">
