@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input.jsx';
 import { Textarea } from '@/components/ui/textarea.jsx';
 import { toast } from 'sonner';
 import ProductFeaturesSection from '@/components/ProductFeaturesSection.jsx';
+import ApostilaPreview from '@/components/ApostilaPreview.jsx';
 
 const HomePage = () => {
   const [leadForm, setLeadForm] = useState({ name: '', email: '' });
@@ -194,6 +195,10 @@ const HomePage = () => {
           (desfocada no mobile e com contagem de páginas errada) por uma
           seção real em HTML/CSS. */}
       <ProductFeaturesSection />
+
+      {/* Veja por dentro da apostila (Fase 4) — leitor mockup + card
+          comercial, estilo Executive Minimal Dark. */}
+      <ApostilaPreview />
 
       {/* Featured Apostila — card editorial: capa em painel navy à
           esquerda, conteúdo comercial hierarquizado à direita. */}
