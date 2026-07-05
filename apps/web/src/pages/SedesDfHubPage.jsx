@@ -29,6 +29,7 @@ import FreeSampleModal from '@/components/FreeSampleModal.jsx';
 import ExamCountdown from '@/components/ExamCountdown.jsx';
 import ContestTimeline from '@/components/ContestTimeline.jsx';
 import StudyPlanner from '@/components/StudyPlanner.jsx';
+import ModularApostilaBuilder from '@/components/ModularApostilaBuilder.jsx';
 import StudentDashboardPreview from '@/components/StudentDashboardPreview.jsx';
 import AuthorityBlogSection from '@/components/AuthorityBlogSection.jsx';
 import TrustGuaranteeSection from '@/components/TrustGuaranteeSection.jsx';
@@ -195,6 +196,12 @@ const SedesDfHubPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Monte seu roteiro dentro da apostila (Fase 19) — montador
+          modular 100% visual. A seleção de módulos é estado local, não
+          persiste, não altera preço/carrinho e não cria checkout por
+          módulo. A apostila continua sendo um único produto completo. */}
+      <ModularApostilaBuilder />
 
       {/* Plano semanal de estudos (Fase 10) — roteiro sugerido, 100%
           estático/visual. Sem progresso real, sem login, sem Supabase. */}
