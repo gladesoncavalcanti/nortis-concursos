@@ -38,7 +38,7 @@ const Header = ({ setIsCartOpen }) => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group shrink-0">
             <img
-              src="https://horizons-cdn.hostinger.com/2547f642-7924-40ef-a160-8a0896ff1615/1b3e79f233b1713fcfabf05596e25ff8.jpg"
+              src="/nortis-emblema-n.jpeg"
               alt="Nortis Concursos"
               className="h-10 w-10 md:h-11 md:w-11 rounded-full object-cover ring-2 ring-white/10 transition-transform duration-300 group-hover:scale-105"
             />

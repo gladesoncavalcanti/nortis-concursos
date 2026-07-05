@@ -10,10 +10,10 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-3 mb-6">
-              <img 
-                src="https://horizons-cdn.hostinger.com/2547f642-7924-40ef-a160-8a0896ff1615/66a1964b1f60fc5424058b6d5014de9d.jpg" 
-                alt="Nortis Concursos Logo" 
-                className="h-12 w-auto rounded-md object-contain"
+              <img
+                src="/nortis-emblema-n.jpeg"
+                alt="Nortis Concursos Logo"
+                className="h-12 w-12 rounded-full object-cover"
               />
             </div>
             <p className="text-sm text-white/80 leading-relaxed font-body">

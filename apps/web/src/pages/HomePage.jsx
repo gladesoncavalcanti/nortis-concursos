@@ -133,6 +133,20 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Faixa institucional — usa o banner oficial da marca. Não recebe
+          nenhum texto sobreposto (a peça já é autoexplicativa), evitando
+          competir com o conteúdo principal. */}
+      <section className="w-full bg-[hsl(var(--primary))] py-8 md:py-10 section-seamless">
+        <div className="max-w-3xl mx-auto px-4">
+          <img
+            src="/nortis-banner-institucional.png"
+            alt="Nortis Concursos — O norte da sua aprovação"
+            className="w-full h-auto rounded-lg"
+            loading="lazy"
+          />
+        </div>
+      </section>
+
       {/* Conheça o Que Você Recebe — substitui a antiga imagem composta
           (desfocada no mobile e com contagem de páginas errada) por uma
           seção real em HTML/CSS. */}
