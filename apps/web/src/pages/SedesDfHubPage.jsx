@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button.jsx';
 import FreeSampleModal from '@/components/FreeSampleModal.jsx';
 import ExamCountdown from '@/components/ExamCountdown.jsx';
 import ContestTimeline from '@/components/ContestTimeline.jsx';
+import StudyPlanner from '@/components/StudyPlanner.jsx';
 import { SEDES_DF_2026_EXAM_DATE } from '@/config/contestDates.js';
 
 /**
@@ -189,6 +190,10 @@ const SedesDfHubPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Plano semanal de estudos (Fase 10) — roteiro sugerido, 100%
+          estático/visual. Sem progresso real, sem login, sem Supabase. */}
+      <StudyPlanner />
 
       {/* 4. Por que a banca Quadrix exige atenção */}
       <section className="relative overflow-hidden section-seamless" style={{ background: NAVY_BG }}>
