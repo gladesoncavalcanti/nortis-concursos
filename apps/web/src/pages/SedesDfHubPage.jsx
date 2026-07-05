@@ -27,6 +27,7 @@ import {
 import { Button } from '@/components/ui/button.jsx';
 import FreeSampleModal from '@/components/FreeSampleModal.jsx';
 import ExamCountdown from '@/components/ExamCountdown.jsx';
+import ContestTimeline from '@/components/ContestTimeline.jsx';
 import { SEDES_DF_2026_EXAM_DATE } from '@/config/contestDates.js';
 
 /**
@@ -145,6 +146,11 @@ const SedesDfHubPage = () => {
           ainda (ver apps/web/src/config/contestDates.js), então mostra
           "Data da prova a confirmar", nunca uma contagem inventada. */}
       <ExamCountdown examDate={SEDES_DF_2026_EXAM_DATE} />
+
+      {/* Linha do tempo do concurso (Fase 9) — todas as etapas com
+          dateLabel "A confirmar" por padrão, sem nenhuma data oficial
+          inventada. Independente do ExamCountdown acima. */}
+      <ContestTimeline />
 
       {/* 2. Sobre o concurso */}
       <section className="py-16 lg:py-20 bg-background section-seamless">
