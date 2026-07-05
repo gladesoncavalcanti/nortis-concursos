@@ -33,6 +33,7 @@ import StudentDashboardPreview from '@/components/StudentDashboardPreview.jsx';
 import AuthorityBlogSection from '@/components/AuthorityBlogSection.jsx';
 import TrustGuaranteeSection from '@/components/TrustGuaranteeSection.jsx';
 import SocialProofSection from '@/components/SocialProofSection.jsx';
+import CommunityPreviewSection from '@/components/CommunityPreviewSection.jsx';
 import { SEDES_DF_2026_EXAM_DATE } from '@/config/contestDates.js';
 
 /**
@@ -330,6 +331,11 @@ const SedesDfHubPage = () => {
           preparatória para depoimentos reais; nenhum depoimento real foi
           encontrado no projeto, então usa apenas placeholders neutros. */}
       <SocialProofSection />
+
+      {/* Comunidade Nortis (Fase 15) — prévia institucional, sem fórum
+          real, sem backend, sem número de WhatsApp (por segurança,
+          já que há divergência entre os números usados no projeto). */}
+      <CommunityPreviewSection />
 
       {/* 7. Materiais gratuitos — reaproveita o modal da Fase 5 */}
       <section className="py-16 lg:py-20 bg-background section-seamless">
