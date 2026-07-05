@@ -41,7 +41,8 @@ const ApostilaPreview = () => {
 
   return (
     <section
-      className="relative overflow-hidden section-seamless"
+      id="preview-apostila"
+      className="relative overflow-hidden section-seamless scroll-mt-20"
       style={{
         background:
           'radial-gradient(circle at 14% 22%, rgba(211,165,47,0.10) 0%, transparent 32%), linear-gradient(90deg, #071622 0%, #071522 45%, #06121f 100%)',

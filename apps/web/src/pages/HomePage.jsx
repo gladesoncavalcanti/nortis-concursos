@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   BookOpen, Target, Sparkles, RefreshCw, Trophy,
@@ -16,6 +16,21 @@ import ApostilaPreview from '@/components/ApostilaPreview.jsx';
 import MethodComparison from '@/components/MethodComparison.jsx';
 
 const HomePage = () => {
+  const location = useLocation();
+
+  // Suporte a âncora (ex: vindo de /sedes-df-2026 para /#preview-apostila).
+  // O ScrollToTop global (App.jsx) sempre reseta o scroll pro topo a cada
+  // troca de rota — esse efeito roda depois, corrigindo só quando há hash,
+  // sem alterar o comportamento padrão de nenhuma outra página.
+  useEffect(() => {
+    if (!location.hash) return undefined;
+    const id = location.hash.replace('#', '');
+    const timer = setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [location]);
+
   const [leadForm, setLeadForm] = useState({ name: '', email: '' });
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
