@@ -57,8 +57,16 @@ const MateriaisGratuitosPage = () => {
   return (
     <>
       <Helmet>
-        <title>Materiais Gratuitos - NORTIS CONCURSOS</title>
-        <meta name="description" content="Baixe gratuitamente PDFs, cronogramas de estudo e simulados de alto rendimento elaborados pela Nortis." />
+        <title>Materiais gratuitos | Nortis Concursos</title>
+        <meta name="description" content="Acesse materiais gratuitos e conteúdos de apoio disponibilizados pela Nortis Concursos para preparação em concursos." />
+        <link rel="canonical" href="https://www.nortisconcursos.com.br/materiais-gratuitos" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Materiais gratuitos | Nortis Concursos" />
+        <meta property="og:description" content="Acesse materiais gratuitos e conteúdos de apoio disponibilizados pela Nortis Concursos para preparação em concursos." />
+        <meta property="og:url" content="https://www.nortisconcursos.com.br/materiais-gratuitos" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Materiais gratuitos | Nortis Concursos" />
+        <meta name="twitter:description" content="Acesse materiais gratuitos e conteúdos de apoio disponibilizados pela Nortis Concursos para preparação em concursos." />
       </Helmet>
 
       <div className="min-h-screen bg-background">

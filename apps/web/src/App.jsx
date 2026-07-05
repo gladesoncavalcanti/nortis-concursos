@@ -54,14 +54,18 @@ function App() {
         <Router>
           <ScrollToTop />
           <Helmet>
-            <title>NORTIS CONCURSOS | O Norte da sua Aprovação</title>
-            <meta name="description" content="Apostilas digitais premium, elaboradas para alta performance em concursos públicos. Conteúdo focado e atualizado." />
-            <meta name="keywords" content="concurso público, apostilas para concursos, SEDES DF 2026, apostila PDF, concursos Distrito Federal, apostila digital, preparação para concursos, questões comentadas, legislação distrital" />
-            <meta property="og:title" content="NORTIS CONCURSOS | O Norte da sua Aprovação" />
-            <meta property="og:description" content="Apostilas digitais premium, elaboradas para alta performance em concursos públicos." />
+            <title>Nortis Concursos | Apostilas digitais para concursos</title>
+            <meta name="description" content="Apostilas digitais com organização estratégica, foco em banca e preparação objetiva para concursos públicos." />
+            <link rel="canonical" href="https://www.nortisconcursos.com.br/" />
+            <meta property="og:site_name" content="Nortis Concursos" />
             <meta property="og:type" content="website" />
-            <meta property="og:url" content="https://nortisconcursos.com.br" />
-            <meta property="og:image" content="https://images.unsplash.com/photo-1620837913485-75ec3d6fea99" />
+            <meta property="og:title" content="Nortis Concursos | Apostilas digitais para concursos" />
+            <meta property="og:description" content="Apostilas digitais com organização estratégica, foco em banca e preparação objetiva para concursos públicos." />
+            <meta property="og:url" content="https://www.nortisconcursos.com.br/" />
+            <meta property="og:image" content="https://www.nortisconcursos.com.br/nortis-banner-institucional.png" />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content="Nortis Concursos | Apostilas digitais para concursos" />
+            <meta name="twitter:description" content="Apostilas digitais com organização estratégica, foco em banca e preparação objetiva para concursos públicos." />
           </Helmet>
 
           <div className="flex flex-col min-h-screen bg-background">

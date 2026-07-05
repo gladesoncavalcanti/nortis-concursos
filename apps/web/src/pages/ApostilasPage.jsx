@@ -11,8 +11,16 @@ const ApostilasPage = () => {
   return (
     <>
       <Helmet>
-        <title>Apostilas - NORTIS CONCURSOS</title>
-        <meta name="description" content="Catálogo completo de apostilas premium para concursos públicos. Encontre o material ideal para sua aprovação." />
+        <title>Apostilas para concursos | Nortis Concursos</title>
+        <meta name="description" content="Conheça a apostila digital Nexo Social para SEDES-DF 2026, com conteúdo organizado, foco Quadrix e preparação objetiva." />
+        <link rel="canonical" href="https://www.nortisconcursos.com.br/apostilas" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Apostilas para concursos | Nortis Concursos" />
+        <meta property="og:description" content="Conheça a apostila digital Nexo Social para SEDES-DF 2026, com conteúdo organizado, foco Quadrix e preparação objetiva." />
+        <meta property="og:url" content="https://www.nortisconcursos.com.br/apostilas" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Apostilas para concursos | Nortis Concursos" />
+        <meta name="twitter:description" content="Conheça a apostila digital Nexo Social para SEDES-DF 2026, com conteúdo organizado, foco Quadrix e preparação objetiva." />
       </Helmet>
 
       <div className="min-h-screen bg-background pb-24">

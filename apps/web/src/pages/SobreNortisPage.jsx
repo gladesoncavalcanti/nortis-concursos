@@ -25,8 +25,16 @@ const SobreNortisPage = () => {
   return (
     <>
       <Helmet>
-        <title>Sobre a NORTIS CONCURSOS | Nossa História</title>
-        <meta name="description" content="Conheça a história e o propósito da Nortis Concursos. Nosso foco é a sua aprovação em concursos públicos." />
+        <title>Sobre a Nortis Concursos</title>
+        <meta name="description" content="Conheça a Nortis Concursos, marca editorial voltada à produção de materiais digitais organizados para concursos públicos." />
+        <link rel="canonical" href="https://www.nortisconcursos.com.br/sobre" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Sobre a Nortis Concursos" />
+        <meta property="og:description" content="Conheça a Nortis Concursos, marca editorial voltada à produção de materiais digitais organizados para concursos públicos." />
+        <meta property="og:url" content="https://www.nortisconcursos.com.br/sobre" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Sobre a Nortis Concursos" />
+        <meta name="twitter:description" content="Conheça a Nortis Concursos, marca editorial voltada à produção de materiais digitais organizados para concursos públicos." />
       </Helmet>
 
       <div className="min-h-screen bg-background">

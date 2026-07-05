@@ -87,8 +87,16 @@ const HomePage = () => {
   return (
     <>
       <Helmet>
-        <title>NORTIS CONCURSOS | O norte da sua aprovação.</title>
-        <meta name="description" content="Apostilas premium, materiais estratégicos, questões comentadas e atualizações constantes para acelerar sua aprovação nas principais bancas examinadoras." />
+        <title>Nortis Concursos | Apostilas digitais para concursos</title>
+        <meta name="description" content="Apostilas digitais com organização estratégica, foco em banca e preparação objetiva para concursos públicos." />
+        <link rel="canonical" href="https://www.nortisconcursos.com.br/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Nortis Concursos | Apostilas digitais para concursos" />
+        <meta property="og:description" content="Apostilas digitais com organização estratégica, foco em banca e preparação objetiva para concursos públicos." />
+        <meta property="og:url" content="https://www.nortisconcursos.com.br/" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Nortis Concursos | Apostilas digitais para concursos" />
+        <meta name="twitter:description" content="Apostilas digitais com organização estratégica, foco em banca e preparação objetiva para concursos públicos." />
       </Helmet>
 
       {/* Hero Section — "Executive Minimal Dark" (Fase 2), fiel à

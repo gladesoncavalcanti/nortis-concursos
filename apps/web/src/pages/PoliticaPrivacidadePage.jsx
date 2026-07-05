@@ -5,8 +5,16 @@ const PoliticaPrivacidadePage = () => {
   return (
     <>
       <Helmet>
-        <title>Política de Privacidade - NORTIS CONCURSOS</title>
-        <meta name="description" content="Política de Privacidade da Nortis Concursos. Saiba como protegemos seus dados." />
+        <title>Política de Privacidade | Nortis Concursos</title>
+        <meta name="description" content="Consulte a Política de Privacidade da Nortis Concursos e entenda o tratamento de dados no site." />
+        <link rel="canonical" href="https://www.nortisconcursos.com.br/politica-privacidade" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Política de Privacidade | Nortis Concursos" />
+        <meta property="og:description" content="Consulte a Política de Privacidade da Nortis Concursos e entenda o tratamento de dados no site." />
+        <meta property="og:url" content="https://www.nortisconcursos.com.br/politica-privacidade" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Política de Privacidade | Nortis Concursos" />
+        <meta name="twitter:description" content="Consulte a Política de Privacidade da Nortis Concursos e entenda o tratamento de dados no site." />
       </Helmet>
       <div className="min-h-screen bg-background py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

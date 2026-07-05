@@ -44,8 +44,16 @@ const LoginPage = () => {
   return (
     <>
       <Helmet>
-        <title>Entrar - NORTIS CONCURSOS</title>
-        <meta name="description" content="Faça login na sua conta Nortis Concursos para acessar suas apostilas e materiais." />
+        <title>Login | Nortis Concursos</title>
+        <meta name="description" content="Acesse sua conta Nortis Concursos para consultar seus materiais digitais." />
+        <link rel="canonical" href="https://www.nortisconcursos.com.br/login" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Login | Nortis Concursos" />
+        <meta property="og:description" content="Acesse sua conta Nortis Concursos para consultar seus materiais digitais." />
+        <meta property="og:url" content="https://www.nortisconcursos.com.br/login" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Login | Nortis Concursos" />
+        <meta name="twitter:description" content="Acesse sua conta Nortis Concursos para consultar seus materiais digitais." />
       </Helmet>
 
       <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

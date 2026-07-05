@@ -5,8 +5,16 @@ const TermosUsoPage = () => {
   return (
     <>
       <Helmet>
-        <title>Termos de Uso - NORTIS CONCURSOS</title>
-        <meta name="description" content="Termos de Uso da Nortis Concursos. Regras e condições para utilização de nossos materiais." />
+        <title>Termos de Uso | Nortis Concursos</title>
+        <meta name="description" content="Consulte os Termos de Uso da Nortis Concursos para compra, acesso e utilização dos materiais digitais." />
+        <link rel="canonical" href="https://www.nortisconcursos.com.br/termos-uso" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Termos de Uso | Nortis Concursos" />
+        <meta property="og:description" content="Consulte os Termos de Uso da Nortis Concursos para compra, acesso e utilização dos materiais digitais." />
+        <meta property="og:url" content="https://www.nortisconcursos.com.br/termos-uso" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Termos de Uso | Nortis Concursos" />
+        <meta name="twitter:description" content="Consulte os Termos de Uso da Nortis Concursos para compra, acesso e utilização dos materiais digitais." />
       </Helmet>
       <div className="min-h-screen bg-background py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

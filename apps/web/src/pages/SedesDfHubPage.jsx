@@ -86,10 +86,24 @@ const SedesDfHubPage = () => {
   return (
     <>
       <Helmet>
-        <title>SEDES-DF 2026 - NORTIS CONCURSOS</title>
+        <title>SEDES-DF 2026 | Apostila Nexo Social | Nortis Concursos</title>
         <meta
           name="description"
-          content="Guia estratégico para o concurso SEDES-DF 2026: banca Quadrix, conteúdos essenciais e a apostila Nexo Social, com 741 páginas e questões comentadas."
+          content="Página de preparação para o concurso SEDES-DF 2026, com roteiro de estudos, módulos da apostila Nexo Social e foco na banca Quadrix."
+        />
+        <link rel="canonical" href="https://www.nortisconcursos.com.br/sedes-df-2026" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="SEDES-DF 2026 | Apostila Nexo Social | Nortis Concursos" />
+        <meta
+          property="og:description"
+          content="Página de preparação para o concurso SEDES-DF 2026, com roteiro de estudos, módulos da apostila Nexo Social e foco na banca Quadrix."
+        />
+        <meta property="og:url" content="https://www.nortisconcursos.com.br/sedes-df-2026" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="SEDES-DF 2026 | Apostila Nexo Social | Nortis Concursos" />
+        <meta
+          name="twitter:description"
+          content="Página de preparação para o concurso SEDES-DF 2026, com roteiro de estudos, módulos da apostila Nexo Social e foco na banca Quadrix."
         />
       </Helmet>
 

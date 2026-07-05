@@ -34,8 +34,16 @@ const ContatoPage = () => {
   return (
     <>
       <Helmet>
-        <title>Contato - NORTIS CONCURSOS</title>
-        <meta name="description" content="Fale com a equipe da Nortis Concursos. Estamos à disposição para tirar dúvidas e oferecer suporte." />
+        <title>Contato | Nortis Concursos</title>
+        <meta name="description" content="Fale com a Nortis Concursos pelos canais oficiais para dúvidas sobre apostilas digitais, acesso e suporte." />
+        <link rel="canonical" href="https://www.nortisconcursos.com.br/contato" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Contato | Nortis Concursos" />
+        <meta property="og:description" content="Fale com a Nortis Concursos pelos canais oficiais para dúvidas sobre apostilas digitais, acesso e suporte." />
+        <meta property="og:url" content="https://www.nortisconcursos.com.br/contato" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Contato | Nortis Concursos" />
+        <meta name="twitter:description" content="Fale com a Nortis Concursos pelos canais oficiais para dúvidas sobre apostilas digitais, acesso e suporte." />
       </Helmet>
 
       <div className="min-h-screen bg-background">
