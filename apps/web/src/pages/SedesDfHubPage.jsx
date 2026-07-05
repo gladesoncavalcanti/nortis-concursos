@@ -26,6 +26,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import FreeSampleModal from '@/components/FreeSampleModal.jsx';
+import ExamCountdown from '@/components/ExamCountdown.jsx';
+import { SEDES_DF_2026_EXAM_DATE } from '@/config/contestDates.js';
 
 /**
  * Hub SEDES-DF 2026 (Fase 7) — página de conteúdo/conversão dedicada ao
@@ -138,6 +140,11 @@ const SedesDfHubPage = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Contagem regressiva (Fase 8) — sem data oficial configurada
+          ainda (ver apps/web/src/config/contestDates.js), então mostra
+          "Data da prova a confirmar", nunca uma contagem inventada. */}
+      <ExamCountdown examDate={SEDES_DF_2026_EXAM_DATE} />
 
       {/* 2. Sobre o concurso */}
       <section className="py-16 lg:py-20 bg-background section-seamless">
