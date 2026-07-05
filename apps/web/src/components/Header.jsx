@@ -40,24 +40,24 @@ const Header = ({ setIsCartOpen }) => {
             <img
               src="/nortis-emblema-n.jpeg"
               alt="Nortis Concursos"
-              className="h-10 w-10 md:h-11 md:w-11 rounded-full object-cover ring-2 ring-white/10 transition-transform duration-300 group-hover:scale-105"
+              className="h-10 w-10 md:h-11 md:w-11 rounded-full object-cover ring-1 ring-[hsl(var(--accent))]/40 transition-transform duration-300 group-hover:scale-105"
             />
             <span className="hidden sm:flex flex-col leading-none font-heading">
-              <span className="text-base md:text-lg font-bold text-white tracking-wide">NORTIS</span>
-              <span className="text-[10px] md:text-xs font-medium text-[hsl(var(--accent))] tracking-[0.2em]">CONCURSOS</span>
+              <span className="text-base md:text-lg font-bold text-white tracking-[0.08em]">NORTIS</span>
+              <span className="text-[10px] md:text-xs font-medium text-[hsl(var(--accent))] tracking-[0.28em]">CONCURSOS</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-2">
+          <nav className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`relative px-4 py-2 text-sm font-medium transition-colors duration-200 after:absolute after:left-4 after:right-4 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-[hsl(var(--accent))] after:transition-opacity after:duration-200 ${
                   isActivePath(link.path)
-                    ? 'text-[hsl(var(--accent))] bg-[hsl(var(--background))]/5'
-                    : 'text-[hsl(var(--background))]/80 hover:text-[hsl(var(--accent))] hover:bg-[hsl(var(--background))]/5'
+                    ? 'text-white after:opacity-100'
+                    : 'text-white/70 hover:text-white after:opacity-0 hover:after:opacity-40'
                 }`}
               >
                 {link.label}

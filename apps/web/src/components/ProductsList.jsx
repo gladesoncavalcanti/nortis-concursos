@@ -7,7 +7,6 @@ import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import { getSupabaseProducts } from '@/api/supabaseProducts';
 import { adaptSupabaseProduct } from '@/api/productsAdapter';
-import ProductCover from '@/components/ProductCover.jsx';
 
 const placeholderImage = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzlDQTNBRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K";
 
@@ -61,10 +60,15 @@ const ProductCard = ({ product, index }) => {
       className="h-full"
     >
       <Link to={`/product/${product.id}`} className="block h-full">
-        <div className="rounded-lg border border-border bg-card text-card-foreground shadow-sm overflow-hidden group transition-all duration-300 hover:shadow-premium hover:-translate-y-0.5 flex flex-col h-full">
-          <div className="relative h-56 overflow-hidden bg-muted p-2">
+        <div className="rounded-xl border border-border bg-card text-card-foreground shadow-sm overflow-hidden group transition-all duration-300 hover:shadow-premium-lg hover:-translate-y-1 hover:border-[hsl(var(--accent))]/40 flex flex-col h-full">
+          <div className="relative h-64 overflow-hidden bg-[hsl(var(--primary))] flex items-center justify-center p-4">
             {isNexoSocial ? (
-              <ProductCover variant="card" />
+              <img
+                src="/nexo-social-capa-741.jpeg"
+                alt="Capa da apostila Nexo Social – SEDES DF 2026, banca Quadrix, 741 páginas"
+                className="h-full w-auto object-contain rounded-md shadow-premium-lg ring-1 ring-white/15 transition-transform duration-500 group-hover:scale-[1.03]"
+                loading="lazy"
+              />
             ) : (
               <img
                 src={product.image || placeholderImage}
@@ -79,17 +83,17 @@ const ProductCard = ({ product, index }) => {
             )}
           </div>
           <div className="p-6 flex flex-col flex-grow">
-            <h3 className="text-lg font-bold font-heading text-card-foreground mb-2 line-clamp-2">{product.title}</h3>
-            <p className="text-sm text-muted-foreground mb-6 flex-grow line-clamp-3">{product.subtitle || product.description?.replace(/<[^>]*>?/gm, '') || 'Material completo e atualizado.'}</p>
+            <h3 className="text-lg font-bold font-heading text-card-foreground mb-2 line-clamp-2 group-hover:text-[hsl(var(--primary))] transition-colors">{product.title}</h3>
+            <p className="text-sm text-muted-foreground mb-6 flex-grow line-clamp-3 leading-relaxed">{product.subtitle || product.description?.replace(/<[^>]*>?/gm, '') || 'Material completo e atualizado.'}</p>
 
             <div className="mt-auto pt-4 border-t border-border">
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-2xl font-bold text-[hsl(var(--primary))]">{displayPrice}</span>
+                <span className="text-2xl font-bold font-heading tracking-tight text-[hsl(var(--primary))]">{displayPrice}</span>
                 {hasSale && (
                   <span className="text-sm line-through text-muted-foreground">{originalPrice}</span>
                 )}
               </div>
-              <Button onClick={handleAddToCart} className="w-full bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90 font-semibold transition-colors duration-300">
+              <Button onClick={handleAddToCart} className="w-full bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold transition-premium shadow-sm">
                 <ShoppingCart className="mr-2 h-4 w-4" /> Comprar Agora
               </Button>
             </div>

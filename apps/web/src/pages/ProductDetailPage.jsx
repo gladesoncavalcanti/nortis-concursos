@@ -9,7 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 import { getProduct } from '@/api/EcommerceApi';
 import { getSupabaseProductByIdOrSlug } from '@/api/supabaseProducts';
 import { adaptSupabaseProduct } from '@/api/productsAdapter';
-import ProductCover from '@/components/ProductCover.jsx';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -113,27 +112,28 @@ const ProductDetailPage = () => {
             <ArrowLeft className="w-4 h-4 mr-2" /> Voltar para Apostilas
           </Button>
 
-          <div className="bg-card rounded-2xl shadow-lg border border-border overflow-hidden">
-            <div className="grid md:grid-cols-2 gap-0">
+          <div className="bg-card rounded-2xl shadow-premium-lg border border-border overflow-hidden">
+            <div className="grid md:grid-cols-[0.9fr_1.1fr] gap-0">
               {/* Image Section */}
-              <div className="bg-muted p-8 flex items-center justify-center relative">
+              <div className="relative bg-[hsl(var(--primary))] p-8 md:p-12 flex items-center justify-center overflow-hidden">
+                <div aria-hidden="true" className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-[hsl(var(--accent))]/[0.1] blur-3xl" />
                 {isNexoSocial ? (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
+                  <motion.img
+                    initial={{ opacity: 0, scale: 0.94 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="w-full max-w-md aspect-[3/4]"
-                  >
-                    <ProductCover variant="detail" className="shadow-2xl" />
-                  </motion.div>
+                    src="/nexo-social-capa-741.jpeg"
+                    alt="Capa da apostila Nexo Social – SEDES DF 2026, banca Quadrix, 741 páginas"
+                    className="relative w-full max-w-xs md:max-w-sm h-auto rounded-lg shadow-premium-lg ring-1 ring-white/15 object-contain"
+                  />
                 ) : (
                   <motion.img
-                    initial={{ opacity: 0, scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.94 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5 }}
                     src={product.image || "https://horizons-cdn.hostinger.com/2547f642-7924-40ef-a160-8a0896ff1615/4d1535b54ffb46bf29453d9b264366e6.png"}
                     alt={product.title}
-                    className="w-full max-w-md rounded-xl shadow-2xl object-cover"
+                    className="relative w-full max-w-md rounded-xl shadow-2xl object-cover"
                   />
                 )}
                 {product.ribbon_text && (
@@ -144,27 +144,44 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Details Section */}
-              <div className="p-8 md:p-12 flex flex-col">
+              <div className="p-7 md:p-12 flex flex-col">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
                 >
+                  {isNexoSocial && (
+                    <div className="flex flex-wrap gap-2 mb-5">
+                      <span className="text-xs font-semibold uppercase tracking-wide bg-muted text-muted-foreground px-3 py-1 rounded-full border border-border">
+                        Banca Quadrix
+                      </span>
+                      <span className="text-xs font-semibold uppercase tracking-wide bg-muted text-muted-foreground px-3 py-1 rounded-full border border-border">
+                        741 páginas
+                      </span>
+                      <span className="text-xs font-semibold uppercase tracking-wide bg-muted text-muted-foreground px-3 py-1 rounded-full border border-border">
+                        PDF · acesso imediato
+                      </span>
+                    </div>
+                  )}
+
                   <h1 className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-2 leading-tight">
                     {product.title}
                   </h1>
                   {product.subtitle && (
-                    <p className="text-base text-muted-foreground mb-5">{product.subtitle}</p>
+                    <p className="text-base text-muted-foreground mb-6 leading-relaxed">{product.subtitle}</p>
                   )}
 
-                  <div className="flex items-baseline gap-3 mb-6">
-                    <span className="text-4xl font-bold text-[hsl(var(--primary))]">{displayPrice}</span>
-                    {hasSale && (
-                      <span className="text-lg line-through text-muted-foreground">{originalPrice}</span>
-                    )}
-                  </div>
+                  <div className="prose prose-sm text-muted-foreground mb-7" dangerouslySetInnerHTML={{ __html: product.description }} />
 
-                  <div className="prose prose-sm text-muted-foreground mb-8" dangerouslySetInnerHTML={{ __html: product.description }} />
+                  <div className="bg-muted/50 border border-border rounded-xl px-5 py-4 mb-7">
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-4xl font-bold font-heading tracking-tight text-[hsl(var(--primary))]">{displayPrice}</span>
+                      {hasSale && (
+                        <span className="text-lg line-through text-muted-foreground">{originalPrice}</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">Pagamento único · Pix ou cartão · sem mensalidade</p>
+                  </div>
 
                   {product.variants.length > 1 && (
                     <div className="mb-8">
@@ -184,15 +201,15 @@ const ProductDetailPage = () => {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="flex items-center border border-border rounded-md bg-muted/50">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-8">
+                    <div className="flex items-center justify-center border border-border rounded-md bg-muted/50 self-center sm:self-auto">
                       <Button onClick={() => setQuantity(Math.max(1, quantity - 1))} variant="ghost" className="px-4 hover:bg-muted">-</Button>
                       <span className="px-4 font-medium">{quantity}</span>
                       <Button onClick={() => setQuantity(quantity + 1)} variant="ghost" className="px-4 hover:bg-muted">+</Button>
                     </div>
                     <Button
                       onClick={handleAddToCart}
-                      className="flex-1 h-12 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold text-lg transition-all shadow-md"
+                      className="w-full sm:w-auto sm:flex-1 h-12 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold text-lg transition-premium shadow-premium"
                     >
                       <ShoppingCart className="mr-2 h-5 w-5" /> Comprar Agora
                     </Button>

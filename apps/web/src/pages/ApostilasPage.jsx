@@ -16,18 +16,19 @@ const ApostilasPage = () => {
 
       <div className="min-h-screen bg-background pb-24">
         {/* Premium Page Header */}
-        <section className="bg-[hsl(var(--primary))] py-16 md:py-20 relative overflow-hidden">
+        <section className="relative bg-[hsl(var(--primary))] py-16 md:py-24 overflow-hidden">
+          <div aria-hidden="true" className="absolute -top-40 -right-32 w-[480px] h-[480px] rounded-full bg-[hsl(var(--accent))]/[0.08] blur-3xl" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="text-4xl md:text-5xl font-bold font-heading text-white mb-4 tracking-tight">
+              <p className="eyebrow mb-4">Catálogo Nortis</p>
+              <h1 className="text-4xl md:text-5xl font-bold font-heading text-white mb-5 tracking-tight">
                 Nossas Apostilas
               </h1>
-              <div className="h-1 w-20 bg-[hsl(var(--accent))] mx-auto rounded-full mb-6"></div>
-              <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-body font-light">
+              <p className="text-lg md:text-xl text-white/75 max-w-2xl mx-auto font-body leading-relaxed">
                 Materiais completos, elaborados por especialistas e focados nas especificidades das principais bancas examinadoras.
               </p>
             </motion.div>

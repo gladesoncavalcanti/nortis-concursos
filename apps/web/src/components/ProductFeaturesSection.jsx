@@ -13,12 +13,12 @@ import {
 
 /**
  * Arte oficial "Conheça sua futura aprovação" (método Nortis + os 8
- * quadrinhos do que há na apostila). No desktop entra grande e
- * centralizada; no mobile, como o texto dos quadrinhos é pequeno demais
- * pra caber legível na largura da tela, ela vira uma faixa com scroll
- * horizontal suave (a imagem mantém o tamanho real, o usuário desliza).
- * Os cards HTML abaixo continuam como fonte garantidamente legível em
- * qualquer tamanho de tela.
+ * quadrinhos do que há na apostila). No desktop entra grande, emoldurada
+ * num painel navy que a destaca como peça central da seção; no mobile,
+ * como o texto dos quadrinhos é pequeno demais pra caber legível na
+ * largura da tela, ela vira uma faixa com scroll horizontal suave (a
+ * imagem mantém o tamanho real, o usuário desliza). Os cards HTML
+ * abaixo continuam como fonte garantidamente legível em qualquer tela.
  */
 const METODO_IMG_SRC = '/nortis-metodo-quadrinhos.jpeg';
 const METODO_IMG_ALT =
@@ -36,34 +36,36 @@ const FEATURES = [
 ];
 
 const ProductFeaturesSection = ({ title = 'Conheça o Que Você Recebe' }) => (
-  <section className="py-12 lg:py-16 bg-background section-seamless">
-    <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-      <div className="text-center mb-10">
-        <h2 className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-3">{title}</h2>
-        <div className="h-1 w-20 bg-[hsl(var(--accent))] mx-auto rounded-full mb-3"></div>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
+  <section className="py-16 lg:py-24 bg-background section-seamless">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="text-center mb-12">
+        <p className="eyebrow mb-3">Método Nortis</p>
+        <h2 className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-4">{title}</h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           Tudo dentro da apostila Nexo Social – SEDES DF 2026, focada na banca Quadrix — 741 páginas.
         </p>
       </div>
 
-      {/* Desktop: peça visual grande e centralizada */}
-      <div className="hidden md:flex justify-center mb-12">
-        <img
-          src={METODO_IMG_SRC}
-          alt={METODO_IMG_ALT}
-          className="w-full max-w-5xl h-auto rounded-2xl shadow-premium border border-border object-contain"
-          loading="lazy"
-        />
+      {/* Desktop: peça visual grande, emoldurada num painel navy */}
+      <div className="hidden md:block mb-14">
+        <div className="max-w-5xl mx-auto bg-[hsl(var(--primary))] rounded-2xl p-4 lg:p-6 shadow-premium-lg">
+          <img
+            src={METODO_IMG_SRC}
+            alt={METODO_IMG_ALT}
+            className="w-full h-auto rounded-xl object-contain"
+            loading="lazy"
+          />
+        </div>
       </div>
 
       {/* Mobile: a mesma arte em tamanho real, dentro de uma faixa com
           scroll horizontal suave — evita miniatura ilegível. */}
-      <div className="md:hidden mb-10">
-        <div className="overflow-x-auto pb-3 -mx-3 px-3 snap-x snap-mandatory [-webkit-overflow-scrolling:touch]">
+      <div className="md:hidden mb-12">
+        <div className="overflow-x-auto pb-3 -mx-4 px-4 snap-x snap-mandatory [-webkit-overflow-scrolling:touch]">
           <img
             src={METODO_IMG_SRC}
             alt={METODO_IMG_ALT}
-            className="h-auto max-w-none rounded-xl shadow-md border border-border snap-center"
+            className="h-auto max-w-none rounded-xl shadow-premium border border-border snap-center"
             style={{ width: '640px' }}
             loading="lazy"
           />
@@ -73,7 +75,7 @@ const ProductFeaturesSection = ({ title = 'Conheça o Que Você Recebe' }) => (
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {FEATURES.map((feature, index) => (
           <motion.div
             key={feature.title}
@@ -81,12 +83,12 @@ const ProductFeaturesSection = ({ title = 'Conheça o Que Você Recebe' }) => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: index * 0.05 }}
-            className="bg-card p-5 rounded-xl border border-border shadow-sm hover:shadow-premium transition-premium"
+            className="group bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-premium hover:-translate-y-0.5 transition-premium"
           >
-            <div className="w-10 h-10 rounded-lg bg-[hsl(var(--primary))] flex items-center justify-center mb-3 text-[hsl(var(--accent))]">
+            <div className="w-11 h-11 rounded-lg bg-[hsl(var(--primary))] flex items-center justify-center mb-4 text-[hsl(var(--accent))] group-hover:scale-105 transition-transform duration-300">
               <feature.icon className="w-5 h-5" />
             </div>
-            <h3 className="font-semibold font-heading text-card-foreground mb-1 text-sm md:text-base">
+            <h3 className="font-semibold font-heading text-card-foreground mb-1.5 text-sm md:text-base">
               {feature.title}
             </h3>
             <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>

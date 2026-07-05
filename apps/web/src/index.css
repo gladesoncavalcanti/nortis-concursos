@@ -104,6 +104,23 @@
     box-shadow: 0 8px 24px -12px rgba(11, 35, 64, 0.25);
   }
 
+  /* Sombra mais profunda para peças de destaque (capa, hero) */
+  .shadow-premium-lg {
+    box-shadow: 0 32px 64px -24px rgba(11, 35, 64, 0.45);
+  }
+
+  /* Rótulo pequeno acima dos títulos de seção — dá ritmo editorial
+     consistente em toda a página */
+  .eyebrow {
+    display: inline-block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: hsl(var(--accent));
+  }
+
   .transition-premium {
     transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
   }

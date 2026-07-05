@@ -181,7 +181,7 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
           >
             <div className="shrink-0 flex items-center justify-between p-6 border-b border-border bg-[hsl(var(--primary))] text-white">
               <h2 className="text-xl font-bold font-heading flex items-center gap-2">
-                <ShoppingCartIcon className="w-5 h-5 text-[hsl(var(--secondary))]" />
+                <ShoppingCartIcon className="w-5 h-5 text-[hsl(var(--accent))]" />
                 Seu Carrinho
               </h2>
               <Button onClick={() => setIsCartOpen(false)} variant="ghost" size="icon" className="text-white hover:bg-white/10">
@@ -211,7 +211,7 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
                       <div className="flex-grow">
                         <h3 className="font-semibold text-card-foreground text-sm line-clamp-2 mb-1">{item.product.title}</h3>
                         <p className="text-xs text-muted-foreground mb-2">{item.variant.title}</p>
-                        <p className="text-sm text-[hsl(var(--secondary))] font-bold">
+                        <p className="text-sm text-[hsl(var(--primary))] font-bold">
                           {item.variant.sale_price_formatted || item.variant.price_formatted}
                         </p>
                       </div>
@@ -334,7 +334,7 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
               <div className="shrink-0 p-6 border-t border-border bg-card shadow-[0_-4px_12px_-4px_rgba(0,0,0,0.08)] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
                 <div className="flex justify-between items-center mb-4 text-card-foreground">
                   <span className="text-lg font-medium">Total</span>
-                  <span className="text-2xl font-bold text-[hsl(var(--secondary))]">{getCartTotal()}</span>
+                  <span className="text-2xl font-bold font-heading tracking-tight text-[hsl(var(--primary))]">{getCartTotal()}</span>
                 </div>
                 <Button
                   onClick={handleCheckout}

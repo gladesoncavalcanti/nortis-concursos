@@ -9,15 +9,22 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <div className="flex items-center space-x-3 mb-6">
+            <div className="flex items-center gap-3 mb-6">
               <img
                 src="/nortis-emblema-n.jpeg"
                 alt="Nortis Concursos Logo"
-                className="h-12 w-12 rounded-full object-cover"
+                className="h-12 w-12 rounded-full object-cover ring-1 ring-[hsl(var(--accent))]/40"
               />
+              <span className="flex flex-col leading-none font-heading">
+                <span className="text-base font-bold text-white tracking-[0.08em]">NORTIS</span>
+                <span className="text-[10px] font-medium text-[hsl(var(--accent))] tracking-[0.28em]">CONCURSOS</span>
+              </span>
             </div>
-            <p className="text-sm text-white/80 leading-relaxed font-body">
+            <p className="text-sm text-white/75 leading-relaxed font-body mb-5">
               O norte da sua aprovação em concursos públicos. Materiais premium, focados e constantemente atualizados para a sua jornada rumo à posse.
+            </p>
+            <p className="text-xs text-white/50 leading-relaxed">
+              Pagamentos processados com segurança pela Asaas · Pix e cartão de crédito.
             </p>
           </div>
 
