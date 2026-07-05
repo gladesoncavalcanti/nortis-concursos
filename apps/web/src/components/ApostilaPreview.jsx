@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ShoppingCart, Download, CheckCircle2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, Download, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
+import FreeSampleModal from '@/components/FreeSampleModal.jsx';
 
 /**
  * "Veja por dentro da apostila" (Fase 4) — mockup de leitor + card
@@ -206,46 +207,9 @@ const ApostilaPreview = () => {
         </div>
       </div>
 
-      {/* Modal "amostra grátis" — visual apenas, sem captura de lead
-          (preparado para a Fase 5, sem lógica de e-mail/Supabase ainda) */}
-      <AnimatePresence>
-        {isSampleModalOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setIsSampleModalOpen(false)}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Amostra grátis"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-sm rounded-2xl p-7 text-center"
-              style={{ background: '#0b2238', border: '1px solid rgba(211,165,47,0.3)' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                onClick={() => setIsSampleModalOpen(false)}
-                aria-label="Fechar"
-                className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-[#f4efe4]/60 hover:text-white hover:bg-white/10 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-              <Download className="w-9 h-9 mx-auto mb-4" style={{ color: '#f1c85b' }} />
-              <h3 className="text-lg font-bold text-[#f4efe4] mb-2">Amostra grátis em breve</h3>
-              <p className="text-sm text-[#f4efe4]/70 leading-relaxed">
-                Estamos preparando uma amostra gratuita da apostila Nexo Social – SEDES-DF 2026 para
-                download. Em breve você poderá baixar direto por aqui.
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Modal "amostra grátis" — captura real de lead (Fase 5),
+          isolado em componente próprio por ter estado/validação/envio. */}
+      <FreeSampleModal isOpen={isSampleModalOpen} onClose={() => setIsSampleModalOpen(false)} />
     </section>
   );
 };
