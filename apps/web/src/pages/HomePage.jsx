@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  BookOpen, Target, ShieldAlert, Sparkles, RefreshCw, Trophy, 
-  ArrowRight, Star, Quote, ShoppingCart, CheckCircle2, AlertCircle, 
+import {
+  BookOpen, Target, Sparkles, RefreshCw, Trophy,
+  ArrowRight, Star, Quote, ShoppingCart, CheckCircle2, AlertCircle,
   Brain, Gift, Headphones, FileText, CalendarDays, Lightbulb, Send, MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
@@ -73,64 +73,79 @@ const HomePage = () => {
         <meta name="description" content="Apostilas premium, materiais estratégicos, questões comentadas e atualizações constantes para acelerar sua aprovação nas principais bancas examinadoras." />
       </Helmet>
 
-      {/* Hero Section — produto em primeiro plano: texto à esquerda,
-          capa oficial à direita, fundo navy sólido com brilhos sutis.
-          Sem foto de fundo genérica competindo com o conteúdo. */}
-      <section className="relative overflow-hidden bg-[hsl(var(--primary))] section-seamless">
-        <div aria-hidden="true" className="absolute -top-48 -right-32 w-[520px] h-[520px] rounded-full bg-[hsl(var(--accent))]/[0.08] blur-3xl" />
-        <div aria-hidden="true" className="absolute -bottom-56 -left-40 w-[480px] h-[480px] rounded-full bg-white/[0.04] blur-3xl" />
+      {/* Hero Section — "Executive Minimal Dark" (Fase 2), fiel à
+          referência nortis-layout-20-fiel-a-imagem.html: navy quase-preto,
+          brilhos e linhas douradas discretas, título serifado grande à
+          esquerda, CTA único dourado e a capa oficial sobre um pedestal
+          iluminado à direita. Escopo: só esta seção (primeira dobra). */}
+      <section
+        className="relative overflow-hidden section-seamless"
+        style={{
+          background:
+            'radial-gradient(circle at 86% 78%, rgba(211,165,47,0.20) 0%, transparent 38%), radial-gradient(circle at 76% 46%, rgba(211,165,47,0.10) 0%, transparent 32%), linear-gradient(90deg, #071622 0%, #071522 45%, #06121f 100%)',
+        }}
+      >
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 opacity-70 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(140deg, transparent 0 45%, rgba(211,165,47,0.09) 45.2%, transparent 45.7% 49%, rgba(211,165,47,0.1) 49.2%, transparent 49.7% 55%, rgba(211,165,47,0.07) 55.2%, transparent 55.7%)',
+          }}
+        />
+        {/* bússola — ornamento discreto, remete ao "norte" da marca */}
+        <div
+          aria-hidden="true"
+          className="hidden lg:block absolute left-[54%] top-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full opacity-[0.14]"
+          style={{ border: '1px solid rgba(211,165,47,0.8)' }}
+        >
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-32 bg-[#d3a52f]" />
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-px bg-[#d3a52f]" />
+        </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-16 md:pt-20 md:pb-20 lg:pt-24 lg:pb-24">
-          <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-16 items-center">
+          <div className="grid lg:grid-cols-[1fr_0.9fr] gap-12 lg:gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              className="max-w-xl"
             >
-              <p className="eyebrow mb-4">Nortis Concursos · Banca Quadrix</p>
-              <h1 className="text-4xl sm:text-5xl lg:text-[3.4rem] font-bold font-heading text-white leading-[1.1] mb-5">
-                Nexo Social
-                <span className="block text-[hsl(var(--accent))]">SEDES DF 2026</span>
+              <h1
+                className="uppercase text-4xl sm:text-5xl lg:text-6xl font-medium leading-[0.98] tracking-tight text-[#f4efe4] mb-5"
+                style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+              >
+                O conteúdo que
+                <br />
+                te leva ao topo.
               </h1>
-              <p className="text-base md:text-lg text-white/80 font-body leading-relaxed mb-7 max-w-xl">
-                A apostila especializada em legislação social e políticas públicas,
-                construída questão por questão no padrão real da banca Quadrix.
+              <p className="text-base md:text-lg text-[#f4efe4]/85 mb-2">Nexo Social SEDES-DF 2026</p>
+              <p className="text-xs md:text-sm uppercase tracking-wide text-[#f4efe4]/55 mb-8">
+                Banca Quadrix · 741 páginas
               </p>
 
-              <div className="flex flex-wrap gap-2 mb-8">
-                {['741 páginas', 'Questões comentadas', 'PDF · acesso imediato'].map((chip) => (
-                  <span
-                    key={chip}
-                    className="text-xs font-semibold uppercase tracking-wide bg-white/[0.07] text-white/90 px-3.5 py-1.5 rounded-full border border-white/15"
-                  >
-                    {chip}
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-9">
+                {['Método exclusivo', 'Foco no que cai', 'PDF imediato'].map((feature) => (
+                  <span key={feature} className="inline-flex items-center gap-2 text-xs text-[#f4efe4]/70 whitespace-nowrap">
+                    <span
+                      className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] text-[#f1c85b] shrink-0"
+                      style={{ border: '1px solid rgba(211,165,47,0.65)' }}
+                    >
+                      ✓
+                    </span>
+                    {feature}
                   </span>
                 ))}
               </div>
 
-              <div className="flex items-baseline gap-3 mb-2">
-                <span className="text-5xl font-bold font-heading text-white tracking-tight">R$ 39,90</span>
-                <span className="text-lg text-white/50 line-through">R$ 49,90</span>
-              </div>
-              <p className="text-sm text-white/60 mb-8">Pagamento único · sem mensalidade</p>
-
-              <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <Link to="/apostilas">
-                  <Button className="w-full sm:w-auto bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold px-10 py-6 text-base transition-premium shadow-premium-lg">
-                    Comprar agora
-                  </Button>
-                </Link>
-                <Link to="/apostilas">
-                  <Button variant="outline" className="w-full sm:w-auto border border-white/25 text-white bg-transparent hover:bg-white/10 hover:text-white font-semibold px-8 py-6 text-base transition-premium">
-                    Ver todas as apostilas
-                  </Button>
-                </Link>
-              </div>
-
-              <p className="text-xs text-white/50 flex items-center gap-1.5">
-                <ShieldAlert className="w-3.5 h-3.5 text-[hsl(var(--accent))]" aria-hidden="true" />
-                Pagamento seguro via Asaas · Pix ou cartão · Acesso imediato após a confirmação
-              </p>
+              <Link to="/apostilas">
+                <Button
+                  className="h-11 px-9 text-xs font-extrabold uppercase tracking-wide rounded-sm text-[#f1c85b] hover:text-[#f1c85b] transition-premium"
+                  style={{ border: '1px solid #d3a52f', background: 'rgba(211,165,47,0.06)' }}
+                >
+                  Quero ser aprovado
+                </Button>
+              </Link>
             </motion.div>
 
             <motion.div
@@ -139,13 +154,22 @@ const HomePage = () => {
               transition={{ duration: 0.7, delay: 0.15 }}
               className="relative flex justify-center lg:justify-end"
             >
-              <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
-                <div className="w-72 h-72 md:w-96 md:h-96 rounded-full bg-[hsl(var(--accent))]/[0.12] blur-3xl" />
-              </div>
+              <div
+                aria-hidden="true"
+                className="absolute bottom-2 w-64 h-8 rounded-full blur-md"
+                style={{
+                  background:
+                    'radial-gradient(ellipse, rgba(241,200,91,0.55), rgba(211,165,47,0.15) 40%, transparent 72%)',
+                }}
+              />
               <img
                 src="/nexo-social-capa-741.jpeg"
                 alt="Capa da apostila Nexo Social – SEDES DF 2026, banca Quadrix, 741 páginas"
-                className="relative w-64 sm:w-72 md:w-80 lg:w-[22rem] h-auto rounded-xl shadow-premium-lg ring-1 ring-white/15"
+                className="relative w-56 sm:w-64 md:w-72 lg:w-80 h-auto rounded-md shadow-premium-lg"
+                style={{
+                  border: '1px solid rgba(211,165,47,0.3)',
+                  transform: 'perspective(700px) rotateY(-8deg)',
+                }}
               />
             </motion.div>
           </div>
