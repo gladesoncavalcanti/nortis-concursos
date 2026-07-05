@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner.jsx';
 import { AuthProvider } from '@/contexts/AuthContext.jsx';
 import { CartProvider } from '@/hooks/useCart.jsx';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
+import TrustBar from '@/components/TrustBar.jsx';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
 import FloatingWhatsAppButton from '@/components/FloatingWhatsAppButton.jsx';
@@ -62,6 +63,7 @@ function App() {
           </Helmet>
 
           <div className="flex flex-col min-h-screen bg-background">
+            <TrustBar />
             <Header setIsCartOpen={setIsCartOpen} />
             <main className="flex-grow">
               <Routes>
