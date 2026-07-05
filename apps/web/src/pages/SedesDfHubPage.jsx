@@ -32,6 +32,7 @@ import StudyPlanner from '@/components/StudyPlanner.jsx';
 import StudentDashboardPreview from '@/components/StudentDashboardPreview.jsx';
 import AuthorityBlogSection from '@/components/AuthorityBlogSection.jsx';
 import TrustGuaranteeSection from '@/components/TrustGuaranteeSection.jsx';
+import SocialProofSection from '@/components/SocialProofSection.jsx';
 import { SEDES_DF_2026_EXAM_DATE } from '@/config/contestDates.js';
 
 /**
@@ -324,6 +325,11 @@ const SedesDfHubPage = () => {
           de 7 dias alinhada à Política de Reembolso real já publicada
           em /termos-uso. Sem depoimentos, avaliações ou selos falsos. */}
       <TrustGuaranteeSection />
+
+      {/* Depoimentos reais, quando disponíveis (Fase 14) — estrutura
+          preparatória para depoimentos reais; nenhum depoimento real foi
+          encontrado no projeto, então usa apenas placeholders neutros. */}
+      <SocialProofSection />
 
       {/* 7. Materiais gratuitos — reaproveita o modal da Fase 5 */}
       <section className="py-16 lg:py-20 bg-background section-seamless">
