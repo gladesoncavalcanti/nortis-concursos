@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart as ShoppingCartIcon, X, Tag, Loader2, ShieldCheck } from 'lucide-react';
+import { ShoppingCart as ShoppingCartIcon, X, Loader2, ShieldCheck } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -71,35 +71,12 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
   const { toast } = useToast();
   const { isAuthenticated, user } = useAuth();
   const { cartItems, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
-  const [coupon, setCoupon] = useState('');
-  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [buyer, setBuyer] = useState(EMPTY_BUYER);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const updateBuyerField = (field) => (e) => {
     setBuyer((prev) => ({ ...prev, [field]: e.target.value }));
-  };
-
-  const handleApplyCoupon = () => {
-    if (!coupon) return;
-    setIsApplyingCoupon(true);
-    setTimeout(() => {
-      if (coupon.toUpperCase() === 'BEMVINDO10' || coupon.toUpperCase() === 'COMBO20') {
-        toast({
-          title: 'Cupom Aplicado!',
-          description: 'O desconto será refletido no checkout.',
-        });
-      } else {
-        toast({
-          title: 'Cupom Inválido',
-          description: 'Este cupom não existe ou expirou.',
-          variant: 'destructive'
-        });
-      }
-      setIsApplyingCoupon(false);
-      setCoupon('');
-    }, 600);
   };
 
   const handleCheckout = useCallback(async () => {
@@ -207,7 +184,7 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
               </p>
             </div>
 
-            {/* Região rolável: itens + cupom + dados de pagamento. O rodapé
+            {/* Região rolável: itens + dados de pagamento. O rodapé
                 (Total + Finalizar Compra) fica fora daqui, sempre visível. */}
             <div className="flex-1 min-h-0 overflow-y-auto bg-muted/30">
               <div className="p-6 space-y-4">
@@ -254,27 +231,6 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
 
               {cartItems.length > 0 && (
                 <div className="px-6 pb-6 bg-card border-t border-border pt-6">
-                  <div className="mb-6">
-                    <label className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
-                      <Tag className="w-4 h-4" /> Cupom de Desconto
-                    </label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={coupon}
-                        onChange={(e) => setCoupon(e.target.value)}
-                        placeholder="Ex: BEMVINDO10"
-                        className="uppercase"
-                      />
-                      <Button
-                        onClick={handleApplyCoupon}
-                        disabled={!coupon || isApplyingCoupon}
-                        variant="outline"
-                      >
-                        Aplicar
-                      </Button>
-                    </div>
-                  </div>
-
                   <div>
                     <label className="text-sm font-medium text-muted-foreground mb-2 block">
                       Dados para pagamento (exigidos pela Asaas)

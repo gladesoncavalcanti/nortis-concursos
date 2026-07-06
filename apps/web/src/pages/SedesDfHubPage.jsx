@@ -319,7 +319,7 @@ const SedesDfHubPage = () => {
                 </ul>
                 <div className="mb-6">
                   <span className="text-3xl font-bold font-heading tracking-tight text-[hsl(var(--primary))]">
-                    R$ 39,90
+                    R$ 69,90
                   </span>
                   <p className="text-xs text-muted-foreground mt-1">Pagamento único</p>
                 </div>

@@ -36,7 +36,7 @@ const MobileStickyCTA = ({ isCartOpen }) => {
             className="text-lg font-bold leading-tight"
             style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: '#f4efe4' }}
           >
-            R$ 39,90
+            R$ 69,90
           </p>
           <p className="text-[10px] text-[#f4efe4]/50 truncate">Pagamento único · PDF digital</p>
         </div>

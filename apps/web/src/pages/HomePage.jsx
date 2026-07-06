@@ -277,9 +277,9 @@ const HomePage = () => {
                   ))}
                 </ul>
 
-                <div className="flex items-baseline gap-3 mb-5">
-                  <span className="text-4xl font-bold font-heading text-[hsl(var(--primary))] tracking-tight">R$ 39,90</span>
-                  <span className="text-base line-through text-muted-foreground">R$ 49,90</span>
+                <div className="mb-5">
+                  <span className="text-4xl font-bold font-heading text-[hsl(var(--primary))] tracking-tight">R$ 69,90</span>
+                  <p className="text-xs text-muted-foreground mt-1">Pagamento único</p>
                 </div>
 
                 <Link to="/apostilas">

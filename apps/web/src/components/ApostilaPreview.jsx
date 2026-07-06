@@ -180,7 +180,7 @@ const ApostilaPreview = () => {
             </ul>
 
             <div className="mb-6">
-              <span className="text-3xl font-bold text-[#f4efe4] tracking-tight">R$ 39,90</span>
+              <span className="text-3xl font-bold text-[#f4efe4] tracking-tight">R$ 69,90</span>
               <p className="text-xs text-[#f4efe4]/45 mt-1">Pagamento único</p>
             </div>
 

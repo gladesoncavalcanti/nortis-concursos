@@ -157,7 +157,7 @@ const AuthorityBlogSection = () => (
               </span>
             ))}
           </div>
-          <span className="text-2xl font-bold text-[#f4efe4] tracking-tight">R$ 39,90</span>
+          <span className="text-2xl font-bold text-[#f4efe4] tracking-tight">R$ 69,90</span>
         </div>
         <div className="flex flex-col sm:flex-row md:flex-col gap-3">
           <Link to="/apostilas">

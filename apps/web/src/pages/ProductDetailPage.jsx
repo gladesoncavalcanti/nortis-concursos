@@ -218,7 +218,7 @@ const ProductDetailPage = () => {
                   <div className="space-y-3 pt-6 border-t border-border">
                     <div className="flex items-center text-sm text-muted-foreground">
                       <ShieldCheck className="w-5 h-5 text-[hsl(var(--accent))] mr-3 flex-shrink-0" />
-                      Compra 100% segura e garantida
+                      Pagamento seguro via Asaas
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <CheckCircle2 className="w-5 h-5 text-[hsl(var(--accent))] mr-3 flex-shrink-0" />

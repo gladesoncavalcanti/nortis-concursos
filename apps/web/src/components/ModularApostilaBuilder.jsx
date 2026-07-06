@@ -193,7 +193,7 @@ const ModularApostilaBuilder = () => {
                 className="text-2xl font-bold"
                 style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: '#f4efe4' }}
               >
-                R$ 39,90
+                R$ 69,90
               </span>
             </div>
             <p className="text-[11px] text-[#f4efe4]/40 mb-5">Pagamento único · PDF digital completo</p>
