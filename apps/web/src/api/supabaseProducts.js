@@ -1,6 +1,17 @@
 import { supabase } from '@/lib/supabase';
 
 /**
+ * Colunas públicas de `public.products` — usadas em toda leitura vinda do
+ * cliente (anon/authenticated). `pdf_path` é deliberadamente excluído: RLS
+ * só filtra linhas (`active = true`), não colunas, então um `select('*')`
+ * devolveria o caminho do PDF no Storage a qualquer visitante do catálogo.
+ * Espelha os privilégios de GRANT SELECT da migration
+ * `20260707000000_restrict_products_pdf_path_select.sql`.
+ */
+const PUBLIC_PRODUCT_COLUMNS =
+  'id, title, slug, description, cover_image_url, price_cents, active, created_at, updated_at, subtitle, ribbon_text, sale_price_cents, currency, manage_inventory, inventory_quantity';
+
+/**
  * Leitura read-only de produtos ativos na tabela `products` do Supabase.
  *
  * Usada pela vitrine real (ProductsList.jsx, via /apostilas) e pelas
@@ -13,7 +24,7 @@ import { supabase } from '@/lib/supabase';
 export async function getSupabaseProducts() {
   const { data, error } = await supabase
     .from('products')
-    .select('*')
+    .select(PUBLIC_PRODUCT_COLUMNS)
     .eq('active', true)
     .order('created_at', { ascending: false });
 
@@ -47,7 +58,7 @@ export async function getSupabaseProductByIdOrSlug(idOrSlug) {
 
   const { data, error } = await supabase
     .from('products')
-    .select('*')
+    .select(PUBLIC_PRODUCT_COLUMNS)
     .eq(column, idOrSlug)
     .eq('active', true)
     .maybeSingle();
