@@ -14,8 +14,9 @@
 -- concede SELECT apenas nas colunas públicas do catálogo.
 --
 -- Escopo: apenas GRANT/REVOKE de privilégios. Nenhuma policy de RLS é
--- alterada, nenhum dado é alterado, `service_role` não é afetado (ela
--- ignora privilégios de coluna e RLS por padrão no Supabase).
+-- alterada, nenhum dado é alterado. `service_role` não é incluído neste
+-- REVOKE. O papel mantém seus privilégios próprios; seu atributo
+-- BYPASSRLS é separado dos privilégios de tabela e coluna.
 -- =========================================================
 
 revoke select on table public.products
