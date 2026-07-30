@@ -97,10 +97,15 @@ Deno.serve(async (req) => {
     .select('id')
     .single();
 
-  // 2. Localiza o pedido: primeiro por externalReference (= order.id,
-  //    definido em create-asaas-checkout), depois por asaas_payment_id
-  //    como fallback.
+  // 2. Localiza o pedido, em ordem:
+  //    a) payment.externalReference (= orders.id, definido em
+  //       create-asaas-checkout);
+  //    b) payment.checkoutSession contra orders.asaas_payment_id (o
+  //       checkout hospedado da Asaas só informa o checkoutSession em
+  //       alguns eventos, antes de existir um payment.id definitivo);
+  //    c) payment.id contra orders.asaas_payment_id, como fallback final.
   const orderIdFromReference: string | null = payment.externalReference ?? null;
+  const checkoutSession: string | null = payment.checkoutSession ?? null;
 
   let order: any = null;
   if (orderIdFromReference) {
@@ -108,6 +113,14 @@ Deno.serve(async (req) => {
       .from('orders')
       .select('*')
       .eq('id', orderIdFromReference)
+      .maybeSingle();
+    order = data;
+  }
+  if (!order && checkoutSession) {
+    const { data } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('asaas_payment_id', checkoutSession)
       .maybeSingle();
     order = data;
   }
