@@ -36,3 +36,15 @@ enable_confirmations = true
 [storage]
 enabled = true
 file_size_limit = "50MiB"
+
+# asaas-webhook: chamada diretamente pelo Asaas, sem JWT do Supabase —
+# autentica pelo próprio header `asaas-access-token`.
+# create-asaas-checkout: aceita checkout de comprador convidado, sem
+# sessão Supabase.
+# `verify_jwt = false` só desliga a exigência de JWT do gateway; não
+# remove nenhuma validação interna dessas funções.
+[functions.asaas-webhook]
+verify_jwt = false
+
+[functions.create-asaas-checkout]
+verify_jwt = false
