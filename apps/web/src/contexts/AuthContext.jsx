@@ -119,18 +119,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    try {
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
 
-    // 'session_not_found' significa que já não havia sessão local — o
-    // objetivo do logout já está satisfeito, então tratamos como sucesso.
-    if (error && error.code !== 'session_not_found') {
+      // 'session_not_found' significa que já não havia sessão local — o
+      // objetivo do logout já está satisfeito, então tratamos como sucesso.
+      if (error && error.code !== 'session_not_found') {
+        return { success: false, error: 'Não foi possível sair agora. Tente novamente.' };
+      }
+
+      setUser(null);
+      setIsAuthenticated(false);
+
+      return { success: true };
+    } catch (error) {
       return { success: false, error: 'Não foi possível sair agora. Tente novamente.' };
     }
-
-    setUser(null);
-    setIsAuthenticated(false);
-
-    return { success: true };
   };
 
   const value = {
