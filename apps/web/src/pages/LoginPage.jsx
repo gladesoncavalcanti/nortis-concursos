@@ -6,7 +6,7 @@ import { LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { Input } from '@/components/ui/input.jsx';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext.jsx';
+import { useAuth, PENDING_CONFIRMATION_MESSAGE } from '@/contexts/AuthContext.jsx';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -83,9 +83,7 @@ const LoginPage = () => {
 
           {(cadastroSucesso || emailConfirmado) && (
             <div className="mb-6 rounded-lg border border-[hsl(var(--accent))]/40 bg-[hsl(var(--accent))]/10 px-4 py-3 text-sm text-card-foreground">
-              {emailConfirmado
-                ? 'E-mail confirmado! Você já pode entrar.'
-                : 'Conta criada. Enviamos um link de confirmação para seu e-mail.'}
+              {emailConfirmado ? 'E-mail confirmado! Você já pode entrar.' : PENDING_CONFIRMATION_MESSAGE}
             </div>
           )}
 

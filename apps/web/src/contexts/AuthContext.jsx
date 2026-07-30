@@ -4,6 +4,14 @@ import { supabase } from '@/lib/supabase';
 const AuthContext = createContext(null);
 
 /**
+ * Mensagem neutra exibida tanto no cadastro quanto no retorno via
+ * /login?cadastro=sucesso — nunca confirma nem nega se o e-mail já
+ * possuía conta (evita enumeração de contas).
+ */
+export const PENDING_CONFIRMATION_MESSAGE =
+  'Verifique seu e-mail para continuar. Se o cadastro puder ser concluído, você receberá um link de confirmação.';
+
+/**
  * Converte o `user` bruto do Supabase Auth para o shape já esperado
  * pelos componentes existentes (MyAccountPage, etc.).
  */
@@ -52,11 +60,13 @@ export const AuthProvider = ({ children }) => {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
-        const message = error.message?.toLowerCase() ?? '';
-        if (message.includes('email not confirmed')) {
+        if (error.code === 'email_not_confirmed') {
           return { success: false, error: 'Confirme seu e-mail antes de entrar.' };
         }
-        return { success: false, error: 'E-mail ou senha inválidos.' };
+        if (error.code === 'invalid_credentials') {
+          return { success: false, error: 'E-mail ou senha inválidos.' };
+        }
+        return { success: false, error: 'Não foi possível entrar agora. Tente novamente.' };
       }
 
       const normalized = normalizeUser(data.user);
@@ -65,7 +75,7 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true, user: normalized };
     } catch (error) {
-      return { success: false, error: 'Erro ao fazer login.' };
+      return { success: false, error: 'Não foi possível entrar agora. Tente novamente.' };
     }
   };
 
@@ -81,20 +91,19 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (error) {
-        const message = error.message?.toLowerCase() ?? '';
-        if (message.includes('already') || message.includes('registered') || message.includes('exists')) {
-          return { success: false, error: 'E-mail já cadastrado.' };
+        // Nunca diferenciar "conta já existe" de outros erros — evita
+        // enumeração de contas. Mensagem amigável só para códigos
+        // documentados que não revelam nada sobre a existência da conta.
+        if (error.code === 'weak_password') {
+          return { success: false, error: 'Senha muito fraca. Use uma senha mais forte.' };
         }
-        return { success: false, error: 'Erro ao criar conta.' };
+        return { success: false, error: 'Não foi possível concluir o cadastro agora. Tente novamente.' };
       }
 
-      // Supabase não retorna erro explícito para e-mail já cadastrado e
-      // confirmado (evita enumeração de contas) — nesse caso, `identities`
-      // vem como array vazio.
-      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
-        return { success: false, error: 'E-mail já cadastrado.' };
-      }
-
+      // signUp sem erro e sem sessão imediata é sempre tratado como
+      // confirmação pendente — nunca se afirma nem se nega se o e-mail
+      // já tinha conta (o Supabase não retorna erro explícito nesse
+      // caso, exatamente para evitar enumeração de contas).
       if (!data.session) {
         return { success: true, requiresEmailConfirmation: true };
       }
@@ -105,14 +114,23 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true, user: normalized };
     } catch (error) {
-      return { success: false, error: 'Erro ao criar conta.' };
+      return { success: false, error: 'Não foi possível concluir o cadastro agora. Tente novamente.' };
     }
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+
+    // 'session_not_found' significa que já não havia sessão local — o
+    // objetivo do logout já está satisfeito, então tratamos como sucesso.
+    if (error && error.code !== 'session_not_found') {
+      return { success: false, error: 'Não foi possível sair agora. Tente novamente.' };
+    }
+
     setUser(null);
     setIsAuthenticated(false);
+
+    return { success: true };
   };
 
   const value = {
