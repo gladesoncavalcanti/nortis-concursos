@@ -52,8 +52,13 @@ const SignupPage = () => {
     const result = await register(formData.name, formData.email, formData.password);
 
     if (result.success) {
-      toast.success('Conta criada com sucesso');
-      navigate('/minha-conta');
+      if (result.requiresEmailConfirmation) {
+        toast.success('Conta criada. Enviamos um link de confirmação para seu e-mail.');
+        navigate('/login?cadastro=sucesso');
+      } else {
+        toast.success('Conta criada com sucesso');
+        navigate('/minha-conta');
+      }
     } else {
       toast.error(result.error || 'Erro ao criar conta');
     }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
@@ -13,6 +13,10 @@ const LoginPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const cadastroSucesso = searchParams.get('cadastro') === 'sucesso';
+  const emailConfirmado = searchParams.get('confirmed') === '1';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +39,7 @@ const LoginPage = () => {
       toast.success('Login realizado com sucesso');
       navigate('/minha-conta');
     } else {
-      toast.error(result.error || 'Erro ao fazer login');
+      toast.error(result.error || 'E-mail ou senha inválidos.');
     }
 
     setIsSubmitting(false);
@@ -76,6 +80,14 @@ const LoginPage = () => {
               Entre na sua conta para acessar seus materiais
             </p>
           </div>
+
+          {(cadastroSucesso || emailConfirmado) && (
+            <div className="mb-6 rounded-lg border border-[hsl(var(--accent))]/40 bg-[hsl(var(--accent))]/10 px-4 py-3 text-sm text-card-foreground">
+              {emailConfirmado
+                ? 'E-mail confirmado! Você já pode entrar.'
+                : 'Conta criada. Enviamos um link de confirmação para seu e-mail.'}
+            </div>
+          )}
 
           <div className="bg-card rounded-2xl p-8 shadow-lg">
             <form onSubmit={handleSubmit} className="space-y-6">
