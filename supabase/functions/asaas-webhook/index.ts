@@ -1,27 +1,29 @@
 // asaas-webhook
 //
 // Recebe eventos de pagamento da Asaas, loga o payload bruto em
-// asaas_webhook_events, valida o token do webhook (se configurado),
+// asaas_webhook_events, valida o token do webhook (obrigatório),
 // atualiza o pedido correspondente e libera o acesso (enrollment)
-// quando o pagamento é confirmado.
+// quando o pagamento é confirmado. Em caso de estorno, revoga o
+// enrollment concedido pelo pedido correspondente.
 //
 // Cadastrar no painel da Asaas (Configurações → Webhooks):
 //   URL: https://<SEU_PROJETO_REF>.supabase.co/functions/v1/asaas-webhook
 //   Eventos: PAYMENT_CREATED, PAYMENT_CONFIRMED, PAYMENT_RECEIVED,
 //            PAYMENT_OVERDUE, PAYMENT_REFUNDED, PAYMENT_DELETED
-//   Token de autenticação (recomendado): defina um token no painel da
+//   Token de autenticação (obrigatório): defina um token no painel da
 //   Asaas e configure o mesmo valor no secret ASAAS_WEBHOOK_TOKEN.
+//   Sem esse secret configurado, a função recusa qualquer requisição.
 //
 // Secrets necessários:
 //   SUPABASE_URL              (já disponível automaticamente)
 //   SUPABASE_SERVICE_ROLE_KEY (já disponível automaticamente)
-//   ASAAS_WEBHOOK_TOKEN       (opcional, mas recomendado)
+//   ASAAS_WEBHOOK_TOKEN       (obrigatório)
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-const ASAAS_WEBHOOK_TOKEN = Deno.env.get('ASAAS_WEBHOOK_TOKEN'); // opcional
+const ASAAS_WEBHOOK_TOKEN = Deno.env.get('ASAAS_WEBHOOK_TOKEN') ?? '';
 
 const APPROVED_EVENTS = ['PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED'];
 const FAILED_EVENTS = ['PAYMENT_OVERDUE', 'PAYMENT_REFUNDED', 'PAYMENT_DELETED'];
@@ -66,11 +68,14 @@ Deno.serve(async (req) => {
     return new Response('Method not allowed', { status: 405 });
   }
 
-  if (ASAAS_WEBHOOK_TOKEN) {
-    const receivedToken = req.headers.get('asaas-access-token');
-    if (receivedToken !== ASAAS_WEBHOOK_TOKEN) {
-      return new Response('Unauthorized', { status: 401 });
-    }
+  if (!ASAAS_WEBHOOK_TOKEN) {
+    console.error('ASAAS_WEBHOOK_TOKEN não configurado — recusando webhook.');
+    return new Response('Webhook não configurado', { status: 500 });
+  }
+
+  const receivedToken = req.headers.get('asaas-access-token');
+  if (!receivedToken || receivedToken !== ASAAS_WEBHOOK_TOKEN) {
+    return new Response('Unauthorized', { status: 401 });
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
@@ -152,6 +157,21 @@ Deno.serve(async (req) => {
   } else if (FAILED_EVENTS.includes(eventType)) {
     const newStatus = eventType === 'PAYMENT_REFUNDED' ? 'refunded' : 'expired';
     await supabase.from('orders').update({ status: newStatus }).eq('id', order.id);
+
+    if (eventType === 'PAYMENT_REFUNDED') {
+      // Revoga só o enrollment concedido por ESTE pedido (escopo por
+      // order_id) — não mexe em granted_at nem em enrollments de outros
+      // pedidos do mesmo usuário/produto.
+      const { error: revokeError } = await supabase
+        .from('enrollments')
+        .update({ status: 'revoked' })
+        .eq('order_id', order.id);
+
+      if (revokeError) {
+        console.error('Falha ao revogar enrollments do pedido', order.id, revokeError.message);
+        return new Response('erro ao revogar acesso', { status: 500 });
+      }
+    }
   }
   // PAYMENT_CREATED: sem ação sobre o pedido, só fica registrado no log.
 
