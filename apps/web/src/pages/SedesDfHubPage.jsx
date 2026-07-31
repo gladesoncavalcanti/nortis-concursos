@@ -140,25 +140,31 @@ const SedesDfHubPage = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/apostilas">
+              <Link to="/#preview-apostila">
                 <Button
                   className="w-full sm:w-auto h-12 px-9 font-bold text-sm uppercase tracking-wide rounded-sm text-[#f1c85b] hover:text-[#f1c85b] transition-premium"
                   style={{ border: '1px solid #d3a52f', background: 'rgba(211,165,47,0.08)' }}
-                >
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Quero a apostila
-                </Button>
-              </Link>
-              <Link to="/#preview-apostila">
-                <Button
-                  variant="outline"
-                  className="w-full sm:w-auto h-12 px-9 font-semibold text-sm border-white/25 text-[#f4efe4] bg-transparent hover:bg-white/10 hover:text-[#f4efe4] transition-premium"
                 >
                   <Eye className="w-4 h-4 mr-2" />
                   Ver amostra gratuita
                 </Button>
               </Link>
+              <Link to="/apostilas">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto h-12 px-9 font-semibold text-sm border-white/25 text-[#f4efe4] bg-transparent hover:bg-white/10 hover:text-[#f4efe4] transition-premium"
+                >
+                  <ShoppingCart className="w-4 h-4 mr-2" />
+                  Quero a apostila
+                </Button>
+              </Link>
             </div>
+            <Link
+              to="/materiais-gratuitos"
+              className="inline-block mt-5 text-xs text-[#f4efe4]/55 hover:text-[#f1c85b] underline underline-offset-4 transition-colors"
+            >
+              Acompanhar conteúdos gratuitos
+            </Link>
           </motion.div>
         </div>
       </section>

@@ -14,10 +14,13 @@ import { toast } from 'sonner';
 import ProductFeaturesSection from '@/components/ProductFeaturesSection.jsx';
 import ApostilaPreview from '@/components/ApostilaPreview.jsx';
 import MethodComparison from '@/components/MethodComparison.jsx';
+import FreeSampleModal from '@/components/FreeSampleModal.jsx';
+import SocialContentPillars from '@/components/SocialContentPillars.jsx';
 import { NORTIS_WHATSAPP_DISPLAY, NORTIS_WHATSAPP_URL } from '@/config/contact.js';
 
 const HomePage = () => {
   const location = useLocation();
+  const [isHeroSampleModalOpen, setIsHeroSampleModalOpen] = useState(false);
 
   // Suporte a âncora (ex: vindo de /sedes-df-2026 para /#preview-apostila).
   // O ScrollToTop global (App.jsx) sempre reseta o scroll pro topo a cada
@@ -141,11 +144,13 @@ const HomePage = () => {
                 className="uppercase text-4xl sm:text-5xl lg:text-6xl font-medium leading-[0.98] tracking-tight text-[#f4efe4] mb-5"
                 style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
               >
-                O conteúdo que
+                Preparação estratégica
                 <br />
-                te leva ao topo.
+                para o SEDES-DF 2026.
               </h1>
-              <p className="text-base md:text-lg text-[#f4efe4]/85 mb-2">Nexo Social SEDES-DF 2026</p>
+              <p className="text-base md:text-lg text-[#f4efe4]/85 mb-2">
+                Nortis Concursos · Método Nortis · Apostila Nexo Social
+              </p>
               <p className="text-xs md:text-sm uppercase tracking-wide text-[#f4efe4]/55 mb-8">
                 Banca Quadrix · 741 páginas
               </p>
@@ -164,13 +169,28 @@ const HomePage = () => {
                 ))}
               </div>
 
-              <Link to="/apostilas">
+              <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
                 <Button
+                  type="button"
+                  onClick={() => setIsHeroSampleModalOpen(true)}
                   className="h-11 px-9 text-xs font-extrabold uppercase tracking-wide rounded-sm text-[#f1c85b] hover:text-[#f1c85b] transition-premium"
                   style={{ border: '1px solid #d3a52f', background: 'rgba(211,165,47,0.06)' }}
                 >
-                  Quero ser aprovado
+                  Baixar amostra grátis
                 </Button>
+                <a
+                  href="#preview-apostila"
+                  className="inline-flex h-11 items-center px-9 text-xs font-bold uppercase tracking-wide rounded-sm text-[#f4efe4] border border-white/25 hover:bg-white/10 transition-premium"
+                >
+                  Ver a apostila por dentro
+                </a>
+              </div>
+
+              <Link
+                to="/materiais-gratuitos"
+                className="inline-block mt-5 text-xs text-[#f4efe4]/55 hover:text-[#f1c85b] underline underline-offset-4 transition-colors"
+              >
+                Acompanhar conteúdos gratuitos
               </Link>
             </motion.div>
 
@@ -228,6 +248,11 @@ const HomePage = () => {
       {/* Por que o Método Nortis faz diferença? (Fase 6) — comparativo
           Apostila comum x Método Nortis. */}
       <MethodComparison />
+
+      {/* Conteúdo gratuito para acelerar sua preparação (Sprint Social 1)
+          — pilares editoriais pensados para redes sociais, cada card
+          aponta só para páginas/canais reais já existentes no site. */}
+      <SocialContentPillars />
 
       {/* Featured Apostila — card editorial: capa em painel navy à
           esquerda, conteúdo comercial hierarquizado à direita. */}
@@ -549,6 +574,8 @@ const HomePage = () => {
           <p className="text-sm md:text-base text-white/70">Novas apostilas estão em desenvolvimento.</p>
         </div>
       </section>
+
+      <FreeSampleModal isOpen={isHeroSampleModalOpen} onClose={() => setIsHeroSampleModalOpen(false)} />
     </>
   );
 };
