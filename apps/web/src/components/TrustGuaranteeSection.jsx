@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Zap, RotateCcw, Lock, Headphones, Smartphone, ShoppingCart } from 'lucide-react';
+import { ShieldCheck, Zap, RotateCcw, Lock, Headphones, Smartphone, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 
 /**
@@ -101,10 +101,10 @@ const TrustGuaranteeSection = () => (
       </p>
 
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <Link to="/apostilas">
+        <Link to="/#preview-apostila">
           <Button className="w-full sm:w-auto h-11 px-8 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium">
-            <ShoppingCart className="w-4 h-4 mr-2" />
-            Comprar com segurança
+            <Eye className="w-4 h-4 mr-2" />
+            Ver a apostila por dentro
           </Button>
         </Link>
         <Link to="/politica-privacidade">

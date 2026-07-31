@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, Instagram, Linkedin, Facebook, Youtube } from 'lucide-react';
+import { Mail, Phone, Instagram, Youtube, Music2 } from 'lucide-react';
 import { NORTIS_WHATSAPP_DISPLAY, NORTIS_WHATSAPP_URL } from '@/config/contact.js';
 
 const Footer = () => {
@@ -67,13 +67,10 @@ const Footer = () => {
               <a href="https://instagram.com/nortisconcursos" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--primary))] transition-all duration-300" aria-label="Instagram">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="https://facebook.com/nortisconcursos" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--primary))] transition-all duration-300" aria-label="Facebook">
-                <Facebook className="w-5 h-5" />
+              <a href="https://www.tiktok.com/@nortisconcursos" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--primary))] transition-all duration-300" aria-label="TikTok">
+                <Music2 className="w-5 h-5" />
               </a>
-              <a href="https://linkedin.com/company/nortisconcursos" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--primary))] transition-all duration-300" aria-label="LinkedIn">
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a href="https://youtube.com/@nortisconcursos" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--primary))] transition-all duration-300" aria-label="YouTube">
+              <a href="https://youtube.com/@NortisConcursos" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--primary))] transition-all duration-300" aria-label="YouTube">
                 <Youtube className="w-5 h-5" />
               </a>
             </div>

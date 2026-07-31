@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   BookOpen, Target, Sparkles, RefreshCw, Trophy,
-  ArrowRight, Star, Quote, ShoppingCart, CheckCircle2, AlertCircle,
+  ArrowRight, Star, Quote, Download, CheckCircle2, AlertCircle,
   Brain, Gift, Headphones, FileText, CalendarDays, Lightbulb, Send, MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
@@ -16,6 +16,7 @@ import ApostilaPreview from '@/components/ApostilaPreview.jsx';
 import MethodComparison from '@/components/MethodComparison.jsx';
 import FreeSampleModal from '@/components/FreeSampleModal.jsx';
 import SocialContentPillars from '@/components/SocialContentPillars.jsx';
+import PreLaunchNotice from '@/components/PreLaunchNotice.jsx';
 import { NORTIS_WHATSAPP_DISPLAY, NORTIS_WHATSAPP_URL } from '@/config/contact.js';
 
 const HomePage = () => {
@@ -304,17 +305,18 @@ const HomePage = () => {
 
                 <div className="mb-5">
                   <span className="text-4xl font-bold font-heading text-[hsl(var(--primary))] tracking-tight">R$ 69,90</span>
-                  <p className="text-xs text-muted-foreground mt-1">Pagamento único</p>
+                  <p className="text-xs text-muted-foreground mt-1">Vendas temporariamente pausadas</p>
                 </div>
 
-                <Link to="/apostilas">
-                  <Button className="w-full bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold py-6 text-lg transition-premium shadow-premium">
-                    <ShoppingCart className="w-5 h-5 mr-2" /> Comprar Agora
-                  </Button>
-                </Link>
-                <p className="text-xs text-muted-foreground text-center mt-3">
-                  Pagamento seguro via Asaas · Pix ou cartão
-                </p>
+                <PreLaunchNotice className="mb-5" />
+
+                <Button
+                  type="button"
+                  onClick={() => setIsHeroSampleModalOpen(true)}
+                  className="w-full bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold py-6 text-lg transition-premium shadow-premium"
+                >
+                  <Download className="w-5 h-5 mr-2" /> Baixar amostra grátis
+                </Button>
               </div>
             </div>
           </div>

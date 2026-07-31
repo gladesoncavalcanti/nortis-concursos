@@ -2,10 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Loader2, CheckCircle2, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { Loader2, CheckCircle2, ShieldCheck, ArrowLeft, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCart } from '@/hooks/useCart';
-import { useToast } from '@/hooks/use-toast';
+import PreLaunchNotice from '@/components/PreLaunchNotice.jsx';
 import { getProduct } from '@/api/EcommerceApi';
 import { getSupabaseProductByIdOrSlug } from '@/api/supabaseProducts';
 import { adaptSupabaseProduct } from '@/api/productsAdapter';
@@ -13,14 +12,11 @@ import { adaptSupabaseProduct } from '@/api/productsAdapter';
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
-  const { toast } = useToast();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
-  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -62,24 +58,6 @@ const ProductDetailPage = () => {
   // capa 100% HTML/CSS para este produto específico.
   const isNexoSocial = product?.title?.includes('Nexo Social');
 
-  const handleAddToCart = async () => {
-    if (!product || !selectedVariant) return;
-
-    try {
-      await addToCart(product, selectedVariant, quantity, selectedVariant.inventory_quantity);
-      toast({
-        title: "Adicionado ao Carrinho! 🛒",
-        description: `${product.title} foi adicionado.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Erro ao adicionar",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-background">
@@ -103,7 +81,7 @@ const ProductDetailPage = () => {
     <>
       <Helmet>
         <title>{`${product.title} - NORTIS CONCURSOS`}</title>
-        <meta name="description" content={product.subtitle || `Compre a apostila ${product.title} e prepare-se para a aprovação.`} />
+        <meta name="description" content={product.subtitle || `Conheça a apostila ${product.title} e acompanhe as novidades da Nortis.`} />
       </Helmet>
 
       <div className="min-h-screen bg-background py-12">
@@ -180,8 +158,10 @@ const ProductDetailPage = () => {
                         <span className="text-lg line-through text-muted-foreground">{originalPrice}</span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Pagamento único · Pix ou cartão · sem mensalidade</p>
+                    <p className="text-xs text-muted-foreground mt-1">Vendas temporariamente pausadas</p>
                   </div>
+
+                  <PreLaunchNotice className="mb-7" />
 
                   {product.variants.length > 1 && (
                     <div className="mb-8">
@@ -202,23 +182,23 @@ const ProductDetailPage = () => {
                   )}
 
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-8">
-                    <div className="flex items-center justify-center border border-border rounded-md bg-muted/50 self-center sm:self-auto">
-                      <Button onClick={() => setQuantity(Math.max(1, quantity - 1))} variant="ghost" className="px-4 hover:bg-muted">-</Button>
-                      <span className="px-4 font-medium">{quantity}</span>
-                      <Button onClick={() => setQuantity(quantity + 1)} variant="ghost" className="px-4 hover:bg-muted">+</Button>
+                    <div className="w-full sm:flex-1 flex items-center justify-center gap-2 h-12 rounded-md border border-border bg-muted text-sm font-semibold text-muted-foreground">
+                      <Info className="h-4 w-4" />
+                      Vendas temporariamente pausadas
                     </div>
                     <Button
-                      onClick={handleAddToCart}
-                      className="w-full sm:w-auto sm:flex-1 h-12 bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold text-lg transition-premium shadow-premium"
+                      onClick={() => navigate('/materiais-gratuitos')}
+                      variant="outline"
+                      className="w-full sm:w-auto h-12 font-semibold"
                     >
-                      <ShoppingCart className="mr-2 h-5 w-5" /> Comprar Agora
+                      Quero ser avisado no lançamento
                     </Button>
                   </div>
 
                   <div className="space-y-3 pt-6 border-t border-border">
                     <div className="flex items-center text-sm text-muted-foreground">
                       <ShieldCheck className="w-5 h-5 text-[hsl(var(--accent))] mr-3 flex-shrink-0" />
-                      Pagamento seguro via Asaas
+                      Pagamento seguro via Asaas, quando as vendas forem reabertas
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <CheckCircle2 className="w-5 h-5 text-[hsl(var(--accent))] mr-3 flex-shrink-0" />

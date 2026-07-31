@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Download, Eye, MapPin, Gift, MessageCircle, Instagram, Facebook, Linkedin, Youtube } from 'lucide-react';
+import { Download, Eye, MapPin, Gift, MessageCircle, Instagram, Youtube, Music2 } from 'lucide-react';
 import FreeSampleModal from '@/components/FreeSampleModal.jsx';
 import { NORTIS_WHATSAPP_DISPLAY, NORTIS_WHATSAPP_URL } from '@/config/contact.js';
 
@@ -20,13 +20,13 @@ const LINKS = [
   { label: 'Falar no WhatsApp', icon: MessageCircle, kind: 'external', href: NORTIS_WHATSAPP_URL },
 ];
 
-// Mesmas URLs já publicadas no Footer do site — nenhuma rede nova
-// inventada aqui, só reaproveitadas.
+// URLs confirmadas pelo proprietário. Facebook e LinkedIn ficam fora
+// desta lista até terem URL pública confirmada — nenhuma rede
+// inventada, nenhum link fictício.
 const SOCIAL_LINKS = [
   { icon: Instagram, href: 'https://instagram.com/nortisconcursos', label: 'Instagram' },
-  { icon: Facebook, href: 'https://facebook.com/nortisconcursos', label: 'Facebook' },
-  { icon: Linkedin, href: 'https://linkedin.com/company/nortisconcursos', label: 'LinkedIn' },
-  { icon: Youtube, href: 'https://youtube.com/@nortisconcursos', label: 'YouTube' },
+  { icon: Music2, href: 'https://www.tiktok.com/@nortisconcursos', label: 'TikTok' },
+  { icon: Youtube, href: 'https://youtube.com/@NortisConcursos', label: 'YouTube' },
 ];
 
 const ComeceAquiPage = () => {
