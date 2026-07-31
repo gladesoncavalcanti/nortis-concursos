@@ -37,6 +37,15 @@
 //   SITE_URL                  (ex: https://nortisconcursos.com.br)
 //   SUPABASE_URL              (já disponível automaticamente)
 //   SUPABASE_SERVICE_ROLE_KEY (já disponível automaticamente)
+//   SALES_ENABLED             (obrigatório para vender de verdade)
+//     - somente o valor exato "true" (sem diferenciar maiúsculas/
+//       minúsculas, com espaços ao redor ignorados) habilita a criação
+//       de pedidos e o checkout na Asaas;
+//     - ausente, vazio, "false", "1", "yes" ou qualquer outro valor
+//       mantém as vendas pausadas;
+//     - fail-closed intencional: enquanto a entrega privada do PDF não
+//       estiver pronta, é mais seguro bloquear por padrão do que
+//       vender por engano.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -45,6 +54,10 @@ const ASAAS_BASE_URL = Deno.env.get('ASAAS_BASE_URL') ?? 'https://api-sandbox.as
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://nortisconcursos.com.br';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+const SALES_ENABLED =
+  (Deno.env.get('SALES_ENABLED') ?? '')
+    .trim()
+    .toLowerCase() === 'true';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -68,6 +81,16 @@ Deno.serve(async (req) => {
   }
   if (req.method !== 'POST') {
     return jsonResponse({ error: 'Method not allowed' }, 405);
+  }
+
+  if (!SALES_ENABLED) {
+    return jsonResponse(
+      {
+        code: 'SALES_PAUSED',
+        error: 'As vendas estão temporariamente pausadas durante o pré-lançamento da Nortis.',
+      },
+      503
+    );
   }
 
   if (!ASAAS_API_KEY) {
