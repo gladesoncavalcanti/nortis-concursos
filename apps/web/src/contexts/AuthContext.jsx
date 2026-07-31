@@ -1,6 +1,30 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 const AuthContext = createContext(null);
+
+/**
+ * Mensagem neutra exibida tanto no cadastro quanto no retorno via
+ * /login?cadastro=sucesso — nunca confirma nem nega se o e-mail já
+ * possuía conta (evita enumeração de contas).
+ */
+export const PENDING_CONFIRMATION_MESSAGE =
+  'Verifique seu e-mail para continuar. Se o cadastro puder ser concluído, você receberá um link de confirmação.';
+
+/**
+ * Converte o `user` bruto do Supabase Auth para o shape já esperado
+ * pelos componentes existentes (MyAccountPage, etc.).
+ */
+function normalizeUser(rawUser) {
+  if (!rawUser) return null;
+
+  return {
+    id: rawUser.id,
+    email: rawUser.email,
+    name: rawUser.user_metadata?.full_name || rawUser.email,
+    createdAt: rawUser.created_at,
+  };
+}
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -8,89 +32,109 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user session on mount
-    const storedUser = localStorage.getItem('nortis_user');
-    if (storedUser) {
-      try {
-        const userData = JSON.parse(storedUser);
-        setUser(userData);
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Error loading user session:', error);
-        localStorage.removeItem('nortis_user');
-      }
-    }
-    setIsLoading(false);
+    // Migração do mock antigo: essas chaves não são mais lidas nem
+    // gravadas, mas podem existir no navegador de sessões anteriores.
+    localStorage.removeItem('nortis_user');
+    localStorage.removeItem('nortis_users');
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(normalizeUser(session?.user));
+      setIsAuthenticated(Boolean(session?.user));
+      setIsLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(normalizeUser(session?.user));
+      setIsAuthenticated(Boolean(session?.user));
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email, password) => {
     try {
-      // Simulate API call - ready for backend integration
-      const storedUsers = JSON.parse(localStorage.getItem('nortis_users') || '[]');
-      const user = storedUsers.find(u => u.email === email && u.password === password);
-      
-      if (!user) {
-        return { success: false, error: 'E-mail ou senha incorretos' };
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        if (error.code === 'email_not_confirmed') {
+          return { success: false, error: 'Confirme seu e-mail antes de entrar.' };
+        }
+        if (error.code === 'invalid_credentials') {
+          return { success: false, error: 'E-mail ou senha inválidos.' };
+        }
+        return { success: false, error: 'Não foi possível entrar agora. Tente novamente.' };
       }
 
-      const userData = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        createdAt: user.createdAt
-      };
-
-      setUser(userData);
+      const normalized = normalizeUser(data.user);
+      setUser(normalized);
       setIsAuthenticated(true);
-      localStorage.setItem('nortis_user', JSON.stringify(userData));
-      
-      return { success: true, user: userData };
+
+      return { success: true, user: normalized };
     } catch (error) {
-      return { success: false, error: 'Erro ao fazer login' };
+      return { success: false, error: 'Não foi possível entrar agora. Tente novamente.' };
     }
   };
 
   const register = async (name, email, password) => {
     try {
-      const storedUsers = JSON.parse(localStorage.getItem('nortis_users') || '[]');
-      
-      // Check if user already exists
-      if (storedUsers.some(u => u.email === email)) {
-        return { success: false, error: 'E-mail já cadastrado' };
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: name },
+          emailRedirectTo: `${window.location.origin}/login?confirmed=1`,
+        },
+      });
+
+      if (error) {
+        // Nunca diferenciar "conta já existe" de outros erros — evita
+        // enumeração de contas. Mensagem amigável só para códigos
+        // documentados que não revelam nada sobre a existência da conta.
+        if (error.code === 'weak_password') {
+          return { success: false, error: 'Senha muito fraca. Use uma senha mais forte.' };
+        }
+        return { success: false, error: 'Não foi possível concluir o cadastro agora. Tente novamente.' };
       }
 
-      const newUser = {
-        id: Date.now().toString(),
-        name,
-        email,
-        password, // In production, this would be hashed on backend
-        createdAt: new Date().toISOString()
-      };
+      // signUp sem erro e sem sessão imediata é sempre tratado como
+      // confirmação pendente — nunca se afirma nem se nega se o e-mail
+      // já tinha conta (o Supabase não retorna erro explícito nesse
+      // caso, exatamente para evitar enumeração de contas).
+      if (!data.session) {
+        return { success: true, requiresEmailConfirmation: true };
+      }
 
-      storedUsers.push(newUser);
-      localStorage.setItem('nortis_users', JSON.stringify(storedUsers));
-
-      const userData = {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        createdAt: newUser.createdAt
-      };
-
-      setUser(userData);
+      const normalized = normalizeUser(data.user);
+      setUser(normalized);
       setIsAuthenticated(true);
-      localStorage.setItem('nortis_user', JSON.stringify(userData));
-      
-      return { success: true, user: userData };
+
+      return { success: true, user: normalized };
     } catch (error) {
-      return { success: false, error: 'Erro ao criar conta' };
+      return { success: false, error: 'Não foi possível concluir o cadastro agora. Tente novamente.' };
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('nortis_user');
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
+
+      // 'session_not_found' significa que já não havia sessão local — o
+      // objetivo do logout já está satisfeito, então tratamos como sucesso.
+      if (error && error.code !== 'session_not_found') {
+        return { success: false, error: 'Não foi possível sair agora. Tente novamente.' };
+      }
+
+      setUser(null);
+      setIsAuthenticated(false);
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'Não foi possível sair agora. Tente novamente.' };
+    }
   };
 
   const value = {
@@ -99,7 +143,7 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     login,
     register,
-    logout
+    logout,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

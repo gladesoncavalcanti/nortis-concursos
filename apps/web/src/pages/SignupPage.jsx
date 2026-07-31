@@ -6,7 +6,7 @@ import { UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { Input } from '@/components/ui/input.jsx';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext.jsx';
+import { useAuth, PENDING_CONFIRMATION_MESSAGE } from '@/contexts/AuthContext.jsx';
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -52,8 +52,13 @@ const SignupPage = () => {
     const result = await register(formData.name, formData.email, formData.password);
 
     if (result.success) {
-      toast.success('Conta criada com sucesso');
-      navigate('/minha-conta');
+      if (result.requiresEmailConfirmation) {
+        toast.success(PENDING_CONFIRMATION_MESSAGE);
+        navigate('/login?cadastro=sucesso');
+      } else {
+        toast.success('Conta criada com sucesso');
+        navigate('/minha-conta');
+      }
     } else {
       toast.error(result.error || 'Erro ao criar conta');
     }

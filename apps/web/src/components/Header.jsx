@@ -4,6 +4,7 @@ import { Menu, X, ShoppingCart, User, LogOut, Shield } from 'lucide-react';
 import { useCart } from '@/hooks/useCart.jsx';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { Button } from '@/components/ui/button.jsx';
+import { toast } from 'sonner';
 
 const Header = ({ setIsCartOpen }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -27,9 +28,13 @@ const Header = ({ setIsCartOpen }) => {
     return location.pathname.startsWith(path);
   };
 
-  const handleLogout = () => {
-    logout();
-    setIsMobileMenuOpen(false);
+  const handleLogout = async () => {
+    const result = await logout();
+    if (result.success) {
+      setIsMobileMenuOpen(false);
+    } else {
+      toast.error(result.error);
+    }
   };
 
   return (

@@ -5,14 +5,19 @@ import { Download, User, Mail, Calendar, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const MyAccountPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogout = async () => {
+    const result = await logout();
+    if (result.success) {
+      navigate('/');
+    } else {
+      toast.error(result.error);
+    }
   };
 
   const purchasedApostilas = [
