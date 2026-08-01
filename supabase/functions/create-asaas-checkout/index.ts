@@ -52,7 +52,7 @@
 //       estiver pronta, é mais seguro bloquear por padrão do que
 //       vender por engano.
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.110.0';
 
 const ASAAS_API_KEY = Deno.env.get('ASAAS_API_KEY') ?? '';
 const ASAAS_BASE_URL = Deno.env.get('ASAAS_BASE_URL') ?? 'https://api-sandbox.asaas.com/v3';
@@ -65,17 +65,48 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 // inválido, campo ausente ou não-string) é tratado como ausência da
 // chave — fail-closed, sem fallback para a SUPABASE_SERVICE_ROLE_KEY legacy.
 function readDefaultKey(envVarName: string): string {
-  const raw = Deno.env.get(envVarName) ?? '';
+  const raw = Deno.env.get(envVarName);
   if (!raw) return '';
+
   try {
     const parsed = JSON.parse(raw);
-    return typeof parsed?.default === 'string' ? parsed.default : '';
+    const value = parsed?.default;
+
+    return typeof value === 'string' && value.trim().length > 0
+      ? value.trim()
+      : '';
   } catch {
     return '';
   }
 }
 
 const SUPABASE_SECRET_KEY = readDefaultKey('SUPABASE_SECRET_KEYS');
+
+// A chave secret (opaca, não é JWT) só deve viajar no header apikey.
+// Sem este wrapper, o client manda Authorization: Bearer <secret key>
+// por padrão — comportamento correto para a antiga service_role (um
+// JWT), mas não para o novo formato de chave. Remove o Authorization
+// SOMENTE quando ele for exatamente "Bearer <secret key>"; qualquer
+// outro Authorization (ex.: o JWT explícito de auth.getUser(token))
+// passa intocado.
+function createSecretKeyFetch(secretKey: string): typeof fetch {
+  const nativeFetch = globalThis.fetch;
+
+  return async (input, init) => {
+    const headers = new Headers(init?.headers);
+    const authorization = headers.get('Authorization');
+
+    if (authorization === `Bearer ${secretKey}`) {
+      headers.delete('Authorization');
+    }
+
+    return nativeFetch(input, {
+      ...init,
+      headers,
+    });
+  };
+}
+
 const SALES_ENABLED =
   (Deno.env.get('SALES_ENABLED') ?? '')
     .trim()
@@ -166,7 +197,20 @@ Deno.serve(async (req) => {
     );
   }
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
+  // Cliente de servidor (chave secret) — sem sessão própria persistida;
+  // a identidade do comprador, quando logado, vem sempre do JWT explícito
+  // passado a auth.getUser(token) logo abaixo, nunca de estado de sessão
+  // interno do client.
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      fetch: createSecretKeyFetch(SUPABASE_SECRET_KEY),
+    },
+  });
 
   // 1. Identifica o comprador: usuário logado (JWT) ou convidado (e-mail
   //    de buyer.email, já validado como obrigatório acima)

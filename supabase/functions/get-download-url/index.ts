@@ -56,11 +56,16 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 // inesperado (variável ausente, JSON inválido, campo ausente ou
 // não-string) é tratado como ausência da chave.
 function readDefaultKey(envVarName: string): string {
-  const raw = Deno.env.get(envVarName) ?? '';
+  const raw = Deno.env.get(envVarName);
   if (!raw) return '';
+
   try {
     const parsed = JSON.parse(raw);
-    return typeof parsed?.default === 'string' ? parsed.default : '';
+    const value = parsed?.default;
+
+    return typeof value === 'string' && value.trim().length > 0
+      ? value.trim()
+      : '';
   } catch {
     return '';
   }
@@ -68,6 +73,31 @@ function readDefaultKey(envVarName: string): string {
 
 const SUPABASE_PUBLISHABLE_KEY = readDefaultKey('SUPABASE_PUBLISHABLE_KEYS');
 const SUPABASE_SECRET_KEY = readDefaultKey('SUPABASE_SECRET_KEYS');
+
+// A chave secret (opaca, não é JWT) só deve viajar no header apikey.
+// Sem este wrapper, o client manda Authorization: Bearer <secret key>
+// por padrão — comportamento correto para a antiga service_role (um
+// JWT), mas não para o novo formato de chave. Remove o Authorization
+// SOMENTE quando ele for exatamente "Bearer <secret key>"; qualquer
+// outro Authorization passa intocado. Usado só pelo adminClient —
+// nunca pelo userClient, que precisa do JWT real do comprador.
+function createSecretKeyFetch(secretKey: string): typeof fetch {
+  const nativeFetch = globalThis.fetch;
+
+  return async (input, init) => {
+    const headers = new Headers(init?.headers);
+    const authorization = headers.get('Authorization');
+
+    if (authorization === `Bearer ${secretKey}`) {
+      headers.delete('Authorization');
+    }
+
+    return nativeFetch(input, {
+      ...init,
+      headers,
+    });
+  };
+}
 
 const SIGNED_URL_TTL_SECONDS = 300;
 
@@ -149,7 +179,15 @@ Deno.serve(async (req) => {
 
   // Cliente NO CONTEXTO DO USUÁRIO — chave publishable + o JWT recebido.
   // Toda consulta feita com ele respeita a RLS real (enrollments_self).
+  // Sem sessão própria persistida no servidor — a identidade do usuário
+  // vem sempre do JWT explícito em auth.getUser(token) logo abaixo,
+  // nunca de estado de sessão interno do client.
   const userClient = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
     global: { headers: { Authorization: `Bearer ${token}` } },
   });
 
@@ -239,7 +277,16 @@ Deno.serve(async (req) => {
   //    exclusivamente para ler pdf_path e gerar a signed URL.
   //    products.active NÃO entra nesta checagem de propósito: active
   //    controla catálogo/vendas, não revoga entrega já concedida.
-  const adminClient = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
+  const adminClient = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      fetch: createSecretKeyFetch(SUPABASE_SECRET_KEY),
+    },
+  });
 
   const { data: product, error: productError } = await adminClient
     .from('products')
