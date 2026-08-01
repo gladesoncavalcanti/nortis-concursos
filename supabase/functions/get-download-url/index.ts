@@ -9,10 +9,10 @@
 // continua aceitando tanto usuário autenticado quanto convidado.
 //
 // Dois clientes Supabase com privilégios distintos:
-//   - userClient: chave anon + o JWT recebido. Toda consulta a
+//   - userClient: chave publishable + o JWT recebido. Toda consulta a
 //     `enrollments` passa pela RLS real (policy enrollments_self);
 //     nunca lê pdf_path, nunca gera signed URL.
-//   - adminClient: service_role, instanciado só DEPOIS que o
+//   - adminClient: chave secret, instanciado só DEPOIS que o
 //     enrollment já foi autorizado pelo userClient. Usado
 //     exclusivamente para ler products.pdf_path e chamar
 //     storage.createSignedUrl — nunca decide se o enrollment pertence
@@ -34,8 +34,11 @@
 //
 // Secrets necessários (já disponíveis automaticamente, nenhum novo):
 //   SUPABASE_URL
-//   SUPABASE_ANON_KEY
-//   SUPABASE_SERVICE_ROLE_KEY
+//   SUPABASE_PUBLISHABLE_KEYS (JSON, ex.: {"default": "sb_publishable_..."})
+//   SUPABASE_SECRET_KEYS      (JSON, ex.: {"default": "sb_secret_..."})
+//     Usamos só a chave "default" de cada uma. Sem fallback para as
+//     antigas SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY: ausência
+//     ou formato inválido falha fechado (500 genérico).
 //
 // Versão do supabase-js fixada nesta function (2.110.0 — mesma versão
 // resolvida em package-lock.json para o frontend) para garantir que
@@ -46,8 +49,25 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.110.0';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
-const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+
+// SUPABASE_PUBLISHABLE_KEYS / SUPABASE_SECRET_KEYS chegam como JSON
+// (ex.: {"default": "sb_..."}), pois um projeto pode ter mais de uma
+// chave de cada tipo. Extraímos só a "default". Qualquer formato
+// inesperado (variável ausente, JSON inválido, campo ausente ou
+// não-string) é tratado como ausência da chave.
+function readDefaultKey(envVarName: string): string {
+  const raw = Deno.env.get(envVarName) ?? '';
+  if (!raw) return '';
+  try {
+    const parsed = JSON.parse(raw);
+    return typeof parsed?.default === 'string' ? parsed.default : '';
+  } catch {
+    return '';
+  }
+}
+
+const SUPABASE_PUBLISHABLE_KEY = readDefaultKey('SUPABASE_PUBLISHABLE_KEYS');
+const SUPABASE_SECRET_KEY = readDefaultKey('SUPABASE_SECRET_KEYS');
 
 const SIGNED_URL_TTL_SECONDS = 300;
 
@@ -114,7 +134,7 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: 'Método não permitido.' }, 405, cors);
   }
 
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !SUPABASE_SECRET_KEY) {
     // Mensagem genérica de propósito — nunca revela qual variável
     // está ausente.
     return jsonResponse({ error: 'Serviço temporariamente indisponível.' }, 500, cors);
@@ -127,9 +147,9 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: 'Sessão não encontrada.' }, 401, cors);
   }
 
-  // Cliente NO CONTEXTO DO USUÁRIO — chave anon + o JWT recebido.
+  // Cliente NO CONTEXTO DO USUÁRIO — chave publishable + o JWT recebido.
   // Toda consulta feita com ele respeita a RLS real (enrollments_self).
-  const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  const userClient = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     global: { headers: { Authorization: `Bearer ${token}` } },
   });
 
@@ -219,7 +239,7 @@ Deno.serve(async (req) => {
   //    exclusivamente para ler pdf_path e gerar a signed URL.
   //    products.active NÃO entra nesta checagem de propósito: active
   //    controla catálogo/vendas, não revoga entrega já concedida.
-  const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  const adminClient = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
 
   const { data: product, error: productError } = await adminClient
     .from('products')

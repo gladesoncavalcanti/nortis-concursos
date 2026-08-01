@@ -15,14 +15,36 @@
 //   Sem esse secret configurado, a função recusa qualquer requisição.
 //
 // Secrets necessários:
-//   SUPABASE_URL              (já disponível automaticamente)
-//   SUPABASE_SERVICE_ROLE_KEY (já disponível automaticamente)
-//   ASAAS_WEBHOOK_TOKEN       (obrigatório)
+//   SUPABASE_URL         (já disponível automaticamente)
+//   SUPABASE_SECRET_KEYS (já disponível automaticamente — JSON com as
+//                         chaves "secret" do novo sistema de API keys do
+//                         Supabase, ex.: {"default": "sb_secret_..."}.
+//                         Usamos só a chave "default". Sem fallback para
+//                         a antiga SUPABASE_SERVICE_ROLE_KEY: ausência ou
+//                         formato inválido falha fechado.)
+//   ASAAS_WEBHOOK_TOKEN  (obrigatório)
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+
+// SUPABASE_SECRET_KEYS chega como JSON (ex.: {"default": "sb_secret_..."}),
+// pois um projeto pode ter mais de uma chave "secret". Extraímos só a
+// "default". Qualquer formato inesperado (variável ausente, JSON
+// inválido, campo ausente ou não-string) é tratado como ausência da
+// chave — fail-closed, sem fallback para a SUPABASE_SERVICE_ROLE_KEY legacy.
+function readDefaultKey(envVarName: string): string {
+  const raw = Deno.env.get(envVarName) ?? '';
+  if (!raw) return '';
+  try {
+    const parsed = JSON.parse(raw);
+    return typeof parsed?.default === 'string' ? parsed.default : '';
+  } catch {
+    return '';
+  }
+}
+
+const SUPABASE_SECRET_KEY = readDefaultKey('SUPABASE_SECRET_KEYS');
 const ASAAS_WEBHOOK_TOKEN = Deno.env.get('ASAAS_WEBHOOK_TOKEN') ?? '';
 
 const APPROVED_EVENTS = ['PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED'];
@@ -68,6 +90,11 @@ Deno.serve(async (req) => {
     return new Response('Method not allowed', { status: 405 });
   }
 
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
+    console.error('Configuração do Supabase ausente ou inválida — recusando webhook.');
+    return new Response('Webhook não configurado', { status: 500 });
+  }
+
   if (!ASAAS_WEBHOOK_TOKEN) {
     console.error('ASAAS_WEBHOOK_TOKEN não configurado — recusando webhook.');
     return new Response('Webhook não configurado', { status: 500 });
@@ -78,7 +105,7 @@ Deno.serve(async (req) => {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
 
   let payload: any;
   try {

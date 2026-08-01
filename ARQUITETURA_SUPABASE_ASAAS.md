@@ -401,7 +401,7 @@ horizons-export-.../
 | Arquivo | Ação |
 |---|---|
 | `apps/web/package.json` | Adicionar `@supabase/supabase-js`; avaliar remover dependência da Hostinger Ecommerce API |
-| `apps/web/.env` / `.env.example` | **Criar** — `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, chaves da Asaas nas Edge Functions (nunca no frontend) |
+| `apps/web/.env` / `.env.example` | **Criar** — `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, chaves da Asaas nas Edge Functions (nunca no frontend) |
 | `apps/web/src/lib/supabase.js` | **Criar** — cliente singleton (`createClient`) |
 | `apps/web/src/contexts/AuthContext.jsx` | **Reescrever** — trocar `localStorage` por `supabase.auth.*`, manter interface pública (`user`, `isAuthenticated`, `isLoading`, `login`, `register`, `logout`) |
 | `apps/web/src/api/products.js` | **Criar** — substitui `getProducts`/`getProduct` da Hostinger |
