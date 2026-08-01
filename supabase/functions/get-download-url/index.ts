@@ -1,9 +1,12 @@
 // get-download-url
 //
 // Gera uma signed URL de curta duração (300s) para o PDF de um produto
-// ao qual o usuário autenticado tem um enrollment ativo. Exige conta
-// autenticada — não há caminho de convidado para download (decisão de
-// arquitetura: checkout sempre com conta).
+// ao qual o usuário autenticado tem um enrollment ativo. Esta função
+// de download exige usuário autenticado — não há caminho de convidado
+// aqui. A exigência de conta antes do CHECKOUT em si é uma decisão de
+// arquitetura já aprovada, mas ainda será aplicada em
+// create-asaas-checkout numa fase posterior; hoje esse checkout
+// continua aceitando tanto usuário autenticado quanto convidado.
 //
 // Dois clientes Supabase com privilégios distintos:
 //   - userClient: chave anon + o JWT recebido. Toda consulta a
@@ -90,18 +93,21 @@ Deno.serve(async (req) => {
   const originStatus = classifyOrigin(origin);
   const cors = buildCorsHeaders(origin, originStatus);
 
+  // Origem de navegador presente e não reconhecida: recusada antes de
+  // qualquer outra checagem, inclusive antes do próprio preflight —
+  // um OPTIONS de origem bloqueada recebe 403 sem
+  // Access-Control-Allow-Origin, então o navegador nunca chega a
+  // tentar o POST real. CORS não substitui autenticação — isto é uma
+  // camada adicional contra abuso vindo de páginas de terceiros.
+  if (originStatus === 'blocked') {
+    return jsonResponse({ error: 'Origem não autorizada.' }, 403, cors);
+  }
+
   // Preflight: responde só com os headers de CORS quando a origem é
   // reconhecida. Nenhuma verificação de autenticação é necessária aqui
   // — navegadores nunca enviam Authorization no preflight.
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: cors });
-  }
-
-  // Origem de navegador presente e não reconhecida: recusada antes de
-  // qualquer outra checagem. CORS não substitui autenticação — isto é
-  // uma camada adicional contra abuso vindo de páginas de terceiros.
-  if (originStatus === 'blocked') {
-    return jsonResponse({ error: 'Origem não autorizada.' }, 403, cors);
   }
 
   if (req.method !== 'POST') {
@@ -197,8 +203,15 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: 'Este acesso não está disponível.' }, 403, cors);
   }
 
-  if (enrollment.expires_at && new Date(enrollment.expires_at).getTime() < Date.now()) {
-    return jsonResponse({ error: 'Este acesso expirou.' }, 403, cors);
+  if (enrollment.expires_at) {
+    const expiresAtMs = Date.parse(enrollment.expires_at);
+
+    // Fail-closed: nega data no passado, igual ao instante atual, ou
+    // qualquer valor malformado/não interpretável — só aceita um
+    // Date.parse válido estritamente no futuro.
+    if (!Number.isFinite(expiresAtMs) || expiresAtMs <= Date.now()) {
+      return jsonResponse({ error: 'Este acesso expirou.' }, 403, cors);
+    }
   }
 
   // 4. SÓ AGORA, com o enrollment já autorizado pelo cliente do
