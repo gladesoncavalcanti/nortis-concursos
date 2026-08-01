@@ -327,7 +327,7 @@ const SedesDfHubPage = () => {
                 </ul>
                 <div className="mb-4">
                   <span className="text-3xl font-bold font-heading tracking-tight text-[hsl(var(--primary))]">
-                    R$ 69,90
+                    Pré-lançamento
                   </span>
                   <p className="text-xs text-muted-foreground mt-1">Vendas temporariamente pausadas</p>
                 </div>

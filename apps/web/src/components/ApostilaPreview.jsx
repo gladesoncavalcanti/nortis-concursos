@@ -180,7 +180,7 @@ const ApostilaPreview = () => {
             </ul>
 
             <div className="mb-6">
-              <span className="text-3xl font-bold text-[#f4efe4] tracking-tight">R$ 69,90</span>
+              <span className="text-3xl font-bold text-[#f4efe4] tracking-tight">Pré-lançamento</span>
               <p className="text-xs text-[#f4efe4]/45 mt-1">Vendas temporariamente pausadas</p>
             </div>
 
@@ -200,7 +200,7 @@ const ApostilaPreview = () => {
                   variant="ghost"
                   className="w-full h-11 font-semibold text-sm text-[#f4efe4]/70 hover:text-[#f4efe4] hover:bg-white/5"
                 >
-                  Quero ser avisado no lançamento
+                  Ver materiais gratuitos
                 </Button>
               </Link>
             </div>

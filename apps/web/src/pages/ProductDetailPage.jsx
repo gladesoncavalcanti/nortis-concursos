@@ -191,7 +191,7 @@ const ProductDetailPage = () => {
                       variant="outline"
                       className="w-full sm:w-auto h-12 font-semibold"
                     >
-                      Quero ser avisado no lançamento
+                      Ver materiais gratuitos
                     </Button>
                   </div>
 

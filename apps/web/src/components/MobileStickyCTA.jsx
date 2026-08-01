@@ -37,14 +37,14 @@ const MobileStickyCTA = ({ isCartOpen }) => {
             className="text-lg font-bold leading-tight"
             style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: '#f4efe4' }}
           >
-            R$ 69,90
+            Pré-lançamento
           </p>
           <p className="text-[10px] text-[#f4efe4]/50 truncate">Vendas temporariamente pausadas</p>
         </div>
         <Link to="/materiais-gratuitos" className="shrink-0">
           <Button className="h-11 px-5 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium">
             <Bell className="w-4 h-4 mr-1.5" />
-            Avisem-me
+            Conteúdos grátis
           </Button>
         </Link>
       </div>

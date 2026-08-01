@@ -187,13 +187,12 @@ const ModularApostilaBuilder = () => {
               apostila completa.
             </div>
 
-            <div className="flex items-baseline justify-between mb-1">
-              <span className="text-xs text-[#f4efe4]/55">Preço único</span>
+            <div className="mb-1">
               <span
                 className="text-2xl font-bold"
                 style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: '#f4efe4' }}
               >
-                R$ 69,90
+                Pré-lançamento
               </span>
             </div>
             <p className="text-[11px] text-[#f4efe4]/40 mb-5">Vendas temporariamente pausadas</p>

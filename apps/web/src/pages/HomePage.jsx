@@ -304,7 +304,7 @@ const HomePage = () => {
                 </ul>
 
                 <div className="mb-5">
-                  <span className="text-4xl font-bold font-heading text-[hsl(var(--primary))] tracking-tight">R$ 69,90</span>
+                  <span className="text-4xl font-bold font-heading text-[hsl(var(--primary))] tracking-tight">Pré-lançamento</span>
                   <p className="text-xs text-muted-foreground mt-1">Vendas temporariamente pausadas</p>
                 </div>
 
