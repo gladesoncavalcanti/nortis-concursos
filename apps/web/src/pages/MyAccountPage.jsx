@@ -1,15 +1,59 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Download, User, Mail, Calendar, LogOut } from 'lucide-react';
+import { Mail, Calendar, LogOut, Loader2, AlertCircle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { useAuth } from '@/contexts/AuthContext.jsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import { getMyEnrollments } from '@/api/enrollments.js';
+
+const STATUS_LABELS = {
+  active: 'Ativo',
+  revoked: 'Revogado',
+  expired: 'Expirado',
+};
+
+const STATUS_BADGE_STYLES = {
+  active: 'bg-emerald-500/10 text-emerald-600',
+  revoked: 'bg-red-500/10 text-red-600',
+  expired: 'bg-muted text-muted-foreground',
+};
 
 const MyAccountPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const [enrollments, setEnrollments] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchEnrollments = async () => {
+      setIsLoading(true);
+      setLoadError(null);
+
+      const { data, error } = await getMyEnrollments();
+
+      if (!isMounted) return;
+
+      if (error) {
+        setLoadError(error);
+      } else {
+        setEnrollments(data);
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchEnrollments();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleLogout = async () => {
     const result = await logout();
@@ -20,25 +64,19 @@ const MyAccountPage = () => {
     }
   };
 
-  const purchasedApostilas = [
-    {
-      id: 1,
-      title: 'Apostila SEDES DF 2026',
-      purchaseDate: '2026-06-15',
-      downloadUrl: '#'
-    }
-  ];
-
   const formatDate = (dateString) => {
+    if (!dateString) return null;
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
   };
+
+  const memberSince = formatDate(user?.createdAt);
 
   return (
     <>
       <Helmet>
         <title>Minha Conta - NORTIS CONCURSOS</title>
-        <meta name="description" content="Gerencie sua conta, acesse suas apostilas e acompanhe seu histórico de compras." />
+        <meta name="description" content="Acesse os dados da sua conta Nortis Concursos e acompanhe os materiais liberados para o seu acesso." />
       </Helmet>
 
       <div className="min-h-screen bg-background py-12">
@@ -54,7 +92,7 @@ const MyAccountPage = () => {
               Minha Conta
             </h1>
             <p className="text-lg text-muted-foreground">
-              Gerencie suas informações e acesse seus materiais
+              Gerencie suas informações e acompanhe seus materiais liberados
             </p>
           </motion.div>
 
@@ -80,16 +118,18 @@ const MyAccountPage = () => {
                 </h2>
 
                 <div className="space-y-4 mb-6">
-                  <div className="flex items-center space-x-3 text-card-foreground/80">
-                    <Mail className="w-5 h-5 flex-shrink-0" />
-                    <span className="text-sm break-all">{user?.email || 'email@exemplo.com'}</span>
-                  </div>
-                  <div className="flex items-center space-x-3 text-card-foreground/80">
-                    <Calendar className="w-5 h-5 flex-shrink-0" />
-                    <span className="text-sm">
-                      Membro desde {user?.createdAt ? formatDate(user.createdAt) : 'junho de 2026'}
-                    </span>
-                  </div>
+                  {user?.email && (
+                    <div className="flex items-center space-x-3 text-card-foreground/80">
+                      <Mail className="w-5 h-5 flex-shrink-0" />
+                      <span className="text-sm break-all">{user.email}</span>
+                    </div>
+                  )}
+                  {memberSince && (
+                    <div className="flex items-center space-x-3 text-card-foreground/80">
+                      <Calendar className="w-5 h-5 flex-shrink-0" />
+                      <span className="text-sm">Membro desde {memberSince}</span>
+                    </div>
+                  )}
                 </div>
 
                 <Button
@@ -103,87 +143,88 @@ const MyAccountPage = () => {
               </div>
             </motion.div>
 
-            {/* Purchased Apostilas */}
+            {/* Materiais liberados (enrollments reais) */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
               className="lg:col-span-2"
             >
-              <div className="bg-card rounded-2xl p-6 shadow-sm mb-6">
+              <div className="bg-card rounded-2xl p-6 shadow-sm">
                 <h2 className="text-2xl font-bold text-card-foreground mb-6">
                   Minhas Apostilas
                 </h2>
 
-                {purchasedApostilas.length > 0 ? (
+                {isLoading ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <Loader2 className="w-8 h-8 text-muted-foreground animate-spin mb-3" />
+                    <p className="text-sm text-muted-foreground">Carregando seus materiais...</p>
+                  </div>
+                ) : loadError ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <AlertCircle className="w-8 h-8 text-destructive mb-3" />
+                    <p className="text-sm text-muted-foreground">{loadError}</p>
+                  </div>
+                ) : enrollments.length > 0 ? (
                   <div className="space-y-4">
-                    {purchasedApostilas.map((apostila) => (
-                      <div
-                        key={apostila.id}
-                        className="flex items-center justify-between p-4 bg-muted rounded-xl"
-                      >
-                        <div>
-                          <h3 className="font-semibold text-foreground mb-1">
-                            {apostila.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            Comprado em {formatDate(apostila.purchaseDate)}
-                          </p>
+                    {enrollments.map((enrollment) => {
+                      const grantedAt = formatDate(enrollment.granted_at);
+
+                      return (
+                        <div
+                          key={enrollment.id}
+                          className="p-4 bg-muted rounded-xl"
+                        >
+                          <div className="flex items-start justify-between gap-3 mb-2">
+                            <h3 className="font-semibold text-foreground">
+                              {enrollment.products?.title || 'Material'}
+                            </h3>
+                            <span
+                              className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ${
+                                STATUS_BADGE_STYLES[enrollment.status] || 'bg-muted text-muted-foreground'
+                              }`}
+                            >
+                              {STATUS_LABELS[enrollment.status] || enrollment.status}
+                            </span>
+                          </div>
+
+                          {grantedAt && (
+                            <p className="text-sm text-muted-foreground mb-2">
+                              Acesso concedido em {grantedAt}
+                            </p>
+                          )}
+
+                          {enrollment.status === 'active' ? (
+                            <p className="text-sm text-muted-foreground">
+                              Acesso registrado. O download seguro será disponibilizado nesta área
+                              após a conclusão da configuração de entrega.
+                            </p>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              Este acesso não está disponível no momento.
+                            </p>
+                          )}
                         </div>
-                        <Button size="sm" className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90">
-                          <Download className="w-4 h-4 mr-2" />
-                          Baixar
-                        </Button>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Download className="w-8 h-8 text-muted-foreground" />
+                      <FileText className="w-8 h-8 text-muted-foreground" />
                     </div>
-                    <p className="text-muted-foreground mb-4">
-                      Você ainda não possui apostilas
+                    <p className="text-muted-foreground mb-2">
+                      Você ainda não possui materiais liberados nesta conta.
                     </p>
-                    <Button
-                      onClick={() => navigate('/apostilas')}
-                      className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
-                    >
-                      Ver apostilas disponíveis
-                    </Button>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Vendas temporariamente pausadas durante o pré-lançamento.
+                    </p>
+                    <Link to="/apostilas">
+                      <Button className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90">
+                        Ver apostilas
+                      </Button>
+                    </Link>
                   </div>
-                )}
-              </div>
-
-              {/* Purchase History */}
-              <div className="bg-card rounded-2xl p-6 shadow-sm">
-                <h2 className="text-2xl font-bold text-card-foreground mb-6">
-                  Histórico de Compras
-                </h2>
-
-                {purchasedApostilas.length > 0 ? (
-                  <div className="space-y-3">
-                    {purchasedApostilas.map((apostila) => (
-                      <div
-                        key={apostila.id}
-                        className="flex items-center justify-between p-4 border border-border rounded-lg"
-                      >
-                        <div>
-                          <p className="font-medium text-card-foreground">{apostila.title}</p>
-                          <p className="text-sm text-card-foreground/60">
-                            {formatDate(apostila.purchaseDate)}
-                          </p>
-                        </div>
-                        <span className="text-sm font-semibold text-green-600">
-                          Concluído
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-center text-muted-foreground py-8">
-                    Nenhuma compra realizada ainda
-                  </p>
                 )}
               </div>
             </motion.div>
