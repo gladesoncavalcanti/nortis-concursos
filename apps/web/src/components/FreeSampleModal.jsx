@@ -126,7 +126,7 @@ const FreeSampleModal = ({ isOpen, onClose }) => {
                 <Download className="w-8 h-8 mb-4" style={{ color: '#f1c85b' }} />
                 <h3 className="text-lg font-bold text-[#f4efe4] mb-2">Receba a amostra gratuita</h3>
                 <p className="text-sm text-[#f4efe4]/65 leading-relaxed mb-5">
-                  Informe seus dados para acessar uma prévia do material Nexo Social SEDES-DF 2026.
+                  Informe seus dados para receber a amostra gratuita do Nexo Social SEDES-DF 2026 quando ela estiver disponível.
                 </p>
 
                 <form onSubmit={handleSubmit} noValidate className="space-y-3">

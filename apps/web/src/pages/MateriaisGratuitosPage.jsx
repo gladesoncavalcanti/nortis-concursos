@@ -27,15 +27,15 @@ const MateriaisGratuitosPage = () => {
     <>
       <Helmet>
         <title>Conteúdos gratuitos | Nortis Concursos</title>
-        <meta name="description" content="Estamos preparando materiais gratuitos para apoiar sua preparação para a SEDES-DF 2026. Cadastre-se para receber a amostra do Nexo Social e acompanhar as próximas novidades." />
+        <meta name="description" content="Estamos preparando materiais gratuitos para apoiar sua preparação para a SEDES-DF 2026. Cadastre-se para receber a amostra do Nexo Social quando ela estiver disponível." />
         <link rel="canonical" href="https://www.nortisconcursos.com.br/materiais-gratuitos" />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Conteúdos gratuitos | Nortis Concursos" />
-        <meta property="og:description" content="Estamos preparando materiais gratuitos para apoiar sua preparação para a SEDES-DF 2026. Cadastre-se para receber a amostra do Nexo Social e acompanhar as próximas novidades." />
+        <meta property="og:description" content="Estamos preparando materiais gratuitos para apoiar sua preparação para a SEDES-DF 2026. Cadastre-se para receber a amostra do Nexo Social quando ela estiver disponível." />
         <meta property="og:url" content="https://www.nortisconcursos.com.br/materiais-gratuitos" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Conteúdos gratuitos | Nortis Concursos" />
-        <meta name="twitter:description" content="Estamos preparando materiais gratuitos para apoiar sua preparação para a SEDES-DF 2026. Cadastre-se para receber a amostra do Nexo Social e acompanhar as próximas novidades." />
+        <meta name="twitter:description" content="Estamos preparando materiais gratuitos para apoiar sua preparação para a SEDES-DF 2026. Cadastre-se para receber a amostra do Nexo Social quando ela estiver disponível." />
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -52,7 +52,7 @@ const MateriaisGratuitosPage = () => {
               <div className="h-1 w-24 bg-[hsl(var(--accent))] mx-auto rounded-full mb-6"></div>
               <p className="text-xl text-white/90 max-w-3xl mx-auto font-body font-light">
                 Estamos preparando materiais gratuitos para apoiar sua preparação para a SEDES-DF 2026.
-                Cadastre-se para receber a amostra do Nexo Social e acompanhar as próximas novidades.
+                Cadastre-se para receber a amostra do Nexo Social quando ela estiver disponível.
               </p>
               <Button
                 type="button"
@@ -60,7 +60,7 @@ const MateriaisGratuitosPage = () => {
                 className="mt-8 h-12 px-8 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium"
               >
                 <Download className="w-4 h-4 mr-2" />
-                Receber amostra e novidades
+                Cadastrar interesse na amostra
               </Button>
             </motion.div>
           </div>
@@ -103,7 +103,7 @@ const MateriaisGratuitosPage = () => {
                 className="h-12 px-8 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium"
               >
                 <Download className="w-4 h-4 mr-2" />
-                Receber amostra e novidades
+                Cadastrar interesse na amostra
               </Button>
             </div>
           </div>
