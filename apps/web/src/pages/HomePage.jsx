@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   BookOpen, Target, Sparkles, RefreshCw, Trophy,
-  ArrowRight, Star, Quote, ShoppingCart, CheckCircle2, AlertCircle,
+  ArrowRight, Star, Quote, Download, CheckCircle2, AlertCircle,
   Brain, Gift, Headphones, FileText, CalendarDays, Lightbulb, Send, MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
@@ -14,10 +14,14 @@ import { toast } from 'sonner';
 import ProductFeaturesSection from '@/components/ProductFeaturesSection.jsx';
 import ApostilaPreview from '@/components/ApostilaPreview.jsx';
 import MethodComparison from '@/components/MethodComparison.jsx';
+import FreeSampleModal from '@/components/FreeSampleModal.jsx';
+import SocialContentPillars from '@/components/SocialContentPillars.jsx';
+import PreLaunchNotice from '@/components/PreLaunchNotice.jsx';
 import { NORTIS_WHATSAPP_DISPLAY, NORTIS_WHATSAPP_URL } from '@/config/contact.js';
 
 const HomePage = () => {
   const location = useLocation();
+  const [isHeroSampleModalOpen, setIsHeroSampleModalOpen] = useState(false);
 
   // Suporte a âncora (ex: vindo de /sedes-df-2026 para /#preview-apostila).
   // O ScrollToTop global (App.jsx) sempre reseta o scroll pro topo a cada
@@ -141,11 +145,13 @@ const HomePage = () => {
                 className="uppercase text-4xl sm:text-5xl lg:text-6xl font-medium leading-[0.98] tracking-tight text-[#f4efe4] mb-5"
                 style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
               >
-                O conteúdo que
+                Preparação estratégica
                 <br />
-                te leva ao topo.
+                para o SEDES-DF 2026.
               </h1>
-              <p className="text-base md:text-lg text-[#f4efe4]/85 mb-2">Nexo Social SEDES-DF 2026</p>
+              <p className="text-base md:text-lg text-[#f4efe4]/85 mb-2">
+                Nortis Concursos · Método Nortis · Apostila Nexo Social
+              </p>
               <p className="text-xs md:text-sm uppercase tracking-wide text-[#f4efe4]/55 mb-8">
                 Banca Quadrix · 741 páginas
               </p>
@@ -164,13 +170,28 @@ const HomePage = () => {
                 ))}
               </div>
 
-              <Link to="/apostilas">
+              <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
                 <Button
+                  type="button"
+                  onClick={() => setIsHeroSampleModalOpen(true)}
                   className="h-11 px-9 text-xs font-extrabold uppercase tracking-wide rounded-sm text-[#f1c85b] hover:text-[#f1c85b] transition-premium"
                   style={{ border: '1px solid #d3a52f', background: 'rgba(211,165,47,0.06)' }}
                 >
-                  Quero ser aprovado
+                  Baixar amostra grátis
                 </Button>
+                <a
+                  href="#preview-apostila"
+                  className="inline-flex h-11 items-center px-9 text-xs font-bold uppercase tracking-wide rounded-sm text-[#f4efe4] border border-white/25 hover:bg-white/10 transition-premium"
+                >
+                  Ver a apostila por dentro
+                </a>
+              </div>
+
+              <Link
+                to="/materiais-gratuitos"
+                className="inline-block mt-5 text-xs text-[#f4efe4]/55 hover:text-[#f1c85b] underline underline-offset-4 transition-colors"
+              >
+                Acompanhar conteúdos gratuitos
               </Link>
             </motion.div>
 
@@ -229,6 +250,11 @@ const HomePage = () => {
           Apostila comum x Método Nortis. */}
       <MethodComparison />
 
+      {/* Conteúdo gratuito para acelerar sua preparação (Sprint Social 1)
+          — pilares editoriais pensados para redes sociais, cada card
+          aponta só para páginas/canais reais já existentes no site. */}
+      <SocialContentPillars />
+
       {/* Featured Apostila — card editorial: capa em painel navy à
           esquerda, conteúdo comercial hierarquizado à direita. */}
       <section className="py-16 lg:py-24 bg-background section-seamless">
@@ -278,18 +304,19 @@ const HomePage = () => {
                 </ul>
 
                 <div className="mb-5">
-                  <span className="text-4xl font-bold font-heading text-[hsl(var(--primary))] tracking-tight">R$ 69,90</span>
-                  <p className="text-xs text-muted-foreground mt-1">Pagamento único</p>
+                  <span className="text-4xl font-bold font-heading text-[hsl(var(--primary))] tracking-tight">Pré-lançamento</span>
+                  <p className="text-xs text-muted-foreground mt-1">Vendas temporariamente pausadas</p>
                 </div>
 
-                <Link to="/apostilas">
-                  <Button className="w-full bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold py-6 text-lg transition-premium shadow-premium">
-                    <ShoppingCart className="w-5 h-5 mr-2" /> Comprar Agora
-                  </Button>
-                </Link>
-                <p className="text-xs text-muted-foreground text-center mt-3">
-                  Pagamento seguro via Asaas · Pix ou cartão
-                </p>
+                <PreLaunchNotice className="mb-5" />
+
+                <Button
+                  type="button"
+                  onClick={() => setIsHeroSampleModalOpen(true)}
+                  className="w-full bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold py-6 text-lg transition-premium shadow-premium"
+                >
+                  <Download className="w-5 h-5 mr-2" /> Baixar amostra grátis
+                </Button>
               </div>
             </div>
           </div>
@@ -549,6 +576,8 @@ const HomePage = () => {
           <p className="text-sm md:text-base text-white/70">Novas apostilas estão em desenvolvimento.</p>
         </div>
       </section>
+
+      <FreeSampleModal isOpen={isHeroSampleModalOpen} onClose={() => setIsHeroSampleModalOpen(false)} />
     </>
   );
 };

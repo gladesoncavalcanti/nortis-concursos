@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Check, Minus, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
@@ -159,15 +158,15 @@ const MethodComparison = () => (
       </motion.div>
 
       <div className="text-center">
-        <Link to="/apostilas">
+        <a href="#preview-apostila">
           <Button
             className="h-12 px-9 font-bold text-sm uppercase tracking-wide rounded-sm text-[#f1c85b] hover:text-[#f1c85b] transition-premium"
             style={{ border: '1px solid #d3a52f', background: 'rgba(211,165,47,0.08)' }}
           >
-            Quero estudar com o Método Nortis
+            Ver a apostila por dentro
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
-        </Link>
+        </a>
       </div>
     </div>
   </section>

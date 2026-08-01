@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart as ShoppingCartIcon } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 
 /**
- * Barra fixa de conversão, mobile-only (Fase 17). Reaproveita o fluxo de
- * compra existente (leva para /apostilas) — não cria checkout, não
- * adiciona ao carrinho, não altera preço. Some automaticamente fora das
- * páginas comerciais e enquanto o carrinho está aberto (isCartOpen),
- * para nunca cobrir o drawer ou o botão "Finalizar Compra".
+ * Barra fixa de conversão, mobile-only (Fase 17). Pré-lançamento (Sprint
+ * Social 1.2): leva para captura de lead em /materiais-gratuitos — não
+ * cria checkout, não adiciona ao carrinho, não altera preço. Some
+ * automaticamente fora das páginas comerciais e enquanto o carrinho está
+ * aberto (isCartOpen), para nunca cobrir o drawer ou o botão "Finalizar
+ * Compra".
  */
 const VISIBLE_PATHS = ['/', '/sedes-df-2026', '/apostilas'];
 
@@ -36,14 +37,14 @@ const MobileStickyCTA = ({ isCartOpen }) => {
             className="text-lg font-bold leading-tight"
             style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: '#f4efe4' }}
           >
-            R$ 69,90
+            Pré-lançamento
           </p>
-          <p className="text-[10px] text-[#f4efe4]/50 truncate">Pagamento único · PDF digital</p>
+          <p className="text-[10px] text-[#f4efe4]/50 truncate">Vendas temporariamente pausadas</p>
         </div>
-        <Link to="/apostilas" className="shrink-0">
+        <Link to="/materiais-gratuitos" className="shrink-0">
           <Button className="h-11 px-5 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium">
-            <ShoppingCartIcon className="w-4 h-4 mr-1.5" />
-            Comprar
+            <Bell className="w-4 h-4 mr-1.5" />
+            Conteúdos grátis
           </Button>
         </Link>
       </div>

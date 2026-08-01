@@ -25,6 +25,7 @@ import SignupPage from '@/pages/SignupPage.jsx';
 import MyAccountPage from '@/pages/MyAccountPage.jsx';
 import ProductDetailPage from '@/pages/ProductDetailPage.jsx';
 import SedesDfHubPage from '@/pages/SedesDfHubPage.jsx';
+import ComeceAquiPage from '@/pages/ComeceAquiPage.jsx';
 import SuccessPage from '@/pages/SuccessPage.jsx';
 import PedidoSucessoPage from '@/pages/PedidoSucessoPage.jsx';
 import PedidoPendentePage from '@/pages/PedidoPendentePage.jsx';
@@ -84,6 +85,7 @@ function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/sedes-df-2026" element={<SedesDfHubPage />} />
+                <Route path="/comece-aqui" element={<ComeceAquiPage />} />
                 <Route path="/success" element={<SuccessPage />} />
                 <Route path="/pedido/sucesso" element={<PedidoSucessoPage />} />
                 <Route path="/pedido/pendente" element={<PedidoPendentePage />} />

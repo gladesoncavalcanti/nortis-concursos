@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ShoppingCart, Download, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import FreeSampleModal from '@/components/FreeSampleModal.jsx';
 
@@ -180,29 +180,29 @@ const ApostilaPreview = () => {
             </ul>
 
             <div className="mb-6">
-              <span className="text-3xl font-bold text-[#f4efe4] tracking-tight">R$ 69,90</span>
-              <p className="text-xs text-[#f4efe4]/45 mt-1">Pagamento único</p>
+              <span className="text-3xl font-bold text-[#f4efe4] tracking-tight">Pré-lançamento</span>
+              <p className="text-xs text-[#f4efe4]/45 mt-1">Vendas temporariamente pausadas</p>
             </div>
 
             <div className="mt-auto space-y-3">
-              <Link to="/apostilas" className="block">
-                <Button
-                  className="w-full h-12 font-bold text-sm uppercase tracking-wide rounded-sm text-[#f1c85b] hover:text-[#f1c85b] transition-premium"
-                  style={{ border: '1px solid #d3a52f', background: 'rgba(211,165,47,0.08)' }}
-                >
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Quero a apostila
-                </Button>
-              </Link>
               <Button
                 type="button"
-                variant="ghost"
                 onClick={() => setIsSampleModalOpen(true)}
-                className="w-full h-11 font-semibold text-sm text-[#f4efe4]/70 hover:text-[#f4efe4] hover:bg-white/5"
+                className="w-full h-12 font-bold text-sm uppercase tracking-wide rounded-sm text-[#f1c85b] hover:text-[#f1c85b] transition-premium"
+                style={{ border: '1px solid #d3a52f', background: 'rgba(211,165,47,0.08)' }}
               >
                 <Download className="w-4 h-4 mr-2" />
                 Baixar amostra grátis
               </Button>
+              <Link to="/materiais-gratuitos" className="block">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full h-11 font-semibold text-sm text-[#f4efe4]/70 hover:text-[#f4efe4] hover:bg-white/5"
+                >
+                  Ver materiais gratuitos
+                </Button>
+              </Link>
             </div>
           </motion.div>
         </div>

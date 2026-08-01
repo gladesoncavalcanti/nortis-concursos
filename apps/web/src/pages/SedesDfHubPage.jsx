@@ -19,13 +19,14 @@ import {
   FileText,
   ClipboardCheck,
   CheckCircle2,
-  ShoppingCart,
   Eye,
   Download,
   ArrowRight,
+  MessageCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import FreeSampleModal from '@/components/FreeSampleModal.jsx';
+import PreLaunchNotice from '@/components/PreLaunchNotice.jsx';
 import ExamCountdown from '@/components/ExamCountdown.jsx';
 import ContestTimeline from '@/components/ContestTimeline.jsx';
 import StudyPlanner from '@/components/StudyPlanner.jsx';
@@ -36,6 +37,7 @@ import TrustGuaranteeSection from '@/components/TrustGuaranteeSection.jsx';
 import SocialProofSection from '@/components/SocialProofSection.jsx';
 import CommunityPreviewSection from '@/components/CommunityPreviewSection.jsx';
 import { SEDES_DF_2026_EXAM_DATE } from '@/config/contestDates.js';
+import { NORTIS_WHATSAPP_URL } from '@/config/contact.js';
 
 /**
  * Hub SEDES-DF 2026 (Fase 7) — página de conteúdo/conversão dedicada ao
@@ -140,25 +142,31 @@ const SedesDfHubPage = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/apostilas">
+              <Link to="/#preview-apostila">
                 <Button
                   className="w-full sm:w-auto h-12 px-9 font-bold text-sm uppercase tracking-wide rounded-sm text-[#f1c85b] hover:text-[#f1c85b] transition-premium"
                   style={{ border: '1px solid #d3a52f', background: 'rgba(211,165,47,0.08)' }}
-                >
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Quero a apostila
-                </Button>
-              </Link>
-              <Link to="/#preview-apostila">
-                <Button
-                  variant="outline"
-                  className="w-full sm:w-auto h-12 px-9 font-semibold text-sm border-white/25 text-[#f4efe4] bg-transparent hover:bg-white/10 hover:text-[#f4efe4] transition-premium"
                 >
                   <Eye className="w-4 h-4 mr-2" />
                   Ver amostra gratuita
                 </Button>
               </Link>
+              <a href={NORTIS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto h-12 px-9 font-semibold text-sm border-white/25 text-[#f4efe4] bg-transparent hover:bg-white/10 hover:text-[#f4efe4] transition-premium"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Falar com a Nortis
+                </Button>
+              </a>
             </div>
+            <Link
+              to="/materiais-gratuitos"
+              className="inline-block mt-5 text-xs text-[#f4efe4]/55 hover:text-[#f1c85b] underline underline-offset-4 transition-colors"
+            >
+              Acompanhar conteúdos gratuitos
+            </Link>
           </motion.div>
         </div>
       </section>
@@ -317,19 +325,22 @@ const SedesDfHubPage = () => {
                     </li>
                   ))}
                 </ul>
-                <div className="mb-6">
+                <div className="mb-4">
                   <span className="text-3xl font-bold font-heading tracking-tight text-[hsl(var(--primary))]">
-                    R$ 69,90
+                    Pré-lançamento
                   </span>
-                  <p className="text-xs text-muted-foreground mt-1">Pagamento único</p>
+                  <p className="text-xs text-muted-foreground mt-1">Vendas temporariamente pausadas</p>
                 </div>
+                <PreLaunchNotice className="mb-6" />
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Link to="/apostilas" className="flex-1">
-                    <Button className="w-full h-11 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium">
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      Comprar agora
-                    </Button>
-                  </Link>
+                  <Button
+                    type="button"
+                    onClick={() => setIsSampleModalOpen(true)}
+                    className="flex-1 w-full h-11 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Baixar amostra grátis
+                  </Button>
                   <Link to="/#preview-apostila" className="flex-1">
                     <Button variant="outline" className="w-full h-11 font-semibold">
                       <Eye className="w-4 h-4 mr-2" />
@@ -391,12 +402,12 @@ const SedesDfHubPage = () => {
           <h2 className="text-2xl md:text-3xl font-bold font-heading text-white mb-6">
             Estude com foco no que realmente importa.
           </h2>
-          <Link to="/apostilas">
+          <a href={NORTIS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
             <Button className="h-12 px-9 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium">
-              Quero estudar com o Método Nortis
+              Falar com a Nortis
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
-          </Link>
+          </a>
         </div>
       </section>
 
