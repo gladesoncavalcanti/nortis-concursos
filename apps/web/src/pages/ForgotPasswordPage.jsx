@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { Input } from '@/components/ui/input.jsx';
+import { toast } from 'sonner';
 import { useAuth, RECOVERY_EMAIL_SENT_MESSAGE } from '@/contexts/AuthContext.jsx';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -35,9 +36,14 @@ const ForgotPasswordPage = () => {
 
     setFieldError('');
     setIsSubmitting(true);
-    await forgotPassword(trimmedEmail);
+    const result = await forgotPassword(trimmedEmail);
     setIsSubmitting(false);
-    setIsSent(true);
+
+    if (result.success) {
+      setIsSent(true);
+    } else {
+      toast.error(result.error || 'Não foi possível processar sua solicitação agora.');
+    }
   };
 
   return (

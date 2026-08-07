@@ -38,6 +38,15 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  // Único sinalizador de recovery do app: só fica true quando o
+  // próprio Supabase dispara o evento PASSWORD_RECOVERY (link de
+  // "esqueci minha senha" processado). Nunca inferido a partir da mera
+  // existência de uma sessão — uma sessão normal (login comum) não
+  // prova que houve um fluxo de recuperação. ResetPasswordPage lê este
+  // valor em vez de manter seu próprio listener, porque este provider
+  // monta antes de qualquer página e é o lugar com menor chance de
+  // perder o evento por corrida de inicialização do SDK.
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   useEffect(() => {
     // Migração do mock antigo: essas chaves não são mais lidas nem
@@ -53,9 +62,18 @@ export const AuthProvider = ({ children }) => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(normalizeUser(session?.user));
       setIsAuthenticated(Boolean(session?.user));
+
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsPasswordRecovery(true);
+      } else if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
+        // Encerra o "modo recovery" ao sair (inclusive o signOut que
+        // updatePassword faz ao final) ou ao entrar normalmente por
+        // login — nunca deixa o sinalizador vazar para outra sessão.
+        setIsPasswordRecovery(false);
+      }
     });
 
     return () => {
@@ -148,34 +166,57 @@ export const AuthProvider = ({ children }) => {
   /**
    * Dispara o e-mail de recuperação de senha do Supabase Auth.
    *
-   * Sempre retorna sucesso, com uma única mensagem neutra
-   * (RECOVERY_EMAIL_SENT_MESSAGE) — igual exista ou não conta para o
-   * e-mail informado. O próprio Supabase já não diferencia os dois
-   * casos nesta chamada; ignoramos deliberadamente qualquer `error`
-   * (rede, rate limit) para não vazar informação nenhuma através da
-   * interface. Validação de formato de e-mail é feita na página,
-   * antes de chamar esta função.
+   * Em caso de sucesso da chamada, retorna sempre a mesma mensagem
+   * neutra (RECOVERY_EMAIL_SENT_MESSAGE) — igual exista ou não conta
+   * para o e-mail informado. O Supabase já não diferencia os dois
+   * casos nesta chamada, então isso não é enumeração de conta.
+   *
+   * Um `error` aqui é sempre operacional (rede, indisponibilidade,
+   * rate limit) — nunca "conta não existe", já que o Supabase não
+   * expõe essa distinção neste endpoint. Por isso é seguro reportar
+   * falha sem checar `.message`/texto (só `.code`/presença do erro):
+   * o mesmo tipo de falha ocorreria igualmente para um e-mail com ou
+   * sem conta, então não vaza nenhuma informação sobre a conta.
+   * Validação de formato de e-mail é feita na página, antes de chamar
+   * esta função.
    */
   const forgotPassword = async (email) => {
     try {
-      await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/redefinir-senha`,
       });
-    } catch (_error) {
-      // Intencionalmente ignorado — ver comentário acima.
-    }
 
-    return { success: true };
+      if (error) {
+        return {
+          success: false,
+          error: 'Não foi possível processar sua solicitação agora. Tente novamente em instantes.',
+        };
+      }
+
+      return { success: true };
+    } catch (_error) {
+      return {
+        success: false,
+        error: 'Não foi possível processar sua solicitação agora. Tente novamente em instantes.',
+      };
+    }
   };
 
   /**
    * Define a nova senha durante o fluxo de recuperação. Só deve ser
    * chamada quando já existe uma sessão de recovery válida (ver
-   * ResetPasswordPage, que confirma isso via evento PASSWORD_RECOVERY
-   * do próprio Supabase antes de mostrar o formulário).
+   * ResetPasswordPage, que lê `isPasswordRecovery` deste contexto —
+   * alimentado exclusivamente pelo evento PASSWORD_RECOVERY real).
    *
-   * Após sucesso, encerra a sessão de recovery — o fluxo esperado é
-   * redirecionar para /login, não permanecer autenticado aqui.
+   * Após sucesso, tenta encerrar a sessão de recovery — o fluxo
+   * esperado é redirecionar para /login, não permanecer autenticado
+   * aqui. A partir do momento em que `updateUser` retorna sem erro, a
+   * senha JÁ foi alterada no servidor: um eventual erro no `signOut`
+   * abaixo é só falha de limpeza local, nunca motivo para reportar que
+   * a troca de senha falhou (isso seria falso e reverteria uma ação já
+   * concluída aos olhos do usuário). Por isso o retorno distingue os
+   * dois casos: sucesso limpo, e sucesso com aviso de que a sessão
+   * pode ter permanecido ativa localmente.
    */
   const updatePassword = async (newPassword) => {
     try {
@@ -192,10 +233,20 @@ export const AuthProvider = ({ children }) => {
       }
 
       const { error: signOutError } = await supabase.auth.signOut({ scope: 'local' });
+      const signOutFailed = Boolean(signOutError) && signOutError.code !== 'session_not_found';
 
-      if (!signOutError || signOutError.code === 'session_not_found') {
-        setUser(null);
-        setIsAuthenticated(false);
+      // Independente do resultado do signOut, o app nunca deve seguir
+      // tratando esta sessão de recovery como válida daqui pra frente.
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsPasswordRecovery(false);
+
+      if (signOutFailed) {
+        return {
+          success: true,
+          warning:
+            'Sua senha foi alterada. Por segurança, feche este navegador ou saia manualmente antes de continuar.',
+        };
       }
 
       return { success: true };
@@ -208,6 +259,7 @@ export const AuthProvider = ({ children }) => {
     user,
     isAuthenticated,
     isLoading,
+    isPasswordRecovery,
     login,
     register,
     logout,

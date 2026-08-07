@@ -6,12 +6,13 @@ import { KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { Input } from '@/components/ui/input.jsx';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 
-// Tempo máximo esperando o Supabase confirmar uma sessão de
-// recuperação válida antes de tratar o link como inválido/expirado.
-const SESSION_CHECK_TIMEOUT_MS = 6000;
+// Tempo de tolerância, depois que o AuthContext termina a checagem
+// inicial de sessão, para o evento PASSWORD_RECOVERY ainda poder
+// chegar de forma assíncrona antes de tratar o link como
+// inválido/expirado.
+const RECOVERY_GRACE_MS = 5000;
 
 const ResetPasswordPage = () => {
   // 'checking' | 'ready' | 'invalid'
@@ -19,47 +20,34 @@ const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { updatePassword } = useAuth();
+  const { updatePassword, isPasswordRecovery, isLoading: authIsLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    let settled = false;
-
-    const markReady = () => {
-      if (settled) return;
-      settled = true;
+    // Única fonte de verdade: isPasswordRecovery, alimentado pelo
+    // AuthContext exclusivamente a partir do evento PASSWORD_RECOVERY
+    // real do Supabase — nunca pela mera existência de uma sessão
+    // (uma sessão de login comum NÃO libera este formulário).
+    if (isPasswordRecovery) {
       setStatus('ready');
-    };
+      return undefined;
+    }
 
-    // Fonte de verdade: o evento PASSWORD_RECOVERY que o próprio
-    // Supabase dispara ao processar o link (nunca lemos query params
-    // manualmente para decidir se o usuário está autorizado).
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        markReady();
-      }
-    });
+    // Enquanto o AuthContext ainda não concluiu sua checagem inicial,
+    // aguarda — pode ser que PASSWORD_RECOVERY ainda vá chegar.
+    if (authIsLoading) {
+      return undefined;
+    }
 
-    // Cobre a corrida em que o SDK já processou o link antes deste
-    // componente se inscrever no evento acima.
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) markReady();
-    });
-
+    // Checagem inicial concluída e nenhum PASSWORD_RECOVERY chegou
+    // ainda: dá uma janela curta de tolerância (o evento pode chegar
+    // logo em seguida) antes de tratar como link inválido/expirado.
     const timeout = setTimeout(() => {
-      if (!settled) {
-        settled = true;
-        setStatus('invalid');
-      }
-    }, SESSION_CHECK_TIMEOUT_MS);
+      setStatus((current) => (current === 'ready' ? current : 'invalid'));
+    }, RECOVERY_GRACE_MS);
 
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(timeout);
-    };
-  }, []);
+    return () => clearTimeout(timeout);
+  }, [isPasswordRecovery, authIsLoading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -87,6 +75,9 @@ const ResetPasswordPage = () => {
 
     if (result.success) {
       toast.success('Senha redefinida com sucesso. Entre com sua nova senha.');
+      if (result.warning) {
+        toast(result.warning);
+      }
       navigate('/login');
     } else {
       toast.error(result.error || 'Não foi possível redefinir sua senha agora.');
