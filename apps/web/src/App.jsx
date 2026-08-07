@@ -22,6 +22,8 @@ import PoliticaPrivacidadePage from '@/pages/PoliticaPrivacidadePage.jsx';
 import TermosUsoPage from '@/pages/TermosUsoPage.jsx';
 import LoginPage from '@/pages/LoginPage.jsx';
 import SignupPage from '@/pages/SignupPage.jsx';
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage.jsx';
+import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
 import MyAccountPage from '@/pages/MyAccountPage.jsx';
 import ProductDetailPage from '@/pages/ProductDetailPage.jsx';
 import SedesDfHubPage from '@/pages/SedesDfHubPage.jsx';
@@ -83,6 +85,8 @@ function App() {
                 <Route path="/termos-uso" element={<TermosUsoPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
+                <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
+                <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/sedes-df-2026" element={<SedesDfHubPage />} />
                 <Route path="/comece-aqui" element={<ComeceAquiPage />} />

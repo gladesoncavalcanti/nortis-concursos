@@ -12,6 +12,14 @@ export const PENDING_CONFIRMATION_MESSAGE =
   'Verifique seu e-mail para continuar. Se o cadastro puder ser concluído, você receberá um link de confirmação.';
 
 /**
+ * Mesma lógica de neutralidade do PENDING_CONFIRMATION_MESSAGE acima,
+ * aplicada à recuperação de senha: nunca confirma nem nega se existe
+ * conta para o e-mail informado (evita enumeração de contas).
+ */
+export const RECOVERY_EMAIL_SENT_MESSAGE =
+  'Se houver uma conta com este e-mail, você vai receber um link para redefinir sua senha em instantes.';
+
+/**
  * Converte o `user` bruto do Supabase Auth para o shape já esperado
  * pelos componentes existentes (MyAccountPage, etc.).
  */
@@ -137,6 +145,65 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Dispara o e-mail de recuperação de senha do Supabase Auth.
+   *
+   * Sempre retorna sucesso, com uma única mensagem neutra
+   * (RECOVERY_EMAIL_SENT_MESSAGE) — igual exista ou não conta para o
+   * e-mail informado. O próprio Supabase já não diferencia os dois
+   * casos nesta chamada; ignoramos deliberadamente qualquer `error`
+   * (rede, rate limit) para não vazar informação nenhuma através da
+   * interface. Validação de formato de e-mail é feita na página,
+   * antes de chamar esta função.
+   */
+  const forgotPassword = async (email) => {
+    try {
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/redefinir-senha`,
+      });
+    } catch (_error) {
+      // Intencionalmente ignorado — ver comentário acima.
+    }
+
+    return { success: true };
+  };
+
+  /**
+   * Define a nova senha durante o fluxo de recuperação. Só deve ser
+   * chamada quando já existe uma sessão de recovery válida (ver
+   * ResetPasswordPage, que confirma isso via evento PASSWORD_RECOVERY
+   * do próprio Supabase antes de mostrar o formulário).
+   *
+   * Após sucesso, encerra a sessão de recovery — o fluxo esperado é
+   * redirecionar para /login, não permanecer autenticado aqui.
+   */
+  const updatePassword = async (newPassword) => {
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+      if (error) {
+        if (error.code === 'weak_password') {
+          return { success: false, error: 'Senha muito fraca. Use uma senha mais forte.' };
+        }
+        if (error.code === 'same_password') {
+          return { success: false, error: 'A nova senha precisa ser diferente da atual.' };
+        }
+        return { success: false, error: 'Não foi possível redefinir sua senha agora. Tente novamente.' };
+      }
+
+      const { error: signOutError } = await supabase.auth.signOut({ scope: 'local' });
+
+      if (!signOutError || signOutError.code === 'session_not_found') {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'Não foi possível redefinir sua senha agora. Tente novamente.' };
+    }
+  };
+
   const value = {
     user,
     isAuthenticated,
@@ -144,6 +211,8 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    forgotPassword,
+    updatePassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
