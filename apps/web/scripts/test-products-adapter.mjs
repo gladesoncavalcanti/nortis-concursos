@@ -37,14 +37,14 @@ function loadEnv(filePath) {
 
 const env = loadEnv(envPath);
 const supabaseUrl = env.VITE_SUPABASE_URL;
-const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY;
+const supabasePublishableKey = env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('\nVITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY ainda não preenchidos em apps/web/.env.\n');
+if (!supabaseUrl || !supabasePublishableKey) {
+  console.error('\nVITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY ainda não preenchidos em apps/web/.env.\n');
   process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient(supabaseUrl, supabasePublishableKey);
 
 function assert(condition, message) {
   if (!condition) {

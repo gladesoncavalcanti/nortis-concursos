@@ -36,7 +36,12 @@
 //   ASAAS_BASE_URL            (ex: https://api-sandbox.asaas.com/v3)
 //   SITE_URL                  (ex: https://nortisconcursos.com.br)
 //   SUPABASE_URL              (já disponível automaticamente)
-//   SUPABASE_SERVICE_ROLE_KEY (já disponível automaticamente)
+//   SUPABASE_SECRET_KEYS      (já disponível automaticamente — JSON com
+//                              as chaves "secret" do novo sistema de API
+//                              keys do Supabase, ex.: {"default": "sb_secret_..."}.
+//                              Usamos só a chave "default". Sem fallback
+//                              para a antiga SUPABASE_SERVICE_ROLE_KEY:
+//                              ausência/formato inválido falha fechado.)
 //   SALES_ENABLED             (obrigatório para vender de verdade)
 //     - somente o valor exato "true" (sem diferenciar maiúsculas/
 //       minúsculas, com espaços ao redor ignorados) habilita a criação
@@ -47,13 +52,61 @@
 //       estiver pronta, é mais seguro bloquear por padrão do que
 //       vender por engano.
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.110.0';
 
 const ASAAS_API_KEY = Deno.env.get('ASAAS_API_KEY') ?? '';
 const ASAAS_BASE_URL = Deno.env.get('ASAAS_BASE_URL') ?? 'https://api-sandbox.asaas.com/v3';
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://nortisconcursos.com.br';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+
+// SUPABASE_SECRET_KEYS chega como JSON (ex.: {"default": "sb_secret_..."}),
+// pois um projeto pode ter mais de uma chave "secret". Extraímos só a
+// "default". Qualquer formato inesperado (variável ausente, JSON
+// inválido, campo ausente ou não-string) é tratado como ausência da
+// chave — fail-closed, sem fallback para a SUPABASE_SERVICE_ROLE_KEY legacy.
+function readDefaultKey(envVarName: string): string {
+  const raw = Deno.env.get(envVarName);
+  if (!raw) return '';
+
+  try {
+    const parsed = JSON.parse(raw);
+    const value = parsed?.default;
+
+    return typeof value === 'string' && value.trim().length > 0
+      ? value.trim()
+      : '';
+  } catch {
+    return '';
+  }
+}
+
+const SUPABASE_SECRET_KEY = readDefaultKey('SUPABASE_SECRET_KEYS');
+
+// A chave secret (opaca, não é JWT) só deve viajar no header apikey.
+// Sem este wrapper, o client manda Authorization: Bearer <secret key>
+// por padrão — comportamento correto para a antiga service_role (um
+// JWT), mas não para o novo formato de chave. Remove o Authorization
+// SOMENTE quando ele for exatamente "Bearer <secret key>"; qualquer
+// outro Authorization (ex.: o JWT explícito de auth.getUser(token))
+// passa intocado.
+function createSecretKeyFetch(secretKey: string): typeof fetch {
+  const nativeFetch = globalThis.fetch;
+
+  return async (input, init) => {
+    const headers = new Headers(init?.headers);
+    const authorization = headers.get('Authorization');
+
+    if (authorization === `Bearer ${secretKey}`) {
+      headers.delete('Authorization');
+    }
+
+    return nativeFetch(input, {
+      ...init,
+      headers,
+    });
+  };
+}
+
 const SALES_ENABLED =
   (Deno.env.get('SALES_ENABLED') ?? '')
     .trim()
@@ -91,6 +144,11 @@ Deno.serve(async (req) => {
       },
       503
     );
+  }
+
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
+    // Mensagem genérica de propósito — nunca revela qual variável está ausente.
+    return jsonResponse({ error: 'Serviço temporariamente indisponível.' }, 500);
   }
 
   if (!ASAAS_API_KEY) {
@@ -139,7 +197,20 @@ Deno.serve(async (req) => {
     );
   }
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  // Cliente de servidor (chave secret) — sem sessão própria persistida;
+  // a identidade do comprador, quando logado, vem sempre do JWT explícito
+  // passado a auth.getUser(token) logo abaixo, nunca de estado de sessão
+  // interno do client.
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      fetch: createSecretKeyFetch(SUPABASE_SECRET_KEY),
+    },
+  });
 
   // 1. Identifica o comprador: usuário logado (JWT) ou convidado (e-mail
   //    de buyer.email, já validado como obrigatório acima)
