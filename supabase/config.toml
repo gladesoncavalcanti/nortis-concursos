@@ -37,6 +37,14 @@ enable_confirmations = true
 enabled = true
 file_size_limit = "50MiB"
 
+# Bucket `products` — confirmado manualmente no Dashboard remoto como
+# privado (Public bucket desativado), sem policies em storage.objects
+# nem em storage.buckets. Esta declaração só espelha localmente o
+# estado já confirmado (public = false); não cria, não altera limites
+# de tamanho/MIME e não referencia nenhum arquivo do bucket.
+[storage.buckets.products]
+public = false
+
 # asaas-webhook: chamada diretamente pelo Asaas, sem JWT do Supabase —
 # autentica pelo próprio header `asaas-access-token`.
 # create-asaas-checkout: aceita checkout de comprador convidado, sem
@@ -47,4 +55,16 @@ file_size_limit = "50MiB"
 verify_jwt = false
 
 [functions.create-asaas-checkout]
+verify_jwt = false
+
+# get-download-url: exige usuário autenticado. `verify_jwt = false`
+# desliga só a verificação LEGADA do gateway (que pode não reconhecer
+# tokens do sistema novo de chaves assimétricas) — a autenticação
+# obrigatória de verdade acontece dentro da própria função, via
+# userClient.auth.getUser(token); nenhuma requisição de download é
+# liberada sem um usuário validado dessa forma. A exigência de conta
+# antes do checkout é uma decisão de arquitetura já aprovada, mas ainda
+# será aplicada em create-asaas-checkout numa fase futura — hoje esse
+# checkout continua aceitando comprador convidado.
+[functions.get-download-url]
 verify_jwt = false
