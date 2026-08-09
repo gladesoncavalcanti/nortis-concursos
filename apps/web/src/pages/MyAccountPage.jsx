@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext.jsx';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getMyEnrollments } from '@/api/enrollments.js';
+import PersonalizationQuiz from '@/components/PersonalizationQuiz.jsx';
 
 const STATUS_LABELS = {
   active: 'Ativo',
@@ -95,6 +96,11 @@ const MyAccountPage = () => {
               Gerencie suas informações e acompanhe seus materiais liberados
             </p>
           </motion.div>
+
+          {/* Diagnóstico inicial (Sprint Funcional 1.2) — 100% local, ver PersonalizationQuiz.jsx */}
+          <div className="mb-8">
+            <PersonalizationQuiz userId={user?.id} />
+          </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
             {/* User Info */}
