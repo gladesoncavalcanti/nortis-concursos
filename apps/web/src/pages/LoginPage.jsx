@@ -105,9 +105,17 @@ const LoginPage = () => {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-card-foreground mb-2">
-                  Senha
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label htmlFor="password" className="block text-sm font-medium text-card-foreground">
+                    Senha
+                  </label>
+                  <Link
+                    to="/esqueci-senha"
+                    className="text-sm text-[hsl(var(--primary))] hover:underline font-medium"
+                  >
+                    Esqueci minha senha
+                  </Link>
+                </div>
                 <Input
                   id="password"
                   type="password"
