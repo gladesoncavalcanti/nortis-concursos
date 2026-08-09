@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Mail, Calendar, LogOut, Loader2, AlertCircle, FileText } from 'lucide-react';
+import { Mail, Calendar, LogOut, Loader2, AlertCircle, FileText, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getMyEnrollments } from '@/api/enrollments.js';
+import { requestDownloadUrl } from '@/api/downloads.js';
 import PersonalizationQuiz from '@/components/PersonalizationQuiz.jsx';
 
 const STATUS_LABELS = {
@@ -28,6 +29,9 @@ const MyAccountPage = () => {
   const [enrollments, setEnrollments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
+  // Um único download por vez (id do enrollment em andamento, ou null).
+  // Evita múltiplos cliques disparando várias signed URLs em paralelo.
+  const [downloadingId, setDownloadingId] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -63,6 +67,24 @@ const MyAccountPage = () => {
     } else {
       toast.error(result.error);
     }
+  };
+
+  const handleDownload = async (enrollmentId) => {
+    if (downloadingId) return; // já existe um download em andamento
+    setDownloadingId(enrollmentId);
+
+    const { url, error } = await requestDownloadUrl({ enrollmentId });
+
+    if (error || !url) {
+      toast.error(error || 'Não foi possível gerar o link agora. Tente novamente.');
+      setDownloadingId(null);
+      return;
+    }
+
+    // Só a signed URL retornada é usada — nunca é montada manualmente
+    // nem reaproveitada; cada clique pede uma nova.
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setDownloadingId(null);
   };
 
   const formatDate = (dateString) => {
@@ -201,10 +223,24 @@ const MyAccountPage = () => {
                           )}
 
                           {enrollment.status === 'active' ? (
-                            <p className="text-sm text-muted-foreground">
-                              Acesso registrado. O download seguro será disponibilizado nesta área
-                              após a conclusão da configuração de entrega.
-                            </p>
+                            <Button
+                              onClick={() => handleDownload(enrollment.id)}
+                              disabled={downloadingId === enrollment.id}
+                              size="sm"
+                              className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
+                            >
+                              {downloadingId === enrollment.id ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Gerando link...
+                                </>
+                              ) : (
+                                <>
+                                  <Download className="w-4 h-4 mr-2" />
+                                  Baixar apostila
+                                </>
+                              )}
+                            </Button>
                           ) : (
                             <p className="text-sm text-muted-foreground">
                               Este acesso não está disponível no momento.
