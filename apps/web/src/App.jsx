@@ -27,6 +27,7 @@ import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
 import MyAccountPage from '@/pages/MyAccountPage.jsx';
 import ProductDetailPage from '@/pages/ProductDetailPage.jsx';
 import SedesDfHubPage from '@/pages/SedesDfHubPage.jsx';
+import SprintDiscursivaPage from '@/pages/SprintDiscursivaPage.jsx';
 import ComeceAquiPage from '@/pages/ComeceAquiPage.jsx';
 import SuccessPage from '@/pages/SuccessPage.jsx';
 import PedidoSucessoPage from '@/pages/PedidoSucessoPage.jsx';
@@ -57,7 +58,6 @@ function App() {
         <Router>
           <ScrollToTop />
           <Helmet>
-            <title>Nortis Concursos | Apostilas digitais para concursos</title>
             <meta name="description" content="Apostilas digitais com organização estratégica, foco em banca e preparação objetiva para concursos públicos." />
             <link rel="canonical" href="https://www.nortisconcursos.com.br/" />
             <meta property="og:site_name" content="Nortis Concursos" />
@@ -89,6 +89,7 @@ function App() {
                 <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/sedes-df-2026" element={<SedesDfHubPage />} />
+                <Route path="/sprint-discursiva-sedes-df" element={<SprintDiscursivaPage />} />
                 <Route path="/comece-aqui" element={<ComeceAquiPage />} />
                 <Route path="/success" element={<SuccessPage />} />
                 <Route path="/pedido/sucesso" element={<PedidoSucessoPage />} />
