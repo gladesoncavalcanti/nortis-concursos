@@ -26,6 +26,7 @@ import ForgotPasswordPage from '@/pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
 import MyAccountPage from '@/pages/MyAccountPage.jsx';
 import SyllabusPage from '@/pages/SyllabusPage.jsx';
+import QuestionBankPage from '@/pages/QuestionBankPage.jsx';
 import ProductDetailPage from '@/pages/ProductDetailPage.jsx';
 import SedesDfHubPage from '@/pages/SedesDfHubPage.jsx';
 import SprintDiscursivaPage from '@/pages/SprintDiscursivaPage.jsx';
@@ -139,6 +140,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <SyllabusPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/minha-conta/questoes"
+                  element={
+                    <ProtectedRoute>
+                      <QuestionBankPage />
                     </ProtectedRoute>
                   }
                 />
