@@ -1,0 +1,21 @@
+import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet';
+import { Link } from 'react-router-dom';
+import { ChevronLeft, ClipboardCheck, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button.jsx';
+import { answerSimulationQuestion, finishSimulation, getMySimulations, startSimulation } from '@/api/simulations.js';
+
+const SimulationsPage=()=>{
+  const [items,setItems]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(null);
+  const [active,setActive]=useState(null),[session,setSession]=useState(null),[answers,setAnswers]=useState({}),[result,setResult]=useState(null),[busy,setBusy]=useState(false);
+  useEffect(()=>{let mounted=true;getMySimulations().then(({data,error:e})=>{if(mounted){setItems(data);setError(e);setLoading(false);}});return()=>{mounted=false;};},[]);
+  const begin=async(simulation)=>{setBusy(true);const {data,error:e}=await startSimulation(simulation.id);if(e)setError(e);else{setActive(simulation);setSession(data);setResult(null);setAnswers({});}setBusy(false);};
+  const finish=async()=>{setBusy(true);for(const link of active.simulation_questions){const q=link.questions;if(answers[q.id]){const e=await answerSimulationQuestion(session,q.id,answers[q.id]);if(e){setError(e);setBusy(false);return;}}}const {data,error:e}=await finishSimulation(session);if(e)setError(e);else setResult(data);setBusy(false);};
+  const questions=[...(active?.simulation_questions??[])].sort((a,b)=>a.sort_order-b.sort_order);
+  return <><Helmet><title>Simulados - NORTIS CONCURSOS</title></Helmet><div className="min-h-screen bg-background py-12"><div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+    <Link to="/minha-conta" className="mb-6 inline-flex items-center text-sm font-semibold text-[hsl(var(--accent))] hover:underline"><ChevronLeft className="mr-1 h-4 w-4"/>Central Nortis</Link>
+    <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Central Nortis</p><h1 className="mt-2 text-3xl font-bold">Simulados</h1>
+    {loading?<Loader2 className="mx-auto mt-16 h-8 w-8 animate-spin"/>:error?<p className="mt-8 rounded-xl bg-card p-6 text-muted-foreground">{error}</p>:!active?(items.length===0?<div className="mt-8 rounded-2xl bg-card p-8 text-center"><ClipboardCheck className="mx-auto mb-4 h-10 w-10 text-muted-foreground"/><h2 className="text-xl font-semibold">Simulados em preparação</h2><p className="mt-2 text-sm text-muted-foreground">A estrutura está pronta. As provas serão publicadas após validação editorial.</p></div>:<div className="mt-8 space-y-4">{items.map(item=><article key={item.id} className="rounded-2xl bg-card p-6"><h2 className="text-xl font-semibold">{item.title}</h2>{item.description&&<p className="mt-2 text-sm text-muted-foreground">{item.description}</p>}<p className="mt-3 text-xs text-muted-foreground">{item.simulation_questions.length} questões{item.time_limit_minutes?` · ${item.time_limit_minutes} minutos`:''}</p><Button className="mt-4" disabled={busy} onClick={()=>begin(item)}>Iniciar simulado</Button></article>)}</div>):result?<div className="mt-8 rounded-2xl bg-card p-8 text-center"><ClipboardCheck className="mx-auto mb-4 h-10 w-10 text-[hsl(var(--accent))]"/><h2 className="text-2xl font-bold">Simulado concluído</h2><p className="mt-3 text-lg">{result.correct_count} acertos de {result.question_count} questões</p><Button className="mt-6" variant="outline" onClick={()=>setActive(null)}>Ver outros simulados</Button></div>:<div className="mt-8 space-y-6"><h2 className="text-2xl font-bold">{active.title}</h2>{questions.map((link,index)=>{const q=link.questions;return <fieldset key={q.id} className="rounded-2xl bg-card p-6"><legend className="font-semibold">{index+1}. {q.statement}</legend><div className="mt-4 space-y-3">{[...(q.question_options??[])].sort((a,b)=>a.sort_order-b.sort_order).map(o=><label key={o.id} className="flex gap-3 rounded-xl border p-3"><input type="radio" name={q.id} checked={answers[q.id]===o.id} onChange={()=>setAnswers(v=>({...v,[q.id]:o.id}))}/><span><strong>{o.label}.</strong> {o.option_text}</span></label>)}</div></fieldset>;})}<Button disabled={busy} onClick={finish}>{busy&&<Loader2 className="mr-2 h-4 w-4 animate-spin"/>}Concluir simulado</Button></div>}
+  </div></div></>;
+};
+export default SimulationsPage;
