@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Sparkles, ChevronLeft, ChevronRight, RotateCcw, X } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { getStudyProfile, profileToAnswers, saveStudyProfile } from '@/api/studyProfile.js';
+import { getMySyllabus } from '@/api/syllabus.js';
+import { getSpecialtyOptions } from '@/api/specialtySelection.js';
 
 // Diagnóstico inicial do aluno — "Sprint Funcional 1.2".
 //
@@ -37,6 +39,11 @@ const QUESTIONS = [
     ],
   },
   {
+    id: 'especialidade',
+    question: 'Qual é sua especialidade?',
+    options: [],
+  },
+  {
     id: 'preparo',
     question: 'Como está sua preparação hoje?',
     options: [
@@ -65,14 +72,6 @@ const QUESTIONS = [
     ],
   },
 ];
-
-const OPTION_LABELS = QUESTIONS.reduce((acc, q) => {
-  acc[q.id] = q.options.reduce((optAcc, opt) => {
-    optAcc[opt.value] = opt.label;
-    return optAcc;
-  }, {});
-  return acc;
-}, {});
 
 // Só o texto — nunca "você vai passar", nunca "plano personalizado por
 // IA". Sempre "sugestão de ponto de partida".
@@ -161,12 +160,14 @@ const PersonalizationQuiz = ({ userId }) => {
   const [draft, setDraft] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [syllabusNodes, setSyllabusNodes] = useState([]);
 
   useEffect(() => {
     let mounted = true;
     const load = async () => {
-      const { data } = await getStudyProfile();
+      const [{ data }, syllabus] = await Promise.all([getStudyProfile(), getMySyllabus()]);
       if (!mounted) return;
+      setSyllabusNodes(syllabus.data);
       const remoteAnswers = profileToAnswers(data);
       const localAnswers = loadSavedAnswers(userId);
       if (!remoteAnswers && localAnswers?.answers) await saveStudyProfile(localAnswers.answers);
@@ -179,7 +180,7 @@ const PersonalizationQuiz = ({ userId }) => {
   }, [userId]);
 
   const startWizard = () => {
-    setDraft({});
+    setDraft(saved?.answers ?? {});
     setStepIndex(0);
     setMode('wizard');
   };
@@ -190,17 +191,30 @@ const PersonalizationQuiz = ({ userId }) => {
     setMode(saved ? 'summary' : 'invite');
   };
 
-  const currentQuestion = QUESTIONS[stepIndex];
+  const selectedRole = draft.cargo ?? saved?.answers?.cargo;
+  const specialtyOptions = getSpecialtyOptions(syllabusNodes, selectedRole);
+  const selectedExam = draft.concurso ?? saved?.answers?.concurso;
+  const questions = QUESTIONS
+    .filter((question) => question.id !== 'especialidade' || selectedExam === 'sedes-df')
+    .map((question) =>
+      question.id === 'especialidade' ? { ...question, options: specialtyOptions } : question
+    );
+  const currentQuestion = questions[stepIndex];
   const currentAnswer = currentQuestion ? draft[currentQuestion.id] : undefined;
 
   const handleSelect = (value) => {
-    setDraft((prev) => ({ ...prev, [currentQuestion.id]: value }));
+    setDraft((prev) => ({
+      ...prev,
+      [currentQuestion.id]: value,
+      ...(currentQuestion.id === 'cargo' ? { especialidade: undefined } : {}),
+      ...(currentQuestion.id === 'concurso' && value !== 'sedes-df' ? { especialidade: undefined } : {}),
+    }));
   };
 
   const handleContinue = async () => {
     if (!currentAnswer) return;
 
-    if (stepIndex < QUESTIONS.length - 1) {
+    if (stepIndex < questions.length - 1) {
       setStepIndex((s) => s + 1);
       return;
     }
@@ -253,7 +267,7 @@ const PersonalizationQuiz = ({ userId }) => {
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                Pergunta {stepIndex + 1} de {QUESTIONS.length}
+                Pergunta {stepIndex + 1} de {questions.length}
               </span>
               <button
                 type="button"
@@ -268,7 +282,7 @@ const PersonalizationQuiz = ({ userId }) => {
             <div className="h-1.5 w-full bg-muted rounded-full mb-6 overflow-hidden">
               <div
                 className="h-full bg-[hsl(var(--accent))] transition-all"
-                style={{ width: `${((stepIndex + 1) / QUESTIONS.length) * 100}%` }}
+                style={{ width: `${((stepIndex + 1) / questions.length) * 100}%` }}
               />
             </div>
 
@@ -306,7 +320,7 @@ const PersonalizationQuiz = ({ userId }) => {
                 disabled={!currentAnswer || isSaving}
                 className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
               >
-                {isSaving ? 'Salvando...' : stepIndex < QUESTIONS.length - 1 ? 'Continuar' : 'Concluir'}
+                {isSaving ? 'Salvando...' : stepIndex < questions.length - 1 ? 'Continuar' : 'Concluir'}
                 <ChevronRight className="w-4 h-4 ml-1" aria-hidden="true" />
               </Button>
             </div>
@@ -325,11 +339,11 @@ const PersonalizationQuiz = ({ userId }) => {
             </div>
 
             <dl className="grid sm:grid-cols-2 gap-3 mb-5 text-sm">
-              {QUESTIONS.map((q) => (
+              {questions.map((q) => (
                 <div key={q.id} className="p-3 bg-muted rounded-lg">
                   <dt className="text-muted-foreground text-xs mb-0.5">{q.question}</dt>
                   <dd className="text-card-foreground font-medium">
-                    {OPTION_LABELS[q.id][saved.answers[q.id]] || '—'}
+                    {q.options.find((option) => option.value === saved.answers[q.id])?.label || '—'}
                   </dd>
                 </div>
               ))}

@@ -7,6 +7,7 @@ import { getMySyllabus } from '@/api/syllabus.js';
 import { getSyllabusNodeTypeLabel } from '@/api/syllabusTree.js';
 import { getStudyProfile } from '@/api/studyProfile.js';
 import { getTopicAssessments, saveTopicAssessment } from '@/api/topicAssessments.js';
+import { filterSyllabusForProfile } from '@/api/specialtySelection.js';
 
 const CONFIDENCE_LABELS = ['Não estudei', 'Tenho muita dificuldade', 'Tenho alguma dificuldade', 'Estou seguro', 'Domino bem'];
 
@@ -61,8 +62,7 @@ const SyllabusPage = () => {
 
     Promise.all([getMySyllabus(), getTopicAssessments(), getStudyProfile()]).then(([syllabus, assessmentResult, profile]) => {
       if (!isMounted) return;
-      const roleSlug = profile.data?.target_role === 'tecnico' ? 'tdas' : profile.data?.target_role === 'superior' ? 'edas' : null;
-      setNodes(roleSlug ? syllabus.data.filter((node) => node.slug === roleSlug) : syllabus.data);
+      setNodes(filterSyllabusForProfile(syllabus.data, profile.data?.target_role, profile.data?.target_specialty_id));
       setAssessments(Object.fromEntries(assessmentResult.data.map((item) => [item.syllabus_node_id, item.confidence])));
       setError(syllabus.error || assessmentResult.error);
       setIsLoading(false);
@@ -113,6 +113,11 @@ const SyllabusPage = () => {
               Consulte o conteúdo oficial liberado e marque de 1 a 5 como você se sente em cada disciplina. Esta autoavaliação orienta o plano, mas não substitui seu desempenho em questões.
             </p>
             {notice && <p role="status" className="mt-3 text-sm text-[hsl(var(--accent))]">{notice}</p>}
+            {!isLoading && nodes.every((root) => !root.children.some((child) => child.node_type === 'specialty')) && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Para liberar o conteúdo específico, escolha sua especialidade no diagnóstico da <Link className="font-semibold text-[hsl(var(--accent))] hover:underline" to="/minha-conta">Central Nortis</Link>.
+              </p>
+            )}
           </div>
 
           {isLoading ? (
