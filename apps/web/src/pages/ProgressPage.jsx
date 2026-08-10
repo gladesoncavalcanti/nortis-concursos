@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { BarChart3, CheckCircle2, ChevronLeft, Loader2, RotateCcw } from 'lucide-react';
+import { Award, BarChart3, CheckCircle2, ChevronLeft, Flame, Loader2, RotateCcw } from 'lucide-react';
 import { getMyProgress } from '@/api/progress.js';
 
 const ProgressPage=()=>{
@@ -13,6 +13,7 @@ const ProgressPage=()=>{
     <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Central Nortis</p><h1 className="mt-2 text-3xl font-bold">Progresso e revisão</h1><p className="mt-3 text-muted-foreground">Indicadores calculados a partir das suas atividades reais.</p>
     {loading?<Loader2 className="mx-auto mt-16 h-8 w-8 animate-spin"/>:error?<p className="mt-8 rounded-2xl bg-card p-6 text-muted-foreground">{error}</p>:<>
       <div className="mt-8 grid gap-4 sm:grid-cols-3">{cards.map(([label,value])=><div key={label} className="rounded-2xl bg-card p-6"><BarChart3 className="mb-3 h-6 w-6 text-[hsl(var(--accent))]"/><p className="text-3xl font-bold">{value}</p><p className="mt-1 text-sm text-muted-foreground">{label}</p></div>)}</div>
+      <section className="mt-8 rounded-2xl bg-card p-6"><div className="flex items-center gap-3"><Flame className="h-6 w-6 text-[hsl(var(--accent))]"/><div><h2 className="text-xl font-bold">Ritmo e marcos</h2><p className="text-sm text-muted-foreground">Sequência atual: {data.streak} {data.streak===1?'dia':'dias'}</p></div></div><div className="mt-5 grid gap-3 sm:grid-cols-2">{data.achievements.map(item=><div key={item.id} className={`rounded-xl border p-4 ${item.unlocked?'border-[hsl(var(--accent))]/50 bg-[hsl(var(--accent))]/10':'border-border bg-muted/40 opacity-70'}`}><div className="flex items-center gap-2"><Award className="h-5 w-5"/><h3 className="font-semibold">{item.title}</h3></div><p className="mt-2 text-xs text-muted-foreground">{item.description}</p></div>)}</div></section>
       <section className="mt-8 rounded-2xl bg-card p-6"><div className="flex items-center gap-3"><RotateCcw className="h-6 w-6 text-[hsl(var(--accent))]"/><h2 className="text-xl font-bold">Revisar agora</h2></div>
         {data.review.length===0?<div className="mt-6 text-center"><CheckCircle2 className="mx-auto mb-3 h-9 w-9 text-emerald-600"/><p className="text-sm text-muted-foreground">Nenhuma questão pendente de revisão.</p></div>:<ul className="mt-5 space-y-3">{data.review.map(item=><li key={item.question_id} className="rounded-xl bg-muted p-4"><p className="font-medium">{item.questions?.statement||'Questão para revisão'}</p>{item.questions?.syllabus_nodes?.title&&<p className="mt-1 text-xs text-muted-foreground">{item.questions.syllabus_nodes.title}</p>}</li>)}</ul>}
       </section></>}
