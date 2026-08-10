@@ -19,6 +19,19 @@ export function summarizeProgress(attempts, sessions, flashcardReviews = [], tod
     if (!latestByQuestion.has(attempt.question_id)) latestByQuestion.set(attempt.question_id, attempt);
   });
   const review = [...latestByQuestion.values()].filter((attempt) => !attempt.is_correct);
+  const diagnosisByContent = new Map();
+  latestByQuestion.forEach((attempt) => {
+    const title = attempt.questions?.syllabus_nodes?.title || 'Conteúdo geral';
+    const current = diagnosisByContent.get(title) || { title, answered: 0, correct: 0 };
+    current.answered += 1;
+    if (attempt.is_correct) current.correct += 1;
+    diagnosisByContent.set(title, current);
+  });
+  const contentDiagnosis = [...diagnosisByContent.values()].map((item) => ({
+    ...item,
+    accuracy: Math.round((item.correct / item.answered) * 100),
+    evidence: item.answered >= 3 ? 'sufficient' : 'collecting',
+  })).sort((a, b) => a.accuracy - b.accuracy || b.answered - a.answered);
   const completedSimulations = sessions.filter((session) => session.status === 'completed').length;
   const activityDates = [
     ...attempts.map((item) => item.answered_at),
@@ -43,5 +56,6 @@ export function summarizeProgress(attempts, sessions, flashcardReviews = [], tod
     streak,
     achievements,
     review,
+    contentDiagnosis,
   };
 }
