@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2, FileText, MessageCircle, RefreshCw, ShieldCheck } from 'lucide-react';
+import { ArrowRight, CheckCircle2, FileText, MessageCircle, RefreshCw, ShieldCheck, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { NORTIS_WHATSAPP_URL } from '@/config/contact.js';
 import { DISCURSIVA_PACKAGES, formatDiscursivaPrice } from '@/config/discursivaCatalog.js';
+import DiscursivaInterestModal from '@/components/DiscursivaInterestModal.jsx';
 
 const STEPS = [
   { icon: FileText, title: 'Envie sua resposta', text: 'Texto digitado e, quando necessário, imagem do manuscrito.' },
@@ -12,7 +13,14 @@ const STEPS = [
   { icon: RefreshCw, title: 'Reescreva com direção', text: 'Use o relatório para corrigir pontos concretos e evoluir sua resposta.' },
 ];
 
-const SprintDiscursivaPage = () => (
+const SprintDiscursivaPage = () => {
+  const [interestModal, setInterestModal] = useState({ isOpen: false, category: '', packageId: '' });
+
+  const openInterestModal = (category = '', packageId = '') =>
+    setInterestModal({ isOpen: true, category, packageId });
+  const closeInterestModal = () => setInterestModal((prev) => ({ ...prev, isOpen: false }));
+
+  return (
   <>
     <Helmet>
       <title>Sprint Discursiva SEDES-DF 2026 | Nortis Concursos</title>
@@ -34,12 +42,14 @@ const SprintDiscursivaPage = () => (
           Pratique respostas discursivas com um processo direto: diagnóstico, correção orientada e reescrita — com foco no seu cargo.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-3">
-          <a href={NORTIS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-            <Button className="w-full sm:w-auto h-12 px-8 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90">
-              Entrar na lista de interesse
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </a>
+          <Button
+            type="button"
+            onClick={() => openInterestModal()}
+            className="w-full sm:w-auto h-12 px-8 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90"
+          >
+            Entrar na lista de interesse
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
           <Link to="/sedes-df-2026">
             <Button variant="outline" className="w-full sm:w-auto h-12 px-8 border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white">
               Ver guia SEDES-DF
@@ -84,10 +94,19 @@ const SprintDiscursivaPage = () => (
               <p className="text-xs font-semibold text-muted-foreground mb-4">{item.audience}</p>
               <p className="text-2xl font-bold text-[hsl(var(--primary))] mb-4">{formatDiscursivaPrice(item.price)}</p>
               <p className="text-sm leading-relaxed text-muted-foreground mb-5 flex-grow">{item.description}</p>
-              <div className="flex items-center text-xs text-muted-foreground">
+              <div className="flex items-center text-xs text-muted-foreground mb-4">
                 <CheckCircle2 className="w-4 h-4 mr-2 text-[hsl(var(--accent))]" />
                 Lançamento em preparação
               </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => openInterestModal(item.category === 'AMBOS' ? '' : item.category, item.id)}
+                className="w-full h-10 text-sm font-semibold"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Quero esse pacote
+              </Button>
             </article>
           ))}
         </div>
@@ -110,7 +129,15 @@ const SprintDiscursivaPage = () => (
         </a>
       </div>
     </section>
+
+    <DiscursivaInterestModal
+      isOpen={interestModal.isOpen}
+      onClose={closeInterestModal}
+      initialCategory={interestModal.category}
+      initialPackageId={interestModal.packageId}
+    />
   </>
-);
+  );
+};
 
 export default SprintDiscursivaPage;
