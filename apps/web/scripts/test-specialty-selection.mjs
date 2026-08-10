@@ -19,4 +19,4 @@ const filtered = filterSyllabusForProfile(nodes, 'superior', 'psych');
 assert.equal(filtered.length, 1);
 assert.deepEqual(filtered[0].children.map((item) => item.id), ['common-e', 'psych']);
 assert.deepEqual(collectSubjectIds(filtered), ['common-e', 'psych-subject']);
-console.log('Specialty selection: 5 verificações aprovadas.');
+console.log('Specialty selection: verificações aprovadas.');

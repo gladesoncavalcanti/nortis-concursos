@@ -35,4 +35,4 @@ assert.doesNotMatch(subjects, /LUANNA KIM|tokens truncated|2001\.4\.7/);
 assert.match(subjects, /Lei Distrital nº 2\.834\/2001\. 4\.7 Lei de Improbidade/);
 assert.match(subjects, /Psicologia Social/);
 assert.match(subjects, /Metodologia de Pesquisa Social e Avaliação de Políticas/);
-console.log('Specialty migrations: 28 verificações aprovadas.');
+console.log('Specialty migrations: verificações aprovadas.');
