@@ -27,6 +27,7 @@ import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
 import MyAccountPage from '@/pages/MyAccountPage.jsx';
 import SyllabusPage from '@/pages/SyllabusPage.jsx';
 import QuestionBankPage from '@/pages/QuestionBankPage.jsx';
+import SimulationsPage from '@/pages/SimulationsPage.jsx';
 import ProductDetailPage from '@/pages/ProductDetailPage.jsx';
 import SedesDfHubPage from '@/pages/SedesDfHubPage.jsx';
 import SprintDiscursivaPage from '@/pages/SprintDiscursivaPage.jsx';
@@ -151,6 +152,7 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/minha-conta/simulados" element={<ProtectedRoute><SimulationsPage /></ProtectedRoute>} />
                 <Route path="*" element={
                   <div className="min-h-screen flex items-center justify-center bg-background">
                     <div className="text-center">
