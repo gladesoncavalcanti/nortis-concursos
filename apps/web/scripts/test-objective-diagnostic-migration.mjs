@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const migration = readFileSync(resolve(import.meta.dirname, '../../../supabase/migrations/20260810141718_create_objective_diagnostic.sql'), 'utf8');
+const questionSeed = migration.match(/with diagnostic_seed[\s\S]+?on conflict \(slug\) do update set/)?.[0] ?? '';
+const optionSeed = migration.match(/with option_seed[\s\S]+?on conflict \(question_id, label\) do update set/)?.[0] ?? '';
+const solutionSeed = migration.match(/with solution_seed[\s\S]+?on conflict \(question_id\) do update set/)?.[0] ?? '';
+
+assert.match(migration, /attempt_context in \('practice', 'diagnostic'\)/);
+assert.match(migration, /question_attempts_one_diagnostic_per_question_idx/);
+assert.match(migration, /where attempt_context = 'diagnostic'/);
+assert.match(migration, /profile\.target_specialty_id = subject\.parent_id/);
+assert.match(migration, /profile\.target_specialty_id = v_specialty_id/);
+assert.match(migration, /source_reference is not null/);
+assert.match(migration, /drop policy if exists "question_attempts_self_read"/);
+assert.match(migration, /enrollment\.status = 'active'/);
+assert.match(migration, /profile\.target_specialty_id = question_attempts\.specialty_id/);
+assert.match(migration, /security definer\s+set search_path = ''/);
+assert.match(migration, /revoke all on function public\.submit_diagnostic_answer/);
+assert.match(migration, /grant execute on function public\.submit_diagnostic_answer/);
+assert.match(migration, /diagnostic_question_not_found/);
+assert.match(migration, /specialty_mismatch/);
+assert.match(migration, /on conflict \(user_id, question_id\)[\s\S]+?do nothing/);
+assert.match(migration, /insert into public\.question_attempts as attempt[\s\S]+?returning attempt\.id, attempt\.is_correct, attempt\.answered_at/);
+assert.equal((questionSeed.match(/Questão autoral Nortis\./g) ?? []).length, 5);
+assert.equal((questionSeed.match(/'diagnostico-agente-social-[^']+'/g) ?? []).length, 5);
+assert.equal((optionSeed.match(/'diagnostico-agente-social-[^']+'/g) ?? []).length, 20);
+assert.equal((solutionSeed.match(/'diagnostico-agente-social-[^']+'/g) ?? []).length, 5);
+assert.doesNotMatch(migration, /Caverna|concorrente/i);
+assert.doesNotMatch(migration, /checkout|asaas|payment|order_items|edge function|secret/i);
+console.log('Objective diagnostic migration: verificações de escopo e segurança aprovadas.');
