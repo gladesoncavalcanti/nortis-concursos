@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 
 const migration = readFileSync(resolve(
   import.meta.dirname,
-  '../../../supabase/migrations/20260810204604_expand_objective_diagnostic_servico_social.sql'
+  '../../../supabase/migrations/20260810205811_expand_objective_diagnostic_servico_social.sql'
 ), 'utf8');
 const engineMigration = readFileSync(resolve(
   import.meta.dirname,
