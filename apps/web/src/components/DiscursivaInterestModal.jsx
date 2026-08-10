@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, Loader2, CheckCircle2, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { Input } from '@/components/ui/input.jsx';
@@ -97,27 +97,37 @@ const DiscursivaInterestModal = ({ isOpen, onClose, initialCategory = '', initia
     setStatus('success');
   };
 
+  // Sem AnimatePresence de propósito: componente irmão (FreeSampleModal,
+  // mesmo padrão) reproduz o mesmo travamento — a animação de saída
+  // chega a opacity:0, mas o nó nunca é removido do DOM, deixando um
+  // overlay invisível interceptando cliques na página inteira. É um
+  // problema pré-existente do mecanismo compartilhado de
+  // AnimatePresence/framer-motion (reproduzido também fora deste
+  // componente), não algo introduzido aqui — registrado como pendência
+  // separada. Correção local: sair do fluxo de saída do
+  // AnimatePresence inteiramente e desmontar de forma síncrona via
+  // `if (!isOpen) return null`, mantendo a animação de ENTRADA (que
+  // funciona normalmente) e trocando só a transição de saída, que
+  // passa a ser instantânea em vez de com fade.
+  if (!isOpen) return null;
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
-          onClick={handleClose}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Cadastro de interesse — Sprint Discursiva"
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="relative w-full max-w-md my-8 rounded-2xl p-7"
-            style={{ background: '#0b2238', border: '1px solid rgba(211,165,47,0.3)' }}
-            onClick={(e) => e.stopPropagation()}
-          >
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+      onClick={handleClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Cadastro de interesse — Sprint Discursiva"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative w-full max-w-md my-8 rounded-2xl p-7"
+        style={{ background: '#0b2238', border: '1px solid rgba(211,165,47,0.3)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
             <button
               type="button"
               onClick={handleClose}
@@ -302,10 +312,8 @@ const DiscursivaInterestModal = ({ isOpen, onClose, initialCategory = '', initia
                 </form>
               </>
             )}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 };
 
