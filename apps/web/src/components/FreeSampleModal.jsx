@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Download, X, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { Input } from '@/components/ui/input.jsx';
@@ -75,27 +75,27 @@ const FreeSampleModal = ({ isOpen, onClose }) => {
     setStatus('success');
   };
 
+  // Desmonta imediatamente para evitar que um overlay invisível permaneça
+  // interceptando cliques quando a animação de saída não é concluída.
+  if (!isOpen) return null;
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
-          onClick={handleClose}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Receba a amostra gratuita"
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="relative w-full max-w-sm rounded-2xl p-7"
-            style={{ background: '#0b2238', border: '1px solid rgba(211,165,47,0.3)' }}
-            onClick={(e) => e.stopPropagation()}
-          >
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={handleClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Receba a amostra gratuita"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative w-full max-w-sm rounded-2xl p-7"
+        style={{ background: '#0b2238', border: '1px solid rgba(211,165,47,0.3)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
             <button
               type="button"
               onClick={handleClose}
@@ -212,10 +212,8 @@ const FreeSampleModal = ({ isOpen, onClose }) => {
                 </form>
               </>
             )}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 };
 
