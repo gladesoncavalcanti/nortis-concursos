@@ -10,7 +10,8 @@
     "lint": "eslint . --quiet",
     "lint:warn": "eslint .",
     "test:supabase": "node scripts/test-supabase-connection.mjs",
-    "test:adapter": "node scripts/test-products-adapter.mjs"
+    "test:adapter": "node scripts/test-products-adapter.mjs",
+    "test:discursiva-interest": "node scripts/test-discursiva-interest-validation.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
