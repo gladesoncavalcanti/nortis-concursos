@@ -4,6 +4,7 @@ export async function getMyQuestions() {
   const { data, error } = await supabase
     .from('questions')
     .select('id, statement, syllabus_node_id, sort_order, question_options(id, label, option_text, sort_order)')
+    .eq('diagnostic_eligible', false)
     .order('sort_order', { ascending: true });
 
   if (error) return { data: [], error: 'Não foi possível carregar as questões agora.' };

@@ -27,6 +27,7 @@ import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
 import MyAccountPage from '@/pages/MyAccountPage.jsx';
 import SyllabusPage from '@/pages/SyllabusPage.jsx';
 import QuestionBankPage from '@/pages/QuestionBankPage.jsx';
+import ObjectiveDiagnosticPage from '@/pages/ObjectiveDiagnosticPage.jsx';
 import SimulationsPage from '@/pages/SimulationsPage.jsx';
 import ProgressPage from '@/pages/ProgressPage.jsx';
 import FlashcardsPage from '@/pages/FlashcardsPage.jsx';
@@ -154,6 +155,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <QuestionBankPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/minha-conta/diagnostico"
+                  element={
+                    <ProtectedRoute>
+                      <ObjectiveDiagnosticPage />
                     </ProtectedRoute>
                   }
                 />

@@ -1,10 +1,10 @@
 import { supabase } from '@/lib/supabase';
 import { buildSuggestedStudyItems } from '@/api/studyPlanSuggestions.js';
 
-export async function createSuggestedStudyWeek({ productId, profile, progress, weakSubjects }) {
+export async function createSuggestedStudyWeek({ productId, profile, progress, objectiveWeakSubjects, selfReportedWeakSubjects }) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sessão não encontrada.', created: 0 };
-  const suggestions = buildSuggestedStudyItems({ profile, progress, weakSubjects });
+  const suggestions = buildSuggestedStudyItems({ profile, progress, objectiveWeakSubjects, selfReportedWeakSubjects });
   const { data: existing, error: readError } = await supabase.from('study_plan_items')
     .select('title,scheduled_date').eq('product_id', productId)
     .gte('scheduled_date', suggestions[0].scheduled_date)
