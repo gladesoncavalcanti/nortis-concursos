@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Mail, Calendar, LogOut, Loader2, AlertCircle, FileText, Download } from 'lucide-react';
+import { Mail, Calendar, LogOut, Loader2, AlertCircle, FileText, Download, BookOpen, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { useNavigate, Link } from 'react-router-dom';
@@ -93,6 +93,10 @@ const MyAccountPage = () => {
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
   };
 
+  const hasAvailableAccess = (enrollment) =>
+    enrollment.status === 'active' &&
+    (!enrollment.expires_at || new Date(enrollment.expires_at).getTime() > Date.now());
+
   const memberSince = formatDate(user?.createdAt);
 
   return (
@@ -115,7 +119,7 @@ const MyAccountPage = () => {
               Minha Conta
             </h1>
             <p className="text-lg text-muted-foreground">
-              Gerencie suas informações e acompanhe seus materiais liberados
+              Continue seus estudos nos produtos e módulos liberados para sua conta
             </p>
           </motion.div>
 
@@ -171,7 +175,7 @@ const MyAccountPage = () => {
               </div>
             </motion.div>
 
-            {/* Materiais liberados (enrollments reais) */}
+            {/* Central Nortis: produtos e módulos liberados por enrollments reais */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -179,9 +183,14 @@ const MyAccountPage = () => {
               className="lg:col-span-2"
             >
               <div className="bg-card rounded-2xl p-6 shadow-sm">
-                <h2 className="text-2xl font-bold text-card-foreground mb-6">
-                  Minhas Apostilas
-                </h2>
+                <div className="mb-6">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[hsl(var(--accent))] mb-2">
+                    Central Nortis
+                  </p>
+                  <h2 className="text-2xl font-bold text-card-foreground">
+                    Meus produtos e módulos
+                  </h2>
+                </div>
 
                 {isLoading ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -197,11 +206,12 @@ const MyAccountPage = () => {
                   <div className="space-y-4">
                     {enrollments.map((enrollment) => {
                       const grantedAt = formatDate(enrollment.granted_at);
+                      const accessAvailable = hasAvailableAccess(enrollment);
 
                       return (
                         <div
                           key={enrollment.id}
-                          className="p-4 bg-muted rounded-xl"
+                          className="p-5 bg-muted rounded-xl"
                         >
                           <div className="flex items-start justify-between gap-3 mb-2">
                             <h3 className="font-semibold text-foreground">
@@ -222,25 +232,63 @@ const MyAccountPage = () => {
                             </p>
                           )}
 
-                          {enrollment.status === 'active' ? (
-                            <Button
-                              onClick={() => handleDownload(enrollment.id)}
-                              disabled={downloadingId === enrollment.id}
-                              size="sm"
-                              className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
-                            >
-                              {downloadingId === enrollment.id ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                  Gerando link...
-                                </>
-                              ) : (
-                                <>
-                                  <Download className="w-4 h-4 mr-2" />
-                                  Baixar apostila
-                                </>
-                              )}
-                            </Button>
+                          {accessAvailable ? (
+                            enrollment.modules.length > 0 ? (
+                              <div className="mt-4 pt-4 border-t border-border/70 space-y-3">
+                                {enrollment.modules.map((module) => (
+                                  <div
+                                    key={module.id}
+                                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg bg-card p-4"
+                                  >
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-9 h-9 rounded-lg bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+                                        <BookOpen className="w-4 h-4" />
+                                      </div>
+                                      <div>
+                                        <h4 className="font-semibold text-foreground">{module.title}</h4>
+                                        {module.description && (
+                                          <p className="text-xs leading-relaxed text-muted-foreground mt-1">
+                                            {module.description}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {module.module_type === 'material' ? (
+                                      <Button
+                                        onClick={() => handleDownload(enrollment.id)}
+                                        disabled={downloadingId === enrollment.id}
+                                        size="sm"
+                                        className="shrink-0 bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
+                                      >
+                                        {downloadingId === enrollment.id ? (
+                                          <>
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            Gerando link...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Baixar apostila
+                                          </>
+                                        )}
+                                      </Button>
+                                    ) : module.route_path ? (
+                                      <Link to={module.route_path} className="shrink-0">
+                                        <Button size="sm" variant="outline">
+                                          Acessar módulo
+                                          <ArrowRight className="w-4 h-4 ml-2" />
+                                        </Button>
+                                      </Link>
+                                    ) : null}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground mt-4 pt-4 border-t border-border/70">
+                                Nenhum módulo está liberado para este produto no momento.
+                              </p>
+                            )
                           ) : (
                             <p className="text-sm text-muted-foreground">
                               Este acesso não está disponível no momento.
@@ -256,7 +304,7 @@ const MyAccountPage = () => {
                       <FileText className="w-8 h-8 text-muted-foreground" />
                     </div>
                     <p className="text-muted-foreground mb-2">
-                      Você ainda não possui materiais liberados nesta conta.
+                      Você ainda não possui produtos liberados nesta conta.
                     </p>
                     <p className="text-xs text-muted-foreground mb-4">
                       Vendas temporariamente pausadas durante o pré-lançamento.
