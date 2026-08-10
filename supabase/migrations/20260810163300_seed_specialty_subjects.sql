@@ -22,4 +22,3 @@ join public.products p on p.slug='nexo-social-sedes-df-2026' and p.active=true
 join public.syllabus_nodes specialty on specialty.product_id=p.id
   and specialty.slug=seed.specialty_slug and specialty.node_type='specialty'
 on conflict do nothing;
-

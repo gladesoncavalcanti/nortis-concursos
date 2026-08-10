@@ -28,7 +28,6 @@ from specialty_seed seed
 join public.products p on p.slug='nexo-social-sedes-df-2026' and p.active=true
 join public.syllabus_nodes root on root.product_id=p.id and root.parent_id is null and root.slug=seed.role_slug
 on conflict do nothing;
-
 create function public.validate_study_profile_specialty()
 returns trigger
 language plpgsql
@@ -66,4 +65,3 @@ create trigger validate_study_profile_specialty_before_write
 before insert or update of target_role, target_specialty_id
 on public.student_study_profiles
 for each row execute function public.validate_study_profile_specialty();
-
