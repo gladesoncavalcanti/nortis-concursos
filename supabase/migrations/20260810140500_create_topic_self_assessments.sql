@@ -10,6 +10,7 @@ create policy "topic_assessments_self_read" on public.student_topic_assessments 
 create policy "topic_assessments_enrolled_insert" on public.student_topic_assessments for insert to authenticated with check (user_id = (select auth.uid()) and exists (select 1 from public.syllabus_nodes s join public.enrollments e on e.product_id=s.product_id where s.id=syllabus_node_id and e.user_id=(select auth.uid()) and e.status='active' and (e.expires_at is null or e.expires_at>now())));
 create policy "topic_assessments_enrolled_update" on public.student_topic_assessments for update to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()) and exists (select 1 from public.syllabus_nodes s join public.enrollments e on e.product_id=s.product_id where s.id=syllabus_node_id and e.user_id=(select auth.uid()) and e.status='active' and (e.expires_at is null or e.expires_at>now())));
 revoke all on public.student_topic_assessments from anon;
+revoke all on public.student_topic_assessments from authenticated;
 grant select,insert,update on public.student_topic_assessments to authenticated;
 
 do $$
