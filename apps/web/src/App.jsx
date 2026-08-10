@@ -32,6 +32,7 @@ import ProgressPage from '@/pages/ProgressPage.jsx';
 import FlashcardsPage from '@/pages/FlashcardsPage.jsx';
 import StudyPlanPage from '@/pages/StudyPlanPage.jsx';
 import CommunityPage from '@/pages/CommunityPage.jsx';
+import StudyTutorPage from '@/pages/StudyTutorPage.jsx';
 import ProductDetailPage from '@/pages/ProductDetailPage.jsx';
 import SedesDfHubPage from '@/pages/SedesDfHubPage.jsx';
 import SprintDiscursivaPage from '@/pages/SprintDiscursivaPage.jsx';
@@ -161,6 +162,7 @@ function App() {
                 <Route path="/minha-conta/flashcards" element={<ProtectedRoute><FlashcardsPage /></ProtectedRoute>} />
                 <Route path="/minha-conta/plano" element={<ProtectedRoute><StudyPlanPage /></ProtectedRoute>} />
                 <Route path="/minha-conta/comunidade" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
+                <Route path="/minha-conta/tutor" element={<ProtectedRoute><StudyTutorPage /></ProtectedRoute>} />
                 <Route path="*" element={
                   <div className="min-h-screen flex items-center justify-center bg-background">
                     <div className="text-center">
