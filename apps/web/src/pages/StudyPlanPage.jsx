@@ -1,10 +1,70 @@
-import React,{useEffect,useState}from'react';import{Helmet}from'react-helmet';import{Link}from'react-router-dom';import{CalendarDays,Check,ChevronLeft,Loader2,Plus,Trash2}from'lucide-react';import{Button}from'@/components/ui/button.jsx';import{createStudyPlanItem,deleteStudyPlanItem,getStudyPlan,toggleStudyPlanItem}from'@/api/studyPlan.js';
-const today=()=>new Date().toISOString().slice(0,10);
-const StudyPlanPage=()=>{const[data,setData]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(null),[busy,setBusy]=useState(false),[form,setForm]=useState({productId:'',title:'',date:today(),duration:30});
-const load=async()=>{const{data:d,error:e}=await getStudyPlan();setData(d);setError(e);setLoading(false);if(d?.enrollments[0])setForm(v=>({...v,productId:v.productId||d.enrollments[0].product_id}));};useEffect(()=>{load();},[]);
-const add=async e=>{e.preventDefault();setBusy(true);const e2=await createStudyPlanItem(form);setError(e2.error);if(!e2.error){setForm(v=>({...v,title:''}));await load();}setBusy(false);};
-const toggle=async item=>{setBusy(true);const e=await toggleStudyPlanItem(item);setError(e);await load();setBusy(false);};const remove=async id=>{setBusy(true);const e=await deleteStudyPlanItem(id);setError(e);await load();setBusy(false);};
-return <><Helmet><title>Plano de estudos - NORTIS CONCURSOS</title></Helmet><div className="min-h-screen bg-background py-12"><div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8"><Link to="/minha-conta" className="mb-6 inline-flex items-center text-sm font-semibold text-[hsl(var(--accent))] hover:underline"><ChevronLeft className="mr-1 h-4 w-4"/>Central Nortis</Link><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Central Nortis</p><h1 className="mt-2 text-3xl font-bold">Plano de estudos</h1><p className="mt-3 text-muted-foreground">Transforme o conteúdo em tarefas possíveis dentro da sua rotina.</p>
-{loading?<Loader2 className="mx-auto mt-16 h-8 w-8 animate-spin"/>:error&&!data?<p className="mt-8 rounded-2xl bg-card p-6">{error}</p>:<><form onSubmit={add} className="mt-8 grid gap-4 rounded-2xl bg-card p-6 sm:grid-cols-2"><label className="text-sm font-medium">Produto<select className="mt-2 w-full rounded-lg border bg-background p-3" value={form.productId} onChange={e=>setForm(v=>({...v,productId:e.target.value}))}>{data.enrollments.map(e=><option key={e.product_id} value={e.product_id}>{e.products?.title||'Produto'}</option>)}</select></label><label className="text-sm font-medium">Tarefa<input required minLength={2} maxLength={160} className="mt-2 w-full rounded-lg border bg-background p-3" value={form.title} onChange={e=>setForm(v=>({...v,title:e.target.value}))}/></label><label className="text-sm font-medium">Data<input required type="date" className="mt-2 w-full rounded-lg border bg-background p-3" value={form.date} onChange={e=>setForm(v=>({...v,date:e.target.value}))}/></label><label className="text-sm font-medium">Duração (minutos)<input required type="number" min="5" max="480" className="mt-2 w-full rounded-lg border bg-background p-3" value={form.duration} onChange={e=>setForm(v=>({...v,duration:e.target.value}))}/></label><Button className="sm:col-span-2" disabled={busy||!form.productId}><Plus className="mr-2 h-4 w-4"/>Adicionar tarefa</Button></form>{error&&<p className="mt-4 text-sm text-destructive">{error}</p>}
-<section className="mt-8"><h2 className="text-xl font-bold">Suas tarefas</h2>{data.items.length===0?<div className="mt-4 rounded-2xl bg-card p-8 text-center"><CalendarDays className="mx-auto mb-3 h-9 w-9 text-muted-foreground"/><p className="text-sm text-muted-foreground">Adicione a primeira tarefa ao seu plano.</p></div>:<ul className="mt-4 space-y-3">{data.items.map(item=><li key={item.id} className="flex items-center gap-3 rounded-xl bg-card p-4"><button type="button" aria-label={item.completed?'Marcar como pendente':'Marcar como concluída'} disabled={busy} onClick={()=>toggle(item)} className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${item.completed?'bg-emerald-600 text-white':'border-border'}`}>{item.completed&&<Check className="h-4 w-4"/>}</button><div className="min-w-0 flex-1"><p className={`font-medium ${item.completed?'line-through opacity-60':''}`}>{item.title}</p><p className="text-xs text-muted-foreground">{new Date(`${item.scheduled_date}T12:00:00`).toLocaleDateString('pt-BR')} · {item.duration_minutes} min</p></div><button type="button" aria-label="Excluir tarefa" disabled={busy} onClick={()=>remove(item.id)} className="p-2 text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4"/></button></li>)}</ul>}</section></>}
-</div></div></>};export default StudyPlanPage;
+import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet';
+import { Link } from 'react-router-dom';
+import { CalendarDays, Check, ChevronLeft, Loader2, Plus, Sparkles, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button.jsx';
+import { createStudyPlanItem, deleteStudyPlanItem, getStudyPlan, toggleStudyPlanItem } from '@/api/studyPlan.js';
+import { createSuggestedStudyWeek } from '@/api/suggestedStudyPlan.js';
+import { getStudyProfile } from '@/api/studyProfile.js';
+import { getMyProgress } from '@/api/progress.js';
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+const StudyPlanPage = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [notice, setNotice] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [form, setForm] = useState({ productId: '', title: '', date: today(), duration: 30 });
+
+  const load = async () => {
+    const { data: loaded, error: loadError } = await getStudyPlan();
+    setData(loaded);
+    setError(loadError);
+    setLoading(false);
+    if (loaded?.enrollments[0]) {
+      setForm((current) => ({ ...current, productId: current.productId || loaded.enrollments[0].product_id }));
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const add = async (event) => {
+    event.preventDefault(); setBusy(true); setNotice(null);
+    const result = await createStudyPlanItem(form); setError(result.error);
+    if (!result.error) { setForm((current) => ({ ...current, title: '' })); await load(); }
+    setBusy(false);
+  };
+
+  const suggestWeek = async () => {
+    setBusy(true); setError(null); setNotice(null);
+    const [{ data: profile, error: profileError }, { data: progress, error: progressError }] = await Promise.all([getStudyProfile(), getMyProgress()]);
+    if (profileError || progressError || !profile) {
+      setError(profileError || progressError || 'Conclua o diagnóstico inicial antes de gerar sua semana.');
+    } else {
+      const result = await createSuggestedStudyWeek({ productId: form.productId, profile, progress });
+      setError(result.error);
+      if (!result.error) {
+        setNotice(result.created ? `${result.created} tarefas foram adicionadas à sua semana.` : 'A semana sugerida já está no seu plano.');
+        await load();
+      }
+    }
+    setBusy(false);
+  };
+
+  const toggle = async (item) => { setBusy(true); setError(await toggleStudyPlanItem(item)); await load(); setBusy(false); };
+  const remove = async (id) => { setBusy(true); setError(await deleteStudyPlanItem(id)); await load(); setBusy(false); };
+
+  return <><Helmet><title>Plano de estudos - NORTIS CONCURSOS</title></Helmet><div className="min-h-screen bg-background py-12"><div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+    <Link to="/minha-conta" className="mb-6 inline-flex items-center text-sm font-semibold text-[hsl(var(--accent))] hover:underline"><ChevronLeft className="mr-1 h-4 w-4" />Central Nortis</Link>
+    <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Central Nortis</p><h1 className="mt-2 text-3xl font-bold">Plano de estudos</h1><p className="mt-3 text-muted-foreground">Transforme seu diagnóstico em tarefas possíveis dentro da sua rotina.</p>
+    {loading ? <Loader2 className="mx-auto mt-16 h-8 w-8 animate-spin" /> : error && !data ? <p className="mt-8 rounded-2xl bg-card p-6">{error}</p> : <>
+      <div className="mt-8 rounded-2xl border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 p-6"><h2 className="flex items-center gap-2 text-xl font-bold"><Sparkles className="h-5 w-5" />Semana sugerida</h2><p className="mt-2 text-sm text-muted-foreground">Usa seu tempo disponível, dificuldade declarada e desempenho real. Você continua livre para editar o plano.</p><Button className="mt-4" disabled={busy || !form.productId} onClick={suggestWeek}>Gerar minha semana</Button></div>
+      <form onSubmit={add} className="mt-6 grid gap-4 rounded-2xl bg-card p-6 sm:grid-cols-2"><label className="text-sm font-medium">Produto<select className="mt-2 w-full rounded-lg border bg-background p-3" value={form.productId} onChange={(event) => setForm((current) => ({ ...current, productId: event.target.value }))}>{data.enrollments.map((enrollment) => <option key={enrollment.product_id} value={enrollment.product_id}>{enrollment.products?.title || 'Produto'}</option>)}</select></label><label className="text-sm font-medium">Tarefa<input required minLength={2} maxLength={160} className="mt-2 w-full rounded-lg border bg-background p-3" value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} /></label><label className="text-sm font-medium">Data<input required type="date" className="mt-2 w-full rounded-lg border bg-background p-3" value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} /></label><label className="text-sm font-medium">Duração (minutos)<input required type="number" min="5" max="480" className="mt-2 w-full rounded-lg border bg-background p-3" value={form.duration} onChange={(event) => setForm((current) => ({ ...current, duration: event.target.value }))} /></label><Button className="sm:col-span-2" disabled={busy || !form.productId}><Plus className="mr-2 h-4 w-4" />Adicionar tarefa</Button></form>
+      {error && <p className="mt-4 text-sm text-destructive">{error}</p>}{notice && <p className="mt-4 text-sm text-emerald-600">{notice}</p>}
+      <section className="mt-8"><h2 className="text-xl font-bold">Suas tarefas</h2>{data.items.length === 0 ? <div className="mt-4 rounded-2xl bg-card p-8 text-center"><CalendarDays className="mx-auto mb-3 h-9 w-9 text-muted-foreground" /><p className="text-sm text-muted-foreground">Adicione uma tarefa ou gere sua primeira semana.</p></div> : <ul className="mt-4 space-y-3">{data.items.map((item) => <li key={item.id} className="flex items-center gap-3 rounded-xl bg-card p-4"><button type="button" aria-label={item.completed ? 'Marcar como pendente' : 'Marcar como concluída'} disabled={busy} onClick={() => toggle(item)} className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${item.completed ? 'bg-emerald-600 text-white' : 'border-border'}`}>{item.completed && <Check className="h-4 w-4" />}</button><div className="min-w-0 flex-1"><p className={`font-medium ${item.completed ? 'line-through opacity-60' : ''}`}>{item.title}</p><p className="text-xs text-muted-foreground">{new Date(`${item.scheduled_date}T12:00:00`).toLocaleDateString('pt-BR')} · {item.duration_minutes} min</p></div><button type="button" aria-label="Excluir tarefa" disabled={busy} onClick={() => remove(item.id)} className="p-2 text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button></li>)}</ul>}</section>
+    </>}
+  </div></div></>;
+};
+export default StudyPlanPage;

@@ -3,15 +3,13 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, ChevronLeft, ChevronRight, RotateCcw, X } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
+import { getStudyProfile, profileToAnswers, saveStudyProfile } from '@/api/studyProfile.js';
 
 // Diagnóstico inicial do aluno — "Sprint Funcional 1.2".
 //
-// 100% frontend: nenhuma chamada ao Supabase, nenhuma nova rota. As
-// respostas ficam em localStorage, isoladas por usuário autenticado
-// (chave = STORAGE_KEY_PREFIX + userId), para que uma conta nunca leia
-// a resposta de outra no mesmo navegador. Limitação aceita do MVP: as
-// respostas não sincronizam entre dispositivos — persistência real no
-// banco é uma evolução futura, fora desta sprint.
+// O perfil é persistido no Supabase com RLS por usuário e sincroniza entre
+// dispositivos. O localStorage permanece apenas como fallback de migração
+// para respostas salvas antes da persistência remota.
 //
 // A recomendação final é uma regra editorial simples (texto fixo por
 // combinação de respostas), nunca uma promessa de resultado, e só
@@ -161,11 +159,23 @@ const PersonalizationQuiz = ({ userId }) => {
   const [mode, setMode] = useState('invite');
   const [stepIndex, setStepIndex] = useState(0);
   const [draft, setDraft] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => {
-    const existing = loadSavedAnswers(userId);
-    setSaved(existing);
-    setMode(existing ? 'summary' : 'invite');
+    let mounted = true;
+    const load = async () => {
+      const { data } = await getStudyProfile();
+      if (!mounted) return;
+      const remoteAnswers = profileToAnswers(data);
+      const localAnswers = loadSavedAnswers(userId);
+      if (!remoteAnswers && localAnswers?.answers) await saveStudyProfile(localAnswers.answers);
+      const existing = remoteAnswers ? { answers: remoteAnswers, completedAt: data.completed_at } : localAnswers;
+      setSaved(existing);
+      setMode(existing ? 'summary' : 'invite');
+    };
+    load();
+    return () => { mounted = false; };
   }, [userId]);
 
   const startWizard = () => {
@@ -187,7 +197,7 @@ const PersonalizationQuiz = ({ userId }) => {
     setDraft((prev) => ({ ...prev, [currentQuestion.id]: value }));
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!currentAnswer) return;
 
     if (stepIndex < QUESTIONS.length - 1) {
@@ -195,6 +205,14 @@ const PersonalizationQuiz = ({ userId }) => {
       return;
     }
 
+    setIsSaving(true);
+    setSaveError(null);
+    const { error } = await saveStudyProfile(draft);
+    setIsSaving(false);
+    if (error) {
+      setSaveError(error);
+      return;
+    }
     saveAnswers(userId, draft);
     setSaved({ answers: draft });
     setMode('summary');
@@ -285,13 +303,14 @@ const PersonalizationQuiz = ({ userId }) => {
               <Button
                 type="button"
                 onClick={handleContinue}
-                disabled={!currentAnswer}
+                disabled={!currentAnswer || isSaving}
                 className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
               >
-                {stepIndex < QUESTIONS.length - 1 ? 'Continuar' : 'Concluir'}
+                {isSaving ? 'Salvando...' : stepIndex < QUESTIONS.length - 1 ? 'Continuar' : 'Concluir'}
                 <ChevronRight className="w-4 h-4 ml-1" aria-hidden="true" />
               </Button>
             </div>
+            {saveError && <p className="mt-3 text-sm text-destructive">{saveError}</p>}
           </div>
         )}
 
