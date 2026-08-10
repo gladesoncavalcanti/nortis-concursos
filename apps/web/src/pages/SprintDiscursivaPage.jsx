@@ -13,6 +13,33 @@ const STEPS = [
   { icon: RefreshCw, title: 'Reescreva com direção', text: 'Use o relatório para corrigir pontos concretos e evoluir sua resposta.' },
 ];
 
+const FAQ_ITEMS = [
+  {
+    question: 'Qual é a diferença entre TDAS e EDAS?',
+    answer: 'TDAS reúne as opções para Agente Social e Técnico Administrativo. EDAS corresponde à opção de Serviço Social. Ao se cadastrar, escolha a categoria e a especialidade do seu cargo.',
+  },
+  {
+    question: 'Como funcionam as três etapas da Sprint?',
+    answer: 'Primeiro, você envia sua resposta. Depois, recebe uma correção orientada — com revisão humana nas correções pagas. Por fim, usa o relatório para reescrever o texto com foco nos pontos de melhoria.',
+  },
+  {
+    question: 'Qual é a diferença entre os pacotes?',
+    answer: 'O Diagnóstico oferece uma primeira leitura orientativa. Os pacotes Essencial incluem correção estruturada. Os pacotes Intensivo propõem um ciclo de prática, orientação e reescrita. As opções TDAS e EDAS são direcionadas aos respectivos cargos.',
+  },
+  {
+    question: 'Os pacotes já estão disponíveis?',
+    answer: 'Ainda não há compra online. Os pacotes estão em preparação, e as opções EDAS dependem também da confirmação de disponibilidade pedagógica. Você pode registrar seu interesse para receber o aviso de abertura das vagas.',
+  },
+  {
+    question: 'A Sprint é oficial do Instituto Quadrix?',
+    answer: 'Não. Este é um projeto independente da Nortis Concursos, sem vínculo oficial com o Instituto Quadrix. Correções, diagnósticos e estimativas têm finalidade pedagógica e não representam nota ou resultado oficial.',
+  },
+  {
+    question: 'O que acontece depois do cadastro?',
+    answer: 'A Nortis registra seu cargo, especialidade e pacote de interesse e entra em contato quando as vagas correspondentes forem abertas. O cadastro não é uma compra nem garante uma vaga.',
+  },
+];
+
 const SprintDiscursivaPage = () => {
   const [interestModal, setInterestModal] = useState({ isOpen: false, category: '', packageId: '' });
 
@@ -114,6 +141,48 @@ const SprintDiscursivaPage = () => {
           Projeto independente, sem vínculo oficial com o Instituto Quadrix. Correções, diagnósticos e
           estimativas têm finalidade exclusivamente pedagógica e não representam nota ou resultado oficial.
         </p>
+      </div>
+    </section>
+
+    <section className="py-14 md:py-20 bg-background" aria-labelledby="faq-title">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-10">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[hsl(var(--accent))] mb-3">Dúvidas frequentes</p>
+          <h2 id="faq-title" className="font-heading text-3xl font-bold text-foreground mb-3">
+            Antes de registrar seu interesse
+          </h2>
+          <p className="text-muted-foreground">Entenda a proposta, os pacotes e as próximas etapas.</p>
+        </div>
+
+        <div className="space-y-3">
+          {FAQ_ITEMS.map((item) => (
+            <details key={item.question} className="group rounded-xl border border-border bg-card px-5 py-4 shadow-sm">
+              <summary className="cursor-pointer list-none font-heading font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 rounded-sm">
+                <span className="flex items-center justify-between gap-4">
+                  {item.question}
+                  <span aria-hidden="true" className="text-xl leading-none text-[hsl(var(--accent))] transition-transform group-open:rotate-45">+</span>
+                </span>
+              </summary>
+              <p className="pt-3 pr-8 text-sm leading-relaxed text-muted-foreground">{item.answer}</p>
+            </details>
+          ))}
+
+          <details className="group rounded-xl border border-border bg-card px-5 py-4 shadow-sm">
+            <summary className="cursor-pointer list-none font-heading font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 rounded-sm">
+              <span className="flex items-center justify-between gap-4">
+                Como meus dados serão usados?
+                <span aria-hidden="true" className="text-xl leading-none text-[hsl(var(--accent))] transition-transform group-open:rotate-45">+</span>
+              </span>
+            </summary>
+            <p className="pt-3 pr-8 text-sm leading-relaxed text-muted-foreground">
+              Os dados informados são usados para o contato da Nortis sobre a Sprint Discursiva, conforme o consentimento dado no formulário. Consulte a{' '}
+              <Link to="/politica-privacidade" className="font-medium underline underline-offset-2 hover:text-foreground">
+                Política de Privacidade
+              </Link>
+              .
+            </p>
+          </details>
+        </div>
       </div>
     </section>
 
