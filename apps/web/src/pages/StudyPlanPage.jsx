@@ -8,6 +8,8 @@ import { createSuggestedStudyWeek } from '@/api/suggestedStudyPlan.js';
 import { getStudyProfile } from '@/api/studyProfile.js';
 import { getMyProgress } from '@/api/progress.js';
 import { getWeakestAssessedSubjects } from '@/api/topicAssessments.js';
+import { getMySyllabus } from '@/api/syllabus.js';
+import { collectSubjectIds, filterSyllabusForProfile } from '@/api/specialtySelection.js';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -40,10 +42,12 @@ const StudyPlanPage = () => {
 
   const suggestWeek = async () => {
     setBusy(true); setError(null); setNotice(null);
-    const [{ data: profile, error: profileError }, { data: progress, error: progressError }, priorities] = await Promise.all([getStudyProfile(), getMyProgress(), getWeakestAssessedSubjects()]);
-    if (profileError || progressError || !profile) {
-      setError(profileError || progressError || 'Conclua o diagnóstico inicial antes de gerar sua semana.');
+    const [{ data: profile, error: profileError }, { data: progress, error: progressError }, syllabus] = await Promise.all([getStudyProfile(), getMyProgress(), getMySyllabus()]);
+    if (profileError || progressError || syllabus.error || !profile) {
+      setError(profileError || progressError || syllabus.error || 'Conclua o diagnóstico inicial antes de gerar sua semana.');
     } else {
+      const visibleNodes = filterSyllabusForProfile(syllabus.data, profile.target_role, profile.target_specialty_id);
+      const priorities = await getWeakestAssessedSubjects(collectSubjectIds(visibleNodes));
       const weakSubjects = priorities.data.map((item) => item.syllabus_nodes.title);
       const result = await createSuggestedStudyWeek({ productId: form.productId, profile, progress, weakSubjects });
       setError(result.error);
