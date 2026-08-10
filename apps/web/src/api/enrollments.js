@@ -24,7 +24,14 @@ export async function getMyEnrollments() {
   const { data, error } = await supabase
     .from('enrollments')
     .select(
-      'id, status, granted_at, expires_at, product_id, products(title, slug, cover_image_url)'
+      `id, status, granted_at, expires_at, product_id,
+       products(
+         title, slug, cover_image_url,
+         product_modules(
+           sort_order,
+           learning_modules(id, slug, title, description, module_type, route_path, sort_order)
+         )
+       )`
     )
     .eq('user_id', user.id)
     .order('granted_at', { ascending: false });
@@ -33,5 +40,18 @@ export async function getMyEnrollments() {
     return { data: [], error: 'Não foi possível carregar seus materiais agora.' };
   }
 
-  return { data: data ?? [], error: null };
+  const enrollments = (data ?? []).map((enrollment) => {
+    const moduleLinks = enrollment.products?.product_modules ?? [];
+    const modules = moduleLinks
+      .map((link) => ({ ...link.learning_modules, productSortOrder: link.sort_order }))
+      .filter((module) => module.id)
+      .sort(
+        (a, b) =>
+          a.productSortOrder - b.productSortOrder || a.sort_order - b.sort_order || a.title.localeCompare(b.title)
+      );
+
+    return { ...enrollment, modules };
+  });
+
+  return { data: enrollments, error: null };
 }
