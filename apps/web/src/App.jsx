@@ -25,6 +25,7 @@ import SignupPage from '@/pages/SignupPage.jsx';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
 import MyAccountPage from '@/pages/MyAccountPage.jsx';
+import SyllabusPage from '@/pages/SyllabusPage.jsx';
 import ProductDetailPage from '@/pages/ProductDetailPage.jsx';
 import SedesDfHubPage from '@/pages/SedesDfHubPage.jsx';
 import SprintDiscursivaPage from '@/pages/SprintDiscursivaPage.jsx';
@@ -132,6 +133,14 @@ function App() {
                       <MyAccountPage />
                     </ProtectedRoute>
                   } 
+                />
+                <Route
+                  path="/minha-conta/edital"
+                  element={
+                    <ProtectedRoute>
+                      <SyllabusPage />
+                    </ProtectedRoute>
+                  }
                 />
                 <Route path="*" element={
                   <div className="min-h-screen flex items-center justify-center bg-background">
