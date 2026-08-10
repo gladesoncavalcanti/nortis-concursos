@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const migration = readFileSync(resolve(import.meta.dirname, '../../../supabase/migrations/20260810141718_create_objective_diagnostic.sql'), 'utf8');
+const migration = readFileSync(resolve(import.meta.dirname, '../../../supabase/migrations/20260810145224_create_objective_diagnostic.sql'), 'utf8');
 const questionSeed = migration.match(/with diagnostic_seed[\s\S]+?on conflict \(slug\) do update set/)?.[0] ?? '';
 const optionSeed = migration.match(/with option_seed[\s\S]+?on conflict \(question_id, label\) do update set/)?.[0] ?? '';
 const solutionSeed = migration.match(/with solution_seed[\s\S]+?on conflict \(question_id\) do update set/)?.[0] ?? '';
