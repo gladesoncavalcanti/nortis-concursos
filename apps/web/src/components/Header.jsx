@@ -18,6 +18,7 @@ const Header = ({ setIsCartOpen }) => {
     { path: '/', label: 'Home' },
     { path: '/apostilas', label: 'Apostilas' },
     { path: '/sedes-df-2026', label: 'SEDES-DF 2026' },
+    { path: '/sprint-discursiva-sedes-df', label: 'Discursiva' },
     { path: '/materiais-gratuitos', label: 'Materiais Gratuitos' },
     { path: '/sobre', label: 'Sobre' },
     { path: '/contato', label: 'Contato' }
