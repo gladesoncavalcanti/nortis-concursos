@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 
 const migration = readFileSync(resolve(
   import.meta.dirname,
-  '../../../supabase/migrations/20260810151803_expand_objective_diagnostic_coverage.sql'
+  '../../../supabase/migrations/20260810155451_expand_objective_diagnostic_coverage.sql'
 ), 'utf8');
 
 const questionSeed = migration.match(/with diagnostic_seed[\s\S]+?on conflict \(slug\) do update set[\s\S]+?updated_at = now\(\);/)?.[0] ?? '';
