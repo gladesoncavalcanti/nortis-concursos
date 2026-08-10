@@ -4,11 +4,15 @@ import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '../../..');
 const migration = (name) => readFileSync(resolve(root, 'supabase/migrations', name), 'utf8');
-const profile = migration('20260810163000_add_target_specialty.sql');
+const profile = migration('20260810140016_add_target_specialty.sql');
 const profileFoundation = migration('20260810122825_create_student_study_profiles.sql');
-const subjectFiles = [1, 2, 3, 4, 5].map((part) =>
-  migration(`20260810163${part}00_seed_specialty_subjects.sql`)
-);
+const subjectFiles = [
+  '20260810140042_seed_specialty_subjects.sql',
+  '20260810140050_seed_specialty_subjects.sql',
+  '20260810140059_seed_specialty_subjects.sql',
+  '20260810140110_seed_specialty_subjects.sql',
+  '20260810140119_seed_specialty_subjects.sql',
+].map(migration);
 const subjects = subjectFiles.join('\n');
 const specialtyRows = (profile.match(/^  \('/gm) ?? []).length;
 const subjectRows = (subjects.match(/^  \('/gm) ?? []).length;
