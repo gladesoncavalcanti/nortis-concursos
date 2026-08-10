@@ -5,8 +5,12 @@ import { AlertCircle, BookOpen, ChevronRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { getMySyllabus } from '@/api/syllabus.js';
 import { getSyllabusNodeTypeLabel } from '@/api/syllabusTree.js';
+import { getStudyProfile } from '@/api/studyProfile.js';
+import { getTopicAssessments, saveTopicAssessment } from '@/api/topicAssessments.js';
 
-const SyllabusNode = ({ node, depth = 0 }) => (
+const CONFIDENCE_LABELS = ['Não estudei', 'Tenho muita dificuldade', 'Tenho alguma dificuldade', 'Estou seguro', 'Domino bem'];
+
+const SyllabusNode = ({ node, assessments, onAssess, savingId, depth = 0 }) => (
   <li className={depth > 0 ? 'ml-4 border-l border-border pl-4' : ''}>
     <div className="rounded-xl border border-border bg-card p-4">
       <p className="text-xs font-bold uppercase tracking-[0.14em] text-[hsl(var(--accent))]">
@@ -16,11 +20,28 @@ const SyllabusNode = ({ node, depth = 0 }) => (
       {node.description && (
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{node.description}</p>
       )}
+      {node.node_type === 'subject' && (
+        <fieldset className="mt-4">
+          <legend className="text-xs font-semibold text-muted-foreground">Como você está neste conteúdo?</legend>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {CONFIDENCE_LABELS.map((label, index) => {
+              const value = index + 1;
+              const selected = assessments[node.id] === value;
+              return (
+                <button key={value} type="button" disabled={savingId === node.id} aria-pressed={selected} title={label} onClick={() => onAssess(node.id, value)} className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${selected ? 'border-[hsl(var(--accent))] bg-[hsl(var(--accent))]/15 text-foreground' : 'border-border text-muted-foreground hover:border-[hsl(var(--accent))]/60'}`}>
+                  {value}<span className="sr-only"> — {label}</span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">{assessments[node.id] ? CONFIDENCE_LABELS[assessments[node.id] - 1] : '1 = não estudei · 5 = domino bem'}</p>
+        </fieldset>
+      )}
     </div>
     {node.children.length > 0 && (
       <ul className="mt-3 space-y-3">
         {node.children.map((child) => (
-          <SyllabusNode key={child.id} node={child} depth={depth + 1} />
+          <SyllabusNode key={child.id} node={child} assessments={assessments} onAssess={onAssess} savingId={savingId} depth={depth + 1} />
         ))}
       </ul>
     )}
@@ -31,14 +52,19 @@ const SyllabusPage = () => {
   const [nodes, setNodes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [assessments, setAssessments] = useState({});
+  const [savingId, setSavingId] = useState(null);
+  const [notice, setNotice] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
 
-    getMySyllabus().then(({ data, error: loadError }) => {
+    Promise.all([getMySyllabus(), getTopicAssessments(), getStudyProfile()]).then(([syllabus, assessmentResult, profile]) => {
       if (!isMounted) return;
-      setNodes(data);
-      setError(loadError);
+      const roleSlug = profile.data?.target_role === 'tecnico' ? 'tdas' : profile.data?.target_role === 'superior' ? 'edas' : null;
+      setNodes(roleSlug ? syllabus.data.filter((node) => node.slug === roleSlug) : syllabus.data);
+      setAssessments(Object.fromEntries(assessmentResult.data.map((item) => [item.syllabus_node_id, item.confidence])));
+      setError(syllabus.error || assessmentResult.error);
       setIsLoading(false);
     });
 
@@ -46,6 +72,17 @@ const SyllabusPage = () => {
       isMounted = false;
     };
   }, []);
+
+  const assess = async (nodeId, confidence) => {
+    setSavingId(nodeId); setNotice(null);
+    const result = await saveTopicAssessment(nodeId, confidence);
+    if (result.error) setNotice(result.error);
+    else {
+      setAssessments((current) => ({ ...current, [nodeId]: confidence }));
+      setNotice('Autoavaliação salva. Ela será usada para priorizar seu plano.');
+    }
+    setSavingId(null);
+  };
 
   return (
     <>
@@ -73,9 +110,9 @@ const SyllabusPage = () => {
             </p>
             <h1 className="text-3xl font-bold text-foreground md:text-4xl">Edital verticalizado</h1>
             <p className="mt-3 max-w-3xl text-muted-foreground">
-              Consulte a estrutura liberada para seu produto, organizada por cargo, especialidade,
-              disciplina e tópico.
+              Consulte o conteúdo oficial liberado e marque de 1 a 5 como você se sente em cada disciplina. Esta autoavaliação orienta o plano, mas não substitui seu desempenho em questões.
             </p>
+            {notice && <p role="status" className="mt-3 text-sm text-[hsl(var(--accent))]">{notice}</p>}
           </div>
 
           {isLoading ? (
@@ -91,7 +128,7 @@ const SyllabusPage = () => {
           ) : nodes.length > 0 ? (
             <ul className="space-y-4">
               {nodes.map((node) => (
-                <SyllabusNode key={node.id} node={node} />
+                <SyllabusNode key={node.id} node={node} assessments={assessments} onAssess={assess} savingId={savingId} />
               ))}
             </ul>
           ) : (

@@ -7,6 +7,7 @@ import { createStudyPlanItem, deleteStudyPlanItem, getStudyPlan, toggleStudyPlan
 import { createSuggestedStudyWeek } from '@/api/suggestedStudyPlan.js';
 import { getStudyProfile } from '@/api/studyProfile.js';
 import { getMyProgress } from '@/api/progress.js';
+import { getWeakestAssessedSubjects } from '@/api/topicAssessments.js';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -39,11 +40,12 @@ const StudyPlanPage = () => {
 
   const suggestWeek = async () => {
     setBusy(true); setError(null); setNotice(null);
-    const [{ data: profile, error: profileError }, { data: progress, error: progressError }] = await Promise.all([getStudyProfile(), getMyProgress()]);
+    const [{ data: profile, error: profileError }, { data: progress, error: progressError }, priorities] = await Promise.all([getStudyProfile(), getMyProgress(), getWeakestAssessedSubjects()]);
     if (profileError || progressError || !profile) {
       setError(profileError || progressError || 'Conclua o diagnóstico inicial antes de gerar sua semana.');
     } else {
-      const result = await createSuggestedStudyWeek({ productId: form.productId, profile, progress });
+      const weakSubjects = priorities.data.map((item) => item.syllabus_nodes.title);
+      const result = await createSuggestedStudyWeek({ productId: form.productId, profile, progress, weakSubjects });
       setError(result.error);
       if (!result.error) {
         setNotice(result.created ? `${result.created} tarefas foram adicionadas à sua semana.` : 'A semana sugerida já está no seu plano.');
