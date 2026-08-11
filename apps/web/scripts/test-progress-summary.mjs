@@ -19,4 +19,18 @@ assert.equal(summary.contentDiagnosis[0].answered, 2);
 assert.equal(summary.contentDiagnosis[0].evidence, 'collecting');
 assert.deepEqual(summary.review.map((item) => item.question_id), ['a']);
 assert.deepEqual(summarizeProgress([], []).review, []);
-console.log('Progress summary: 12 verificações aprovadas.');
+
+const correctedInReview = summarizeProgress([
+  { question_id: 'diagnostic-a', is_correct: true, answered_at: '2026-08-10T12:00:00Z', attempt_context: 'practice' },
+  { question_id: 'diagnostic-a', is_correct: false, answered_at: '2026-08-10T10:00:00Z', attempt_context: 'diagnostic' },
+], []);
+assert.deepEqual(correctedInReview.review, []);
+assert.equal(correctedInReview.contentDiagnosis[0].accuracy, 100);
+
+const stillPending = summarizeProgress([
+  { question_id: 'diagnostic-b', is_correct: false, answered_at: '2026-08-10T12:00:00Z', attempt_context: 'practice' },
+  { question_id: 'diagnostic-b', is_correct: false, answered_at: '2026-08-10T10:00:00Z', attempt_context: 'diagnostic' },
+], []);
+assert.deepEqual(stillPending.review.map((item) => item.question_id), ['diagnostic-b']);
+
+console.log('Progress summary: 15 verificações aprovadas.');
