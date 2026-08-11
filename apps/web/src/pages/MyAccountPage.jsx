@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Mail, Calendar, LogOut, Loader2, AlertCircle, FileText, Download, BookOpen, ArrowRight } from 'lucide-react';
+import { Mail, Calendar, LogOut, Loader2, AlertCircle, FileText, Download, BookOpen, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getMyEnrollments } from '@/api/enrollments.js';
 import { requestDownloadUrl } from '@/api/downloads.js';
+import { getMyProgress } from '@/api/progress.js';
+import { getStudyPlan } from '@/api/studyPlan.js';
+import { buildNextBestAction } from '@/api/nextBestAction.js';
 import PersonalizationQuiz from '@/components/PersonalizationQuiz.jsx';
 
 const STATUS_LABELS = {
@@ -22,6 +25,10 @@ const STATUS_BADGE_STYLES = {
   expired: 'bg-muted text-muted-foreground',
 };
 
+const hasAvailableAccess = (enrollment) =>
+  enrollment.status === 'active' &&
+  (!enrollment.expires_at || new Date(enrollment.expires_at).getTime() > Date.now());
+
 const MyAccountPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -29,6 +36,9 @@ const MyAccountPage = () => {
   const [enrollments, setEnrollments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
+  const [nextAction, setNextAction] = useState(null);
+  const [isNextActionLoading, setIsNextActionLoading] = useState(false);
+  const [nextActionError, setNextActionError] = useState(null);
   // Um único download por vez (id do enrollment em andamento, ou null).
   // Evita múltiplos cliques disparando várias signed URLs em paralelo.
   const [downloadingId, setDownloadingId] = useState(null);
@@ -59,6 +69,52 @@ const MyAccountPage = () => {
       isMounted = false;
     };
   }, []);
+
+  const hasActiveEnrollment = enrollments.some(hasAvailableAccess);
+
+  useEffect(() => {
+    if (!hasActiveEnrollment) {
+      setNextAction(null);
+      setNextActionError(null);
+      setIsNextActionLoading(false);
+      return undefined;
+    }
+
+    let isMounted = true;
+    setIsNextActionLoading(true);
+    setNextActionError(null);
+
+    const activeProductIds = new Set(
+      enrollments.filter(hasAvailableAccess).map((enrollment) => enrollment.product_id)
+    );
+
+    Promise.all([getMyProgress(), getStudyPlan()])
+      .then(([progressResult, planResult]) => {
+        if (!isMounted) return;
+
+        if (progressResult.error || planResult.error) {
+          setNextAction(null);
+          setNextActionError('Não foi possível calcular sua prioridade agora.');
+        } else {
+          setNextAction(buildNextBestAction({
+            progress: progressResult.data,
+            planItems: planResult.data.items.filter((item) => activeProductIds.has(item.product_id)),
+          }));
+        }
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setNextAction(null);
+        setNextActionError('Não foi possível calcular sua prioridade agora.');
+      })
+      .finally(() => {
+        if (isMounted) setIsNextActionLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [hasActiveEnrollment, enrollments]);
 
   const handleLogout = async () => {
     const result = await logout();
@@ -93,10 +149,6 @@ const MyAccountPage = () => {
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
   };
 
-  const hasAvailableAccess = (enrollment) =>
-    enrollment.status === 'active' &&
-    (!enrollment.expires_at || new Date(enrollment.expires_at).getTime() > Date.now());
-
   const memberSince = formatDate(user?.createdAt);
 
   return (
@@ -127,6 +179,54 @@ const MyAccountPage = () => {
           <div className="mb-8">
             <PersonalizationQuiz userId={user?.id} />
           </div>
+
+          {hasActiveEnrollment && (
+            <motion.section
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="mb-8 rounded-2xl border border-[hsl(var(--accent))]/40 bg-[hsl(var(--accent))]/10 p-6"
+              aria-labelledby="next-best-action-label"
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--primary))] text-white">
+                  <Sparkles className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p id="next-best-action-label" className="text-xs font-bold uppercase tracking-[0.16em] text-[hsl(var(--accent))]">
+                    Próximo melhor passo
+                  </p>
+                  {isNextActionLoading ? (
+                    <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground" role="status">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Calculando sua prioridade...
+                    </div>
+                  ) : nextActionError ? (
+                    <div className="mt-3">
+                      <p className="text-sm text-muted-foreground">{nextActionError}</p>
+                      <Link to="/minha-conta/plano" className="mt-2 inline-flex text-sm font-semibold text-[hsl(var(--accent))] hover:underline">
+                        Abrir plano semanal
+                      </Link>
+                    </div>
+                  ) : nextAction ? (
+                    <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-[hsl(var(--accent))]">{nextAction.eyebrow}</p>
+                        <h2 className="mt-1 text-xl font-bold text-foreground">{nextAction.title}</h2>
+                        <p className="mt-2 max-w-3xl text-sm text-muted-foreground">{nextAction.description}</p>
+                      </div>
+                      <Button asChild className="shrink-0">
+                        <Link to={nextAction.route}>
+                          {nextAction.cta}
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </motion.section>
+          )}
 
           <div className="grid lg:grid-cols-3 gap-8">
             {/* User Info */}
