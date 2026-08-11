@@ -1,21 +1,156 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ClipboardCheck, Loader2 } from 'lucide-react';
+import { ChevronLeft, ClipboardCheck, Clock3, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
-import { answerSimulationQuestion, finishSimulation, getMySimulations, startSimulation } from '@/api/simulations.js';
+import {
+  answerSimulationQuestion,
+  finishSimulation,
+  getSimulationHub,
+  startSimulation,
+} from '@/api/simulations.js';
+import {
+  buildSavedSimulationAnswers,
+  findOpenSimulationSession,
+  formatSimulationTime,
+  getSimulationRemainingSeconds,
+} from '@/api/simulationSessionModel.js';
 
-const SimulationsPage=()=>{
-  const [items,setItems]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(null);
-  const [active,setActive]=useState(null),[session,setSession]=useState(null),[answers,setAnswers]=useState({}),[result,setResult]=useState(null),[busy,setBusy]=useState(false);
-  useEffect(()=>{let mounted=true;getMySimulations().then(({data,error:e})=>{if(mounted){setItems(data);setError(e);setLoading(false);}});return()=>{mounted=false;};},[]);
-  const begin=async(simulation)=>{setBusy(true);const {data,error:e}=await startSimulation(simulation.id);if(e)setError(e);else{setActive(simulation);setSession(data);setResult(null);setAnswers({});}setBusy(false);};
-  const finish=async()=>{setBusy(true);for(const link of active.simulation_questions){const q=link.questions;if(answers[q.id]){const e=await answerSimulationQuestion(session,q.id,answers[q.id]);if(e){setError(e);setBusy(false);return;}}}const {data,error:e}=await finishSimulation(session);if(e)setError(e);else setResult(data);setBusy(false);};
-  const questions=[...(active?.simulation_questions??[])].sort((a,b)=>a.sort_order-b.sort_order);
-  return <><Helmet><title>Simulados - NORTIS CONCURSOS</title></Helmet><div className="min-h-screen bg-background py-12"><div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-    <Link to="/minha-conta" className="mb-6 inline-flex items-center text-sm font-semibold text-[hsl(var(--accent))] hover:underline"><ChevronLeft className="mr-1 h-4 w-4"/>Central Nortis</Link>
-    <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Central Nortis</p><h1 className="mt-2 text-3xl font-bold">Simulados</h1>
-    {loading?<Loader2 className="mx-auto mt-16 h-8 w-8 animate-spin"/>:error?<p className="mt-8 rounded-xl bg-card p-6 text-muted-foreground">{error}</p>:!active?(items.length===0?<div className="mt-8 rounded-2xl bg-card p-8 text-center"><ClipboardCheck className="mx-auto mb-4 h-10 w-10 text-muted-foreground"/><h2 className="text-xl font-semibold">Simulados em preparação</h2><p className="mt-2 text-sm text-muted-foreground">A estrutura está pronta. As provas serão publicadas após validação editorial.</p></div>:<div className="mt-8 space-y-4">{items.map(item=><article key={item.id} className="rounded-2xl bg-card p-6"><h2 className="text-xl font-semibold">{item.title}</h2>{item.description&&<p className="mt-2 text-sm text-muted-foreground">{item.description}</p>}<p className="mt-3 text-xs text-muted-foreground">{item.simulation_questions.length} questões{item.time_limit_minutes?` · ${item.time_limit_minutes} minutos`:''}</p><Button className="mt-4" disabled={busy} onClick={()=>begin(item)}>Iniciar simulado</Button></article>)}</div>):result?<div className="mt-8 rounded-2xl bg-card p-8 text-center"><ClipboardCheck className="mx-auto mb-4 h-10 w-10 text-[hsl(var(--accent))]"/><h2 className="text-2xl font-bold">Simulado concluído</h2><p className="mt-3 text-lg">{result.correct_count} acertos de {result.question_count} questões</p><Button className="mt-6" variant="outline" onClick={()=>setActive(null)}>Ver outros simulados</Button></div>:<div className="mt-8 space-y-6"><h2 className="text-2xl font-bold">{active.title}</h2>{questions.map((link,index)=>{const q=link.questions;return <fieldset key={q.id} className="rounded-2xl bg-card p-6"><legend className="font-semibold">{index+1}. {q.statement}</legend><div className="mt-4 space-y-3">{[...(q.question_options??[])].sort((a,b)=>a.sort_order-b.sort_order).map(o=><label key={o.id} className="flex gap-3 rounded-xl border p-3"><input type="radio" name={q.id} checked={answers[q.id]===o.id} onChange={()=>setAnswers(v=>({...v,[q.id]:o.id}))}/><span><strong>{o.label}.</strong> {o.option_text}</span></label>)}</div></fieldset>;})}<Button disabled={busy} onClick={finish}>{busy&&<Loader2 className="mr-2 h-4 w-4 animate-spin"/>}Concluir simulado</Button></div>}
-  </div></div></>;
+const SimulationsPage = () => {
+  const [hub, setHub] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [active, setActive] = useState(null);
+  const [session, setSession] = useState(null);
+  const [answers, setAnswers] = useState({});
+  const [result, setResult] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [savingQuestion, setSavingQuestion] = useState(null);
+  const [clock, setClock] = useState(Date.now());
+
+  useEffect(() => {
+    let mounted = true;
+    getSimulationHub().then(({ data, error: loadError }) => {
+      if (!mounted) return;
+      setHub(data); setError(loadError); setLoading(false);
+    });
+    return () => { mounted = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!active || !session || !active.time_limit_minutes || result) return undefined;
+    const timer = window.setInterval(() => setClock(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [active, session, result]);
+
+  const remainingSeconds = useMemo(() => active && session
+    ? getSimulationRemainingSeconds(session.started_at, active.time_limit_minutes, new Date(clock))
+    : null, [active, session, clock]);
+
+  const questions = active?.simulation_questions ?? [];
+  const answeredCount = Object.keys(answers).length;
+
+  const begin = async (simulation) => {
+    setBusy(true); setError(null);
+    const { data: openedSession, error: startError } = await startSimulation(simulation.id);
+    if (startError) setError(startError);
+    else {
+      setHub((current) => ({
+        ...current,
+        sessions: [openedSession, ...current.sessions.filter((item) => item.id !== openedSession.id)],
+      }));
+      setActive(simulation);
+      setSession(openedSession);
+      setAnswers(buildSavedSimulationAnswers(hub.answers, openedSession.id));
+      setResult(null);
+      setClock(Date.now());
+    }
+    setBusy(false);
+  };
+
+  const chooseAnswer = async (questionId, optionId) => {
+    if (!session || savingQuestion || remainingSeconds === 0) return;
+    const previous = answers[questionId];
+    setAnswers((current) => ({ ...current, [questionId]: optionId }));
+    setSavingQuestion(questionId); setError(null);
+    const saveError = await answerSimulationQuestion(session.id, questionId, optionId);
+    if (saveError) {
+      setError(saveError);
+      setAnswers((current) => {
+        const next = { ...current };
+        if (previous) next[questionId] = previous;
+        else delete next[questionId];
+        return next;
+      });
+    } else {
+      setHub((current) => ({
+        ...current,
+        answers: [
+          { session_id: session.id, question_id: questionId, selected_option_id: optionId, answered_at: new Date().toISOString() },
+          ...current.answers.filter((item) => !(item.session_id === session.id && item.question_id === questionId)),
+        ],
+      }));
+    }
+    setSavingQuestion(null);
+  };
+
+  const conclude = async () => {
+    if (!session || busy) return;
+    setBusy(true); setError(null);
+    const { data: summary, error: finishError } = await finishSimulation(session.id);
+    if (finishError) setError(finishError);
+    else {
+      setResult(summary);
+      setHub((current) => ({
+        ...current,
+        sessions: current.sessions.map((item) => item.id === session.id
+          ? { ...item, status: 'completed', completed_at: new Date().toISOString(), ...summary }
+          : item),
+      }));
+    }
+    setBusy(false);
+  };
+
+  const closeResult = () => {
+    setActive(null); setSession(null); setAnswers({}); setResult(null); setError(null);
+  };
+
+  return (
+    <>
+      <Helmet><title>Simulados - NORTIS CONCURSOS</title></Helmet>
+      <div className="min-h-screen bg-background py-12">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <Link to="/minha-conta" className="mb-6 inline-flex items-center text-sm font-semibold text-[hsl(var(--accent))] hover:underline"><ChevronLeft className="mr-1 h-4 w-4" />Central Nortis</Link>
+          <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Central Nortis</p>
+          <h1 className="mt-2 text-3xl font-bold">Simulados</h1>
+          <p className="mt-3 text-muted-foreground">Suas respostas são salvas durante a prova. Se a página for recarregada, a sessão em andamento poderá ser retomada.</p>
+
+          {loading ? <Loader2 className="mx-auto mt-16 h-8 w-8 animate-spin" /> : error && !hub ? <p className="mt-8 rounded-xl bg-card p-6 text-muted-foreground">{error}</p> : !active ? (
+            hub.simulations.length === 0 ? <div className="mt-8 rounded-2xl bg-card p-8 text-center"><ClipboardCheck className="mx-auto mb-4 h-10 w-10 text-muted-foreground" /><h2 className="text-xl font-semibold">Simulados em preparação</h2><p className="mt-2 text-sm text-muted-foreground">A estrutura está pronta. As provas serão publicadas após validação editorial.</p></div> : (
+              <div className="mt-8 space-y-4">{hub.simulations.map((simulation) => {
+                const openSession = findOpenSimulationSession(hub.sessions, simulation.id);
+                const savedCount = openSession ? Object.keys(buildSavedSimulationAnswers(hub.answers, openSession.id)).length : 0;
+                return <article key={simulation.id} className="rounded-2xl bg-card p-6"><h2 className="text-xl font-semibold">{simulation.title}</h2>{simulation.description && <p className="mt-2 text-sm text-muted-foreground">{simulation.description}</p>}<p className="mt-3 text-xs text-muted-foreground">{simulation.simulation_questions.length} questões{simulation.time_limit_minutes ? ` · ${simulation.time_limit_minutes} minutos` : ''}</p>{openSession && <p className="mt-2 text-sm font-semibold text-[hsl(var(--accent))]">Sessão em andamento · {savedCount} respostas salvas</p>}<Button className="mt-4" disabled={busy} onClick={() => begin(simulation)}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{openSession ? 'Continuar simulado' : 'Iniciar simulado'}</Button></article>;
+              })}</div>
+            )
+          ) : result ? (
+            <div className="mt-8 rounded-2xl bg-card p-8 text-center"><ClipboardCheck className="mx-auto mb-4 h-10 w-10 text-[hsl(var(--accent))]" /><h2 className="text-2xl font-bold">Simulado concluído</h2><p className="mt-3 text-lg">{result.correct_count} acertos de {result.question_count} questões</p><Button className="mt-6" variant="outline" onClick={closeResult}>Ver outros simulados</Button></div>
+          ) : (
+            <div className="mt-8 space-y-6">
+              <div className="sticky top-20 z-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[hsl(var(--accent))]/30 bg-card p-4 shadow-sm"><div><h2 className="text-xl font-bold">{active.title}</h2><p className="text-sm text-muted-foreground">{answeredCount} de {questions.length} respostas salvas</p></div><div className={`flex items-center gap-2 rounded-xl px-4 py-2 font-mono text-lg font-bold ${remainingSeconds === 0 ? 'bg-red-500/10 text-red-700 dark:text-red-400' : 'bg-muted'}`} role="timer" aria-label={remainingSeconds === null ? 'Simulado sem limite de tempo' : `${remainingSeconds} segundos restantes`}><Clock3 className="h-5 w-5" />{formatSimulationTime(remainingSeconds)}</div></div>
+              {error && <p role="alert" className="rounded-xl bg-destructive/10 p-4 text-sm text-destructive">{error}</p>}
+              {questions.map((link, index) => {
+                const question = link.questions;
+                return <fieldset key={question.id} className="rounded-2xl bg-card p-6" disabled={remainingSeconds === 0 || savingQuestion === question.id}><legend className="font-semibold">{index + 1}. {question.statement}</legend><div className="mt-4 space-y-3">{question.question_options.map((option) => <label key={option.id} className="flex cursor-pointer gap-3 rounded-xl border p-3"><input type="radio" name={question.id} checked={answers[question.id] === option.id} onChange={() => chooseAnswer(question.id, option.id)} /><span><strong>{option.label}.</strong> {option.option_text}</span></label>)}</div>{savingQuestion === question.id && <p role="status" className="mt-3 flex items-center text-xs text-muted-foreground"><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />Salvando resposta...</p>}</fieldset>;
+              })}
+              {remainingSeconds === 0 && <p role="status" className="rounded-xl bg-amber-500/10 p-4 text-sm font-semibold">O tempo terminou. As respostas já salvas serão consideradas no resultado.</p>}
+              <Button disabled={busy || Boolean(savingQuestion)} onClick={conclude}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{remainingSeconds === 0 ? 'Finalizar e ver resultado' : 'Concluir simulado'}</Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
 };
+
 export default SimulationsPage;
