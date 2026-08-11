@@ -175,6 +175,7 @@ export function rankObjectiveWeaknesses(attempts, subjectIds, limit = 3) {
       ...item,
       accuracy: Math.round((item.correct / item.answered) * 100),
     }))
+    .filter((item) => item.accuracy < 100)
     .sort((a, b) => a.accuracy - b.accuracy || b.answered - a.answered || a.title.localeCompare(b.title))
     .slice(0, limit);
 }
