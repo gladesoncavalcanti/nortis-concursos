@@ -6,7 +6,9 @@ import {
   BarChart3,
   CheckCircle2,
   ChevronLeft,
+  Clock3,
   Flame,
+  ListChecks,
   Loader2,
   RotateCcw,
   Target,
@@ -14,6 +16,20 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { getMyProgress, submitReviewAttempt } from '@/api/progress.js';
+
+const ACTIVITY_LABELS = {
+  question: 'Questão',
+  simulation: 'Simulado',
+  flashcard: 'Flashcard',
+  plan: 'Plano',
+};
+
+const formatActivityDate = (value) => new Date(value).toLocaleString('pt-BR', {
+  day: '2-digit',
+  month: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+});
 
 const ProgressPage = () => {
   const [data, setData] = useState(null);
@@ -69,6 +85,7 @@ const ProgressPage = () => {
     ['Taxa de acerto', `${data.accuracy}%`],
     ['Simulados concluídos', data.completedSimulations],
   ] : [];
+  const maxDailyActivity = Math.max(1, ...(data?.activity.days.map((day) => day.total) ?? [0]));
 
   return <>
     <Helmet><title>Progresso e revisão - NORTIS CONCURSOS</title></Helmet>
@@ -91,6 +108,46 @@ const ProgressPage = () => {
               <p className="mt-1 text-sm text-muted-foreground">{label}</p>
             </div>)}
           </div>
+
+          <section className="mt-8 rounded-2xl bg-card p-6">
+            <div className="flex items-center gap-3">
+              <Clock3 className="h-6 w-6 text-[hsl(var(--accent))]" />
+              <div>
+                <h2 className="text-xl font-bold">Atividade nos últimos 7 dias</h2>
+                <p className="text-sm text-muted-foreground">Questões, simulados, flashcards e tarefas concluídas formam seu ritmo real.</p>
+              </div>
+            </div>
+            <div className="mt-6 grid grid-cols-7 gap-2" aria-label="Atividades diárias dos últimos sete dias">
+              {data.activity.days.map((day) => (
+                <div key={day.date} className="text-center">
+                  <div className="flex h-28 items-end justify-center rounded-lg bg-muted p-1">
+                    <div
+                      className="w-full rounded-md bg-[hsl(var(--accent))]"
+                      style={{ height: day.total ? `${Math.max(10, (day.total / maxDailyActivity) * 100)}%` : '4px' }}
+                      role="img"
+                      aria-label={`${day.total} ${day.total === 1 ? 'atividade' : 'atividades'} em ${new Date(`${day.date}T12:00:00`).toLocaleDateString('pt-BR')}`}
+                    />
+                  </div>
+                  <p className="mt-2 text-xs font-semibold">{new Date(`${day.date}T12:00:00`).toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}</p>
+                  <p className="text-xs text-muted-foreground">{day.total}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-7 border-t border-border pt-5">
+              <h3 className="flex items-center gap-2 font-semibold"><ListChecks className="h-5 w-5" />Histórico recente</h3>
+              {data.activity.recent.length === 0 ? <p className="mt-4 text-sm text-muted-foreground">Sua próxima atividade aparecerá aqui.</p> : (
+                <ol className="mt-4 space-y-3">
+                  {data.activity.recent.map((item, index) => (
+                    <li key={`${item.type}-${item.occurredAt}-${index}`} className="flex flex-col justify-between gap-1 rounded-xl bg-muted p-4 sm:flex-row sm:items-center">
+                      <div><span className="text-xs font-bold uppercase tracking-wide text-[hsl(var(--accent))]">{ACTIVITY_LABELS[item.type]}</span><p className="mt-1 text-sm font-medium">{item.label}</p></div>
+                      <time className="text-xs text-muted-foreground" dateTime={item.occurredAt}>{formatActivityDate(item.occurredAt)}</time>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+          </section>
 
           <section className="mt-8 rounded-2xl bg-card p-6">
             <div className="flex items-center gap-3">
