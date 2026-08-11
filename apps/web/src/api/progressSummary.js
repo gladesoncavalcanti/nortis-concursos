@@ -11,7 +11,58 @@ function calculateStreak(activityDates, today = new Date()) {
   return streak;
 }
 
-export function summarizeProgress(attempts, sessions, flashcardReviews = [], today = new Date()) {
+function activityEntry(type, occurredAt, label) {
+  if (!occurredAt || Number.isNaN(new Date(occurredAt).getTime())) return null;
+  return { type, occurredAt, label };
+}
+
+export function buildActivityHistory(attempts = [], sessions = [], flashcardReviews = [], planItems = [], today = new Date()) {
+  const entries = [
+    ...attempts.map((item) => activityEntry(
+      'question',
+      item.answered_at,
+      `Questão respondida · ${item.questions?.syllabus_nodes?.title || 'Conteúdo geral'}`
+    )),
+    ...sessions.filter((item) => item.status === 'completed').map((item) => activityEntry(
+      'simulation',
+      item.completed_at,
+      `Simulado concluído · ${item.simulations?.title || 'Simulado'}`
+    )),
+    ...flashcardReviews.map((item) => activityEntry('flashcard', item.last_reviewed_at, 'Flashcard revisado')),
+    ...planItems.filter((item) => item.completed).map((item) => activityEntry(
+      'plan',
+      item.completed_at,
+      `Tarefa concluída · ${item.title || 'Plano semanal'}`
+    )),
+  ].filter(Boolean).sort((left, right) =>
+    new Date(right.occurredAt) - new Date(left.occurredAt)
+  );
+
+  const end = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  const days = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(end);
+    date.setUTCDate(end.getUTCDate() - (6 - index));
+    return {
+      date: date.toISOString().slice(0, 10),
+      total: 0,
+      question: 0,
+      simulation: 0,
+      flashcard: 0,
+      plan: 0,
+    };
+  });
+  const byDate = new Map(days.map((day) => [day.date, day]));
+  entries.forEach((entry) => {
+    const day = byDate.get(new Date(entry.occurredAt).toISOString().slice(0, 10));
+    if (!day) return;
+    day.total += 1;
+    day[entry.type] += 1;
+  });
+
+  return { days, recent: entries.slice(0, 10), activityDates: entries.map((entry) => entry.occurredAt) };
+}
+
+export function summarizeProgress(attempts, sessions, flashcardReviews = [], today = new Date(), planItems = []) {
   const correctAttempts = attempts.filter((attempt) => attempt.is_correct).length;
   const accuracy = attempts.length ? Math.round((correctAttempts / attempts.length) * 100) : 0;
   const latestByQuestion = new Map();
@@ -33,12 +84,8 @@ export function summarizeProgress(attempts, sessions, flashcardReviews = [], tod
     evidence: item.answered >= 3 ? 'sufficient' : 'collecting',
   })).sort((a, b) => a.accuracy - b.accuracy || b.answered - a.answered);
   const completedSimulations = sessions.filter((session) => session.status === 'completed').length;
-  const activityDates = [
-    ...attempts.map((item) => item.answered_at),
-    ...sessions.map((item) => item.completed_at),
-    ...flashcardReviews.map((item) => item.last_reviewed_at),
-  ];
-  const streak = calculateStreak(activityDates, today);
+  const activity = buildActivityHistory(attempts, sessions, flashcardReviews, planItems, today);
+  const streak = calculateStreak(activity.activityDates, today);
   const achievements = [
     { id: 'first-step', title: 'Primeiro passo', description: 'Responda sua primeira questão.', unlocked: attempts.length >= 1 },
     { id: 'practice-10', title: 'Prática consistente', description: 'Responda 10 questões.', unlocked: attempts.length >= 10 },
@@ -57,5 +104,6 @@ export function summarizeProgress(attempts, sessions, flashcardReviews = [], tod
     achievements,
     review,
     contentDiagnosis,
+    activity,
   };
 }

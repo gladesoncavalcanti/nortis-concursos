@@ -1,3 +1,5 @@
+import { buildWeeklyAdherence } from './weeklyAdherence.js';
+
 function toLocalDateKey(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -13,13 +15,18 @@ function getDuePlanItem(items, todayKey) {
 }
 
 export function buildNextBestAction({ progress, planItems = [], today = new Date() }) {
-  const dueItem = getDuePlanItem(planItems, toLocalDateKey(today));
+  const todayKey = toLocalDateKey(today);
+  const adherence = buildWeeklyAdherence({ items: planItems, today });
+  const dueItem = getDuePlanItem(planItems, todayKey);
   if (dueItem) {
+    const overdueSummary = dueItem.scheduled_date < todayKey && adherence.overdueTasks > 0
+      ? ` Há ${adherence.overdueTasks} ${adherence.overdueTasks === 1 ? 'tarefa atrasada' : 'tarefas atrasadas'} e ${adherence.remainingMinutes} minutos restantes nesta semana.`
+      : '';
     return {
       kind: 'planned',
-      eyebrow: dueItem.scheduled_date === toLocalDateKey(today) ? 'Planejado para hoje' : 'Tarefa pendente',
+      eyebrow: dueItem.scheduled_date === todayKey ? 'Planejado para hoje' : 'Tarefa pendente',
       title: dueItem.title,
-      description: `${dueItem.duration_minutes} minutos reservados no seu plano semanal.`,
+      description: `${dueItem.duration_minutes} minutos reservados no seu plano semanal.${overdueSummary}`,
       cta: 'Abrir plano semanal',
       route: '/minha-conta/plano',
     };
