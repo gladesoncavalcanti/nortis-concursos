@@ -1,7 +1,11 @@
 import { supabase } from '@/lib/supabase';
 import { getStudyProfile } from '@/api/studyProfile.js';
 import { getTopicAssessments } from '@/api/topicAssessments.js';
-import { buildObjectiveDiagnostic, rankObjectiveWeaknesses } from '@/api/objectiveDiagnosticModel.js';
+import {
+  buildDiagnosticEvolution,
+  buildObjectiveDiagnostic,
+  rankObjectiveWeaknesses,
+} from '@/api/objectiveDiagnosticModel.js';
 
 const QUESTION_SELECT = `
   id, statement, source_reference, authorship, sort_order, syllabus_node_id,
@@ -26,16 +30,22 @@ export async function getObjectiveDiagnostic() {
     return { data: { needsSpecialty: true }, error: null };
   }
 
-  const [questionResult, resultResponse, assessmentResult, specialtyResult] = await Promise.all([
+  const [questionResult, resultResponse, historyResponse, cycleResult, assessmentResult, specialtyResult] = await Promise.all([
     supabase.from('questions').select(QUESTION_SELECT)
       .eq('diagnostic_eligible', true).eq('active', true).order('sort_order'),
     supabase.rpc('get_my_diagnostic_results'),
+    supabase.rpc('get_my_diagnostic_history'),
+    supabase.from('diagnostic_cycles')
+      .select('id,cycle_number,status,started_at,completed_at,specialty_id')
+      .eq('specialty_id', profile.target_specialty_id)
+      .order('cycle_number'),
     getTopicAssessments(),
     supabase.from('syllabus_nodes').select('id,title,slug')
       .eq('id', profile.target_specialty_id).maybeSingle(),
   ]);
 
-  if (questionResult.error || resultResponse.error || assessmentResult.error || specialtyResult.error) {
+  if (questionResult.error || resultResponse.error || historyResponse.error || cycleResult.error
+      || assessmentResult.error || specialtyResult.error) {
     return { data: null, error: 'Não foi possível carregar o diagnóstico agora.' };
   }
 
@@ -44,6 +54,8 @@ export async function getObjectiveDiagnostic() {
   ));
   const questionIds = new Set(questions.map((question) => question.id));
   const results = (resultResponse.data ?? []).filter((result) => questionIds.has(result.question_id));
+  const cycles = cycleResult.data ?? [];
+  const currentCycle = cycles.at(-1) ?? null;
 
   return {
     data: {
@@ -51,15 +63,30 @@ export async function getObjectiveDiagnostic() {
       specialty: specialtyResult.data,
       questions,
       results,
+      cycles,
+      currentCycle,
       selfAssessments: assessmentResult.data,
       summary: buildObjectiveDiagnostic({
         questions,
         results,
         selfAssessments: assessmentResult.data,
       }),
+      evolution: buildDiagnosticEvolution({
+        cycles,
+        history: historyResponse.data ?? [],
+        selfAssessments: assessmentResult.data,
+      }),
     },
     error: null,
   };
+}
+
+export async function startDiagnosticCycle() {
+  const { data, error } = await supabase.rpc('start_diagnostic_cycle');
+  if (error || !data?.[0]) {
+    return { data: null, error: 'Não foi possível iniciar este ciclo diagnóstico agora.' };
+  }
+  return { data: data[0], error: null };
 }
 
 export async function submitDiagnosticAnswer(questionId, selectedOptionId) {
@@ -76,7 +103,7 @@ export async function submitDiagnosticAnswer(questionId, selectedOptionId) {
 export async function getWeakestObjectiveSubjects(subjectIds, limit = 3) {
   if (!subjectIds.length) return { data: [], error: null };
   const { data, error } = await supabase.from('question_attempts')
-    .select('question_id,is_correct,answered_at,questions(syllabus_node_id,syllabus_nodes(id,title,node_type))')
+    .select('question_id,is_correct,answered_at,diagnostic_cycles(cycle_number),questions(syllabus_node_id,syllabus_nodes(id,title,node_type))')
     .eq('attempt_context', 'diagnostic')
     .order('answered_at', { ascending: false });
   if (error) return { data: [], error: 'Não foi possível carregar o desempenho objetivo.' };
