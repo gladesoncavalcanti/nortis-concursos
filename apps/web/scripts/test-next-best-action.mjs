@@ -16,6 +16,7 @@ const planned = buildNextBestAction({
 assert.equal(planned.kind, 'planned');
 assert.equal(planned.title, 'Tarefa atrasada');
 assert.equal(planned.route, '/minha-conta/plano');
+assert.match(planned.description, /1 tarefa atrasada/);
 
 const review = buildNextBestAction({
   progress: { ...progress, review: [{ question_id: 'a' }, { question_id: 'b' }] },
@@ -52,4 +53,4 @@ const practice = buildNextBestAction({
 assert.equal(practice.kind, 'practice');
 assert.equal(practice.route, '/minha-conta/questoes');
 
-console.log('Próximo melhor passo: 11 verificações aprovadas.');
+console.log('Próximo melhor passo: 12 verificações aprovadas.');
