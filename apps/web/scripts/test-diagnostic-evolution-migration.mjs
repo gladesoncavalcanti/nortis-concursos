@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 
 const migration = readFileSync(resolve(
   import.meta.dirname,
-  '../../../supabase/migrations/20260811004835_create_diagnostic_evolution_cycles.sql'
+  '../../../supabase/migrations/20260811010822_create_diagnostic_evolution_cycles.sql'
 ), 'utf8');
 
 assert.match(migration, /create table public\.diagnostic_cycles/);
