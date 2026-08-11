@@ -56,9 +56,104 @@ export function buildObjectiveDiagnostic({ questions, results, selfAssessments }
   };
 }
 
+function classifyEvolution(initialAccuracy, currentAccuracy, sameCycle) {
+  if (currentAccuracy === null) return { key: 'pending', label: 'Aguardando evidências', delta: null };
+  if (sameCycle || initialAccuracy === null) return { key: 'initial', label: 'Referência inicial', delta: null };
+  const delta = currentAccuracy - initialAccuracy;
+  if (delta >= 10) return { key: 'improved', label: 'Melhora', delta };
+  if (delta <= -10) return { key: 'reinforce', label: 'Necessidade de reforço', delta };
+  return { key: 'stable', label: 'Estabilidade', delta };
+}
+
+export function buildDiagnosticEvolution({ cycles = [], history = [], selfAssessments = [] }) {
+  const orderedCycles = [...cycles].sort((a, b) => a.cycle_number - b.cycle_number);
+  const confidenceBySubject = new Map(
+    selfAssessments.map((assessment) => [assessment.syllabus_node_id, assessment.confidence])
+  );
+  const historyByCycle = new Map();
+
+  history.forEach((row) => {
+    const cycle = historyByCycle.get(row.cycle_id) ?? {
+      id: row.cycle_id,
+      cycleNumber: row.cycle_number,
+      status: row.cycle_status,
+      startedAt: row.started_at,
+      completedAt: row.completed_at,
+      answered: 0,
+      correct: 0,
+      subjects: new Map(),
+    };
+    cycle.answered += row.answered ?? 0;
+    cycle.correct += row.correct ?? 0;
+    cycle.subjects.set(row.subject_id, {
+      subjectId: row.subject_id,
+      title: row.subject_title,
+      answered: row.answered ?? 0,
+      correct: row.correct ?? 0,
+      accuracy: row.accuracy,
+    });
+    historyByCycle.set(row.cycle_id, cycle);
+  });
+
+  const summaries = orderedCycles.map((cycle) => {
+    const aggregate = historyByCycle.get(cycle.id);
+    const answered = aggregate?.answered ?? 0;
+    const correct = aggregate?.correct ?? 0;
+    return {
+      id: cycle.id,
+      cycleNumber: cycle.cycle_number,
+      status: cycle.status,
+      startedAt: cycle.started_at,
+      completedAt: cycle.completed_at,
+      answered,
+      correct,
+      accuracy: answered ? Math.round((correct / answered) * 100) : null,
+      subjects: aggregate?.subjects ?? new Map(),
+    };
+  });
+  const initial = summaries[0] ?? null;
+  const current = summaries.at(-1) ?? null;
+  const overall = classifyEvolution(
+    initial?.accuracy ?? null,
+    current?.accuracy ?? null,
+    !initial || initial.id === current?.id
+  );
+
+  const subjectIds = new Set([
+    ...(initial?.subjects.keys() ?? []),
+    ...(current?.subjects.keys() ?? []),
+  ]);
+  const comparison = [...subjectIds].map((subjectId) => {
+    const first = initial?.subjects.get(subjectId);
+    const latest = current?.subjects.get(subjectId);
+    const trend = classifyEvolution(
+      first?.accuracy ?? null,
+      latest?.accuracy ?? null,
+      !initial || initial.id === current?.id
+    );
+    return {
+      subjectId,
+      title: latest?.title ?? first?.title,
+      initialAccuracy: first?.accuracy ?? null,
+      currentAccuracy: latest?.accuracy ?? null,
+      selfConfidence: confidenceBySubject.get(subjectId) ?? null,
+      trend,
+    };
+  }).sort((a, b) => a.title.localeCompare(b.title));
+
+  return { cycles: summaries, initial, current, overall, comparison };
+}
+
 export function rankObjectiveWeaknesses(attempts, subjectIds, limit = 3) {
   const allowed = new Set(subjectIds);
-  const latest = latestResultByQuestion(attempts);
+  const cycleNumbers = attempts
+    .map((attempt) => attempt.diagnostic_cycles?.cycle_number)
+    .filter(Number.isFinite);
+  const latestCycleNumber = cycleNumbers.length ? Math.max(...cycleNumbers) : null;
+  const currentAttempts = latestCycleNumber === null
+    ? attempts
+    : attempts.filter((attempt) => attempt.diagnostic_cycles?.cycle_number === latestCycleNumber);
+  const latest = latestResultByQuestion(currentAttempts);
   const bySubject = new Map();
 
   latest.forEach((attempt) => {
