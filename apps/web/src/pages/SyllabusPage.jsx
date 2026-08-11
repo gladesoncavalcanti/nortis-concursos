@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { AlertCircle, BookOpen, ChevronRight, Loader2 } from 'lucide-react';
+import { AlertCircle, BookOpen, ChevronRight, Loader2, Save, StickyNote, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { getMySyllabus } from '@/api/syllabus.js';
 import { getSyllabusNodeTypeLabel } from '@/api/syllabusTree.js';
 import { getStudyProfile } from '@/api/studyProfile.js';
 import { getTopicAssessments, saveTopicAssessment } from '@/api/topicAssessments.js';
 import { filterSyllabusForProfile } from '@/api/specialtySelection.js';
+import { deleteTopicNote, getTopicNotes, saveTopicNote } from '@/api/topicNotes.js';
+import { TOPIC_NOTE_MAX_LENGTH } from '@/api/topicNotesModel.js';
 
 const CONFIDENCE_LABELS = ['Não estudei', 'Tenho muita dificuldade', 'Tenho alguma dificuldade', 'Estou seguro', 'Domino bem'];
 
-const SyllabusNode = ({ node, assessments, onAssess, savingId, depth = 0 }) => (
+const SyllabusNode = ({ node, assessments, onAssess, savingId, notes, onNoteChange, onSaveNote, onDeleteNote, savingNoteId, depth = 0 }) => (
   <li className={depth > 0 ? 'ml-4 border-l border-border pl-4' : ''}>
     <div className="rounded-xl border border-border bg-card p-4">
       <p className="text-xs font-bold uppercase tracking-[0.14em] text-[hsl(var(--accent))]">
@@ -22,27 +24,41 @@ const SyllabusNode = ({ node, assessments, onAssess, savingId, depth = 0 }) => (
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{node.description}</p>
       )}
       {node.node_type === 'subject' && (
-        <fieldset className="mt-4">
-          <legend className="text-xs font-semibold text-muted-foreground">Como você está neste conteúdo?</legend>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {CONFIDENCE_LABELS.map((label, index) => {
-              const value = index + 1;
-              const selected = assessments[node.id] === value;
-              return (
-                <button key={value} type="button" disabled={savingId === node.id} aria-pressed={selected} title={label} onClick={() => onAssess(node.id, value)} className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${selected ? 'border-[hsl(var(--accent))] bg-[hsl(var(--accent))]/15 text-foreground' : 'border-border text-muted-foreground hover:border-[hsl(var(--accent))]/60'}`}>
-                  {value}<span className="sr-only"> — {label}</span>
-                </button>
-              );
-            })}
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">{assessments[node.id] ? CONFIDENCE_LABELS[assessments[node.id] - 1] : '1 = não estudei · 5 = domino bem'}</p>
-        </fieldset>
+        <>
+          <fieldset className="mt-4">
+            <legend className="text-xs font-semibold text-muted-foreground">Como você está neste conteúdo?</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {CONFIDENCE_LABELS.map((label, index) => {
+                const value = index + 1;
+                const selected = assessments[node.id] === value;
+                return (
+                  <button key={value} type="button" disabled={savingId === node.id} aria-pressed={selected} title={label} onClick={() => onAssess(node.id, value)} className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${selected ? 'border-[hsl(var(--accent))] bg-[hsl(var(--accent))]/15 text-foreground' : 'border-border text-muted-foreground hover:border-[hsl(var(--accent))]/60'}`}>
+                    {value}<span className="sr-only"> — {label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">{assessments[node.id] ? CONFIDENCE_LABELS[assessments[node.id] - 1] : '1 = não estudei · 5 = domino bem'}</p>
+          </fieldset>
+          <details className="mt-4 rounded-xl bg-muted p-4">
+            <summary className="cursor-pointer font-semibold"><span className="inline-flex items-center gap-2"><StickyNote className="h-4 w-4" />Minhas anotações privadas{notes[node.id]?.trim() ? ' · salva' : ''}</span></summary>
+            <label className="mt-4 block text-xs font-semibold text-muted-foreground" htmlFor={`note-${node.id}`}>Anotação sobre {node.title}</label>
+            <textarea id={`note-${node.id}`} rows={5} maxLength={TOPIC_NOTE_MAX_LENGTH} className="mt-2 w-full rounded-lg border bg-background p-3 text-sm" placeholder="Registre conceitos, dúvidas e pontos para revisar." value={notes[node.id] ?? ''} onChange={(event) => onNoteChange(node.id, event.target.value)} />
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs text-muted-foreground">{(notes[node.id] ?? '').length}/{TOPIC_NOTE_MAX_LENGTH} caracteres</p>
+              <div className="flex gap-2">
+                {notes[node.id]?.trim() && <Button type="button" size="sm" variant="outline" disabled={savingNoteId === node.id} onClick={() => onDeleteNote(node.id)}><Trash2 className="mr-2 h-4 w-4" />Excluir</Button>}
+                <Button type="button" size="sm" disabled={savingNoteId === node.id || !notes[node.id]?.trim()} onClick={() => onSaveNote(node.id)}>{savingNoteId === node.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}Salvar</Button>
+              </div>
+            </div>
+          </details>
+        </>
       )}
     </div>
     {node.children.length > 0 && (
       <ul className="mt-3 space-y-3">
         {node.children.map((child) => (
-          <SyllabusNode key={child.id} node={child} assessments={assessments} onAssess={onAssess} savingId={savingId} depth={depth + 1} />
+          <SyllabusNode key={child.id} node={child} assessments={assessments} onAssess={onAssess} savingId={savingId} notes={notes} onNoteChange={onNoteChange} onSaveNote={onSaveNote} onDeleteNote={onDeleteNote} savingNoteId={savingNoteId} depth={depth + 1} />
         ))}
       </ul>
     )}
@@ -55,16 +71,19 @@ const SyllabusPage = () => {
   const [error, setError] = useState(null);
   const [assessments, setAssessments] = useState({});
   const [savingId, setSavingId] = useState(null);
+  const [notes, setNotes] = useState({});
+  const [savingNoteId, setSavingNoteId] = useState(null);
   const [notice, setNotice] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
 
-    Promise.all([getMySyllabus(), getTopicAssessments(), getStudyProfile()]).then(([syllabus, assessmentResult, profile]) => {
+    Promise.all([getMySyllabus(), getTopicAssessments(), getStudyProfile(), getTopicNotes()]).then(([syllabus, assessmentResult, profile, noteResult]) => {
       if (!isMounted) return;
       setNodes(filterSyllabusForProfile(syllabus.data, profile.data?.target_role, profile.data?.target_specialty_id));
       setAssessments(Object.fromEntries(assessmentResult.data.map((item) => [item.syllabus_node_id, item.confidence])));
-      setError(syllabus.error || assessmentResult.error);
+      setNotes(Object.fromEntries(noteResult.data.map((item) => [item.syllabus_node_id, item.note])));
+      setError(syllabus.error || assessmentResult.error || profile.error || noteResult.error);
       setIsLoading(false);
     });
 
@@ -82,6 +101,24 @@ const SyllabusPage = () => {
       setNotice('Autoavaliação salva. Ela será usada para priorizar seu plano.');
     }
     setSavingId(null);
+  };
+
+  const saveNote = async (nodeId) => {
+    setSavingNoteId(nodeId); setNotice(null);
+    const result = await saveTopicNote(nodeId, notes[nodeId]);
+    setNotice(result.error || 'Anotação privada salva neste conteúdo.');
+    setSavingNoteId(null);
+  };
+
+  const deleteNote = async (nodeId) => {
+    setSavingNoteId(nodeId); setNotice(null);
+    const result = await deleteTopicNote(nodeId);
+    if (result.error) setNotice(result.error);
+    else {
+      setNotes((current) => ({ ...current, [nodeId]: '' }));
+      setNotice('Anotação excluída.');
+    }
+    setSavingNoteId(null);
   };
 
   return (
@@ -133,7 +170,7 @@ const SyllabusPage = () => {
           ) : nodes.length > 0 ? (
             <ul className="space-y-4">
               {nodes.map((node) => (
-                <SyllabusNode key={node.id} node={node} assessments={assessments} onAssess={assess} savingId={savingId} />
+                <SyllabusNode key={node.id} node={node} assessments={assessments} onAssess={assess} savingId={savingId} notes={notes} onNoteChange={(nodeId, value) => setNotes((current) => ({ ...current, [nodeId]: value }))} onSaveNote={saveNote} onDeleteNote={deleteNote} savingNoteId={savingNoteId} />
               ))}
             </ul>
           ) : (
