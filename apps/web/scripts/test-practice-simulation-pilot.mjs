@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const migrationPath = fileURLToPath(new URL(
-  '../../../supabase/migrations/20260811110719_seed_practice_questions_and_simulation_pilot.sql',
+  '../../../supabase/migrations/20260811124715_seed_practice_questions_and_simulation_pilot.sql',
   import.meta.url
 ));
 const sql = readFileSync(migrationPath, 'utf8');
