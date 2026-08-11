@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase';
 
 export async function getSimulationHub() {
   const [simulationResult, sessionResult, answerResult] = await Promise.all([
-    supabase.from('simulations').select(`id,title,description,time_limit_minutes,sort_order,
+    supabase.from('simulations').select(`id,slug,target_specialty_id,title,description,time_limit_minutes,sort_order,
       simulation_questions(sort_order,questions(id,statement,question_options(id,label,option_text,sort_order)))`).order('sort_order'),
     supabase.from('simulation_sessions').select('id,simulation_id,status,started_at,completed_at,correct_count,question_count').order('started_at', { ascending: false }),
     supabase.from('simulation_answers').select('session_id,question_id,selected_option_id,answered_at'),
