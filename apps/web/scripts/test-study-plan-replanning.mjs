@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 
 const api = await readFile(new URL('../src/api/suggestedStudyPlan.js', import.meta.url), 'utf8');
 const migration = await readFile(
-  new URL('../../../supabase/migrations/20260811020152_add_study_plan_item_source.sql', import.meta.url),
+  new URL('../../../supabase/migrations/20260811021158_add_study_plan_item_source.sql', import.meta.url),
   'utf8'
 );
 
