@@ -33,7 +33,7 @@ assert.equal(formatSimulationTime(65), '01:05');
 assert.equal(formatSimulationTime(0), '00:00');
 assert.equal(formatSimulationTime(null), 'Sem limite de tempo');
 
-const migrationPath = fileURLToPath(new URL('../../../supabase/migrations/20260811052810_improve_simulation_session_resume.sql', import.meta.url));
+const migrationPath = fileURLToPath(new URL('../../../supabase/migrations/20260811105713_improve_simulation_session_resume.sql', import.meta.url));
 const sql = readFileSync(migrationPath, 'utf8');
 assert.match(sql, /simulation_answers_self_read/i);
 assert.match(sql, /session\.user_id = \(select auth\.uid\(\)\)/i);
