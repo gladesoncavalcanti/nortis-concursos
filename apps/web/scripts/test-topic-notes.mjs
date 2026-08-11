@@ -10,7 +10,7 @@ assert.equal(validateTopicNote('Anotação válida').error, null);
 assert.equal(validateTopicNote('x'.repeat(5000)).error, null);
 assert.match(validateTopicNote('x'.repeat(5001)).error, /5000/);
 
-const migrationPath = fileURLToPath(new URL('../../../supabase/migrations/20260811052344_create_student_topic_notes.sql', import.meta.url));
+const migrationPath = fileURLToPath(new URL('../../../supabase/migrations/20260811105025_create_student_topic_notes.sql', import.meta.url));
 const sql = readFileSync(migrationPath, 'utf8');
 assert.match(sql, /create table public\.student_topic_notes/i);
 assert.match(sql, /primary key \(user_id, syllabus_node_id\)/i);
