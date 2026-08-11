@@ -37,9 +37,16 @@ const weaknesses = rankObjectiveWeaknesses([
   { question_id: 'q3', is_correct: false, answered_at: '2026-08-10T10:00:00Z', diagnostic_cycles: { cycle_number: 2 }, questions: { syllabus_nodes: { id: 'other', title: 'Outra especialidade', node_type: 'subject' } } },
 ], ['s1', 's2']);
 
-assert.deepEqual(weaknesses.map((item) => item.title), ['Rede SUAS', 'PAIF']);
-assert.deepEqual(weaknesses.map((item) => item.accuracy), [0, 100]);
+assert.deepEqual(weaknesses.map((item) => item.title), ['Rede SUAS']);
+assert.deepEqual(weaknesses.map((item) => item.accuracy), [0]);
 assert.equal(weaknesses[0].answered, 1, 'somente o ciclo mais recente orienta a prioridade');
+
+const noWeaknesses = rankObjectiveWeaknesses([
+  { question_id: 'q1', is_correct: false, answered_at: '2026-08-10T08:00:00Z', diagnostic_cycles: { cycle_number: 1 }, questions: { syllabus_nodes: questions[0].syllabus_nodes } },
+  { question_id: 'q1', is_correct: true, answered_at: '2026-08-10T10:00:00Z', diagnostic_cycles: { cycle_number: 2 }, questions: { syllabus_nodes: questions[0].syllabus_nodes } },
+  { question_id: 'q2', is_correct: true, answered_at: '2026-08-10T10:00:00Z', diagnostic_cycles: { cycle_number: 2 }, questions: { syllabus_nodes: questions[1].syllabus_nodes } },
+], ['s1', 's2']);
+assert.deepEqual(noWeaknesses, [], 'um ciclo mais recente com 100% não gera reforço por desempenho');
 
 const cycles = [
   { id: 'c1', cycle_number: 1, status: 'completed', started_at: '2026-08-01T10:00:00Z', completed_at: '2026-08-01T10:20:00Z' },
