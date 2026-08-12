@@ -87,4 +87,3 @@ export function buildDailyStudyAgenda({
     plannedMinutes: pendingPlan.reduce((total, item) => total + Number(item.duration_minutes || 0), 0),
   };
 }
-

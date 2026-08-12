@@ -63,4 +63,3 @@ const DailyStudyAgenda = ({ agenda, loading = false, error = null }) => (
 );
 
 export default DailyStudyAgenda;
-
