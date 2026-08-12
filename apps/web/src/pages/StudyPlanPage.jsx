@@ -12,14 +12,24 @@ import { getMySyllabus } from '@/api/syllabus.js';
 import { collectSubjectIds, filterSyllabusForProfile } from '@/api/specialtySelection.js';
 import { getWeakestObjectiveSubjects } from '@/api/objectiveDiagnostic.js';
 import { finishStudySession, startStudySession } from '@/api/studySessions.js';
+import { buildStudyTimeHistory } from '@/api/studyTimeHistory.js';
+import { buildStudyCapacity } from '@/api/studyCapacity.js';
 import StudySessionTimer from '@/components/StudySessionTimer.jsx';
 import WeeklyAdherencePanel from '@/components/WeeklyAdherencePanel.jsx';
 import StudyTimeHistoryPanel from '@/components/StudyTimeHistoryPanel.jsx';
 
 const today = () => new Date().toISOString().slice(0, 10);
+const formatMinutes = (minutes) => {
+  const safe = Math.max(0, Math.floor(Number(minutes) || 0));
+  if (safe < 60) return `${safe} min`;
+  const hours = Math.floor(safe / 60);
+  const remainder = safe % 60;
+  return remainder ? `${hours}h ${remainder}min` : `${hours}h`;
+};
 
 const StudyPlanPage = () => {
   const [data, setData] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
@@ -27,8 +37,12 @@ const StudyPlanPage = () => {
   const [form, setForm] = useState({ productId: '', title: '', date: today(), duration: 30 });
 
   const load = async () => {
-    const { data: loaded, error: loadError } = await getStudyPlan();
+    const [{ data: loaded, error: loadError }, { data: loadedProfile }] = await Promise.all([
+      getStudyPlan(),
+      getStudyProfile(),
+    ]);
     setData(loaded);
+    setProfile(loadedProfile);
     setError(loadError);
     setLoading(false);
     if (loaded?.enrollments[0]) {
@@ -47,11 +61,12 @@ const StudyPlanPage = () => {
 
   const suggestWeek = async () => {
     setBusy(true); setError(null); setNotice(null);
-    const [{ data: profile, error: profileError }, { data: progress, error: progressError }, syllabus] = await Promise.all([getStudyProfile(), getMyProgress(), getMySyllabus()]);
-    if (profileError || progressError || syllabus.error || !profile) {
+    const [{ data: loadedProfile, error: profileError }, { data: progress, error: progressError }, syllabus] = await Promise.all([getStudyProfile(), getMyProgress(), getMySyllabus()]);
+    if (profileError || progressError || syllabus.error || !loadedProfile) {
       setError(profileError || progressError || syllabus.error || 'Conclua o diagnóstico inicial antes de gerar sua semana.');
     } else {
-      const visibleNodes = filterSyllabusForProfile(syllabus.data, profile.target_role, profile.target_specialty_id);
+      setProfile(loadedProfile);
+      const visibleNodes = filterSyllabusForProfile(syllabus.data, loadedProfile.target_role, loadedProfile.target_specialty_id);
       const subjectIds = collectSubjectIds(visibleNodes);
       const [selfReported, objective] = await Promise.all([
         getWeakestAssessedSubjects(subjectIds),
@@ -62,10 +77,20 @@ const StudyPlanPage = () => {
       } else {
         const selfReportedWeakSubjects = selfReported.data.map((item) => item.syllabus_nodes.title);
         const objectiveWeakSubjects = objective.data.map((item) => item.title);
-        const result = await createSuggestedStudyWeek({ productId: form.productId, profile, progress, objectiveWeakSubjects, selfReportedWeakSubjects });
+        const result = await createSuggestedStudyWeek({
+          productId: form.productId,
+          profile: loadedProfile,
+          progress,
+          objectiveWeakSubjects,
+          selfReportedWeakSubjects,
+          studySessions: data.sessions,
+          planItems: data.items,
+        });
         setError(result.error);
         if (!result.error) {
-          setNotice(result.created ? `${result.created} tarefas foram adicionadas à sua semana.` : 'A semana sugerida já está no seu plano.');
+          setNotice(result.created
+            ? `${result.created} tarefas foram ajustadas à sua capacidade semanal.`
+            : 'Sua carga já ocupa o espaço semanal disponível; nenhuma tarefa automática foi adicionada.');
           await load();
         }
       }
@@ -90,12 +115,28 @@ const StudyPlanPage = () => {
     if (!sessionError) { await load(); setNotice('Sessão encerrada e tempo real registrado.'); }
     setBusy(false);
   };
+  const studyHistory = data ? buildStudyTimeHistory({ sessions: data.sessions, items: data.items }) : null;
+  const capacity = profile && studyHistory ? buildStudyCapacity({
+    profile,
+    history: studyHistory,
+    items: data.items,
+    replaceSuggestedProductId: form.productId,
+  }) : null;
 
   return <><Helmet><title>Plano de estudos - NORTIS CONCURSOS</title></Helmet><div className="min-h-screen bg-background py-12"><div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
     <Link to="/minha-conta" className="mb-6 inline-flex items-center text-sm font-semibold text-[hsl(var(--accent))] hover:underline"><ChevronLeft className="mr-1 h-4 w-4" />Central Nortis</Link>
     <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Central Nortis</p><h1 className="mt-2 text-3xl font-bold">Plano de estudos</h1><p className="mt-3 text-muted-foreground">Transforme seu diagnóstico em tarefas possíveis dentro da sua rotina.</p>
     {loading ? <Loader2 className="mx-auto mt-16 h-8 w-8 animate-spin" /> : error && !data ? <p className="mt-8 rounded-2xl bg-card p-6">{error}</p> : <>
-      <div className="mt-8 rounded-2xl border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 p-6"><h2 className="flex items-center gap-2 text-xl font-bold"><Sparkles className="h-5 w-5" />Semana sugerida</h2><p className="mt-2 text-sm text-muted-foreground">Usa separadamente seu tempo disponível, autopercepção e o ciclo diagnóstico mais recente. Você continua livre para editar o plano.</p><Button className="mt-4" disabled={busy || !form.productId} onClick={suggestWeek}>Gerar minha semana</Button></div>
+      <div className="mt-8 rounded-2xl border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 p-6">
+        <h2 className="flex items-center gap-2 text-xl font-bold"><Sparkles className="h-5 w-5" />Semana sugerida</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Usa separadamente tempo disponível, capacidade real recente, autopercepção e o ciclo diagnóstico mais recente. Você continua livre para editar o plano.</p>
+        {capacity && <div className="mt-4 rounded-xl bg-background/70 p-4" role="status">
+          <p className="font-semibold">Carga calibrada: {formatMinutes(capacity.weeklyTargetMinutes)} nesta semana</p>
+          <p className="mt-1 text-sm text-muted-foreground">{capacity.description}</p>
+          <p className="mt-2 text-xs text-muted-foreground">Tarefas manuais: {formatMinutes(capacity.manualMinutes)} · sugestões preservadas de outros produtos: {formatMinutes(capacity.preservedSuggestedMinutes)} · espaço para esta semana automática: {formatMinutes(capacity.remainingMinutes)}.</p>
+        </div>}
+        <Button className="mt-4" disabled={busy || !form.productId} onClick={suggestWeek}>Gerar minha semana</Button>
+      </div>
       <WeeklyAdherencePanel items={data.items} sessions={data.sessions} />
       <StudyTimeHistoryPanel items={data.items} sessions={data.sessions} compact />
       <StudySessionTimer activeSession={data.activeSession} items={data.items} busy={busy} onFinish={finishSession} />

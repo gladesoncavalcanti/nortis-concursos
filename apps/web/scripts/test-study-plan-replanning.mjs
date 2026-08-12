@@ -11,6 +11,10 @@ assert.match(api, /\.eq\('item_source', 'suggested'\)/);
 assert.match(api, /\.gte\('scheduled_date', firstDate\)/);
 assert.match(api, /\.lte\('scheduled_date', lastDate\)/);
 assert.match(api, /item_source: 'suggested'/);
+assert.match(api, /buildStudyCapacity/);
+assert.match(api, /weeklyBudgetMinutes: capacity\.remainingMinutes/);
+assert.match(api, /capacity\.weekStart/);
+assert.match(api, /capacity\.weekEnd/);
 assert.doesNotMatch(api, /\.delete\(\)[\s\S]+?item_source', 'manual'/);
 
 assert.match(migration, /add column item_source text not null default 'manual'/);
