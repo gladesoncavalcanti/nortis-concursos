@@ -43,4 +43,3 @@ const FlashcardInsightsPanel = ({ insights, compact = false }) => {
 };
 
 export default FlashcardInsightsPanel;
-

@@ -30,4 +30,3 @@ assert.deepEqual(buildFlashcardInsights([], now), {
 });
 
 console.log('Métricas de flashcards: 16 verificações aprovadas.');
-

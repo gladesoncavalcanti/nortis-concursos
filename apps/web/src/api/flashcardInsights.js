@@ -24,4 +24,3 @@ export function buildFlashcardInsights(decks = [], now = new Date()) {
     nextReviewAt,
   };
 }
-
