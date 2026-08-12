@@ -10,8 +10,11 @@ import { getMyEnrollments } from '@/api/enrollments.js';
 import { requestDownloadUrl } from '@/api/downloads.js';
 import { getMyProgress } from '@/api/progress.js';
 import { getStudyPlan } from '@/api/studyPlan.js';
+import { getMyFlashcards } from '@/api/flashcards.js';
 import { buildNextBestAction } from '@/api/nextBestAction.js';
+import { buildDailyStudyAgenda } from '@/api/dailyStudyAgenda.js';
 import PersonalizationQuiz from '@/components/PersonalizationQuiz.jsx';
+import DailyStudyAgenda from '@/components/DailyStudyAgenda.jsx';
 
 const STATUS_LABELS = {
   active: 'Ativo',
@@ -39,6 +42,8 @@ const MyAccountPage = () => {
   const [nextAction, setNextAction] = useState(null);
   const [isNextActionLoading, setIsNextActionLoading] = useState(false);
   const [nextActionError, setNextActionError] = useState(null);
+  const [dailyAgenda, setDailyAgenda] = useState(null);
+  const [dailyAgendaError, setDailyAgendaError] = useState(null);
   // Um único download por vez (id do enrollment em andamento, ou null).
   // Evita múltiplos cliques disparando várias signed URLs em paralelo.
   const [downloadingId, setDownloadingId] = useState(null);
@@ -77,35 +82,52 @@ const MyAccountPage = () => {
       setNextAction(null);
       setNextActionError(null);
       setIsNextActionLoading(false);
+      setDailyAgenda(null);
+      setDailyAgendaError(null);
       return undefined;
     }
 
     let isMounted = true;
     setIsNextActionLoading(true);
     setNextActionError(null);
+    setDailyAgendaError(null);
 
     const activeProductIds = new Set(
       enrollments.filter(hasAvailableAccess).map((enrollment) => enrollment.product_id)
     );
 
-    Promise.all([getMyProgress(), getStudyPlan()])
-      .then(([progressResult, planResult]) => {
+    Promise.all([getMyProgress(), getStudyPlan(), getMyFlashcards()])
+      .then(([progressResult, planResult, flashcardResult]) => {
         if (!isMounted) return;
 
         if (progressResult.error || planResult.error) {
           setNextAction(null);
           setNextActionError('Não foi possível calcular sua prioridade agora.');
+          setDailyAgenda(null);
+          setDailyAgendaError('Não foi possível organizar sua agenda completa agora.');
         } else {
           setNextAction(buildNextBestAction({
             progress: progressResult.data,
             planItems: planResult.data.items.filter((item) => activeProductIds.has(item.product_id)),
           }));
+          if (flashcardResult.error) {
+            setDailyAgenda(null);
+            setDailyAgendaError('Não foi possível organizar sua agenda completa agora.');
+          } else {
+            setDailyAgenda(buildDailyStudyAgenda({
+              progress: progressResult.data,
+              planItems: planResult.data.items.filter((item) => activeProductIds.has(item.product_id)),
+              flashcardDecks: flashcardResult.data,
+            }));
+          }
         }
       })
       .catch(() => {
         if (!isMounted) return;
         setNextAction(null);
         setNextActionError('Não foi possível calcular sua prioridade agora.');
+        setDailyAgenda(null);
+        setDailyAgendaError('Não foi possível organizar sua agenda completa agora.');
       })
       .finally(() => {
         if (isMounted) setIsNextActionLoading(false);
@@ -226,6 +248,14 @@ const MyAccountPage = () => {
                 </div>
               </div>
             </motion.section>
+          )}
+
+          {hasActiveEnrollment && (
+            <DailyStudyAgenda
+              agenda={dailyAgenda}
+              loading={isNextActionLoading}
+              error={dailyAgendaError}
+            />
           )}
 
           <div className="grid lg:grid-cols-3 gap-8">
