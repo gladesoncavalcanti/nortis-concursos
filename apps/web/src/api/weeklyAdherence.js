@@ -18,6 +18,17 @@ function getWeekBounds(today) {
 const hasValidDate = (item) => /^\d{4}-\d{2}-\d{2}$/.test(item.scheduled_date);
 const durationOf = (item) => Math.max(0, Number(item.duration_minutes) || 0);
 
+function trackedSecondsInWeek(sessions, week) {
+  return sessions.reduce((total, session) => {
+    if (!session.ended_at || !Number.isFinite(Number(session.duration_seconds))) return total;
+    const startedAt = new Date(session.started_at);
+    if (Number.isNaN(startedAt.getTime())) return total;
+    const dateKey = toLocalDateKey(startedAt);
+    if (dateKey < week.start || dateKey > week.end) return total;
+    return total + Math.max(0, Number(session.duration_seconds));
+  }, 0);
+}
+
 export function filterPlanByActiveProducts(enrollments = [], items = [], now = new Date()) {
   const nowMs = now.getTime();
   const activeEnrollments = enrollments.filter((enrollment) =>
@@ -77,7 +88,7 @@ function buildGuidance({ plannedTasks, adherencePercent, overdueTasks, remaining
   };
 }
 
-export function buildWeeklyAdherence({ items = [], today = new Date() }) {
+export function buildWeeklyAdherence({ items = [], sessions = [], today = new Date() }) {
   const todayKey = toLocalDateKey(today);
   const week = getWeekBounds(today);
   const validItems = items.filter(hasValidDate);
@@ -94,6 +105,11 @@ export function buildWeeklyAdherence({ items = [], today = new Date() }) {
   const adherencePercent = plannedMinutes
     ? Math.min(100, Math.round((completedMinutes / plannedMinutes) * 100))
     : 0;
+  const trackedSeconds = trackedSecondsInWeek(sessions, week);
+  const trackedMinutes = Math.floor(trackedSeconds / 60);
+  const timeAdherencePercent = plannedMinutes
+    ? Math.min(100, Math.round((trackedMinutes / plannedMinutes) * 100))
+    : 0;
 
   const result = {
     weekStart: week.start,
@@ -102,6 +118,9 @@ export function buildWeeklyAdherence({ items = [], today = new Date() }) {
     completedTasks: completedItems.length,
     plannedMinutes,
     completedMinutes,
+    trackedSeconds,
+    trackedMinutes,
+    timeAdherencePercent,
     adherencePercent,
     overdueTasks,
     remainingMinutes,

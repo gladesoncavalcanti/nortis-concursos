@@ -2,11 +2,12 @@ import React from 'react';
 import { AlertTriangle, BarChart3, CalendarCheck2, Clock3 } from 'lucide-react';
 import { buildWeeklyAdherence } from '@/api/weeklyAdherence.js';
 
-const WeeklyAdherencePanel = ({ items }) => {
-  const adherence = buildWeeklyAdherence({ items });
+const WeeklyAdherencePanel = ({ items, sessions }) => {
+  const adherence = buildWeeklyAdherence({ items, sessions });
   const metrics = [
     ['Tarefas', `${adherence.completedTasks}/${adherence.plannedTasks}`],
     ['Minutos', `${adherence.completedMinutes}/${adherence.plannedMinutes}`],
+    ['Tempo real', `${adherence.trackedMinutes} min`],
     ['Aderência', `${adherence.adherencePercent}%`],
     ['Atrasadas', adherence.overdueTasks],
     ['Restantes', `${adherence.remainingMinutes} min`],
@@ -24,7 +25,7 @@ const WeeklyAdherencePanel = ({ items }) => {
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {metrics.map(([label, value]) => (
           <div key={label} className="rounded-xl bg-muted p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
@@ -32,6 +33,10 @@ const WeeklyAdherencePanel = ({ items }) => {
           </div>
         ))}
       </div>
+
+      <p className="mt-4 text-xs text-muted-foreground">
+        Tempo real registrado: {adherence.timeAdherencePercent}% dos minutos planejados. A conclusão das tarefas e o cronômetro são sinais separados.
+      </p>
 
       <div className="mt-5">
         <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">

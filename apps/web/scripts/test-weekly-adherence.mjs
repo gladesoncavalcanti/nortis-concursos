@@ -11,13 +11,23 @@ const items = [
   { product_id: 'active', title: 'Data inválida', scheduled_date: 'amanhã', duration_minutes: 480, completed: false, item_source: 'manual' },
 ];
 
-const adherence = buildWeeklyAdherence({ items, today });
+const sessions = [
+  { started_at: '2026-08-10T15:00:00Z', ended_at: '2026-08-10T15:45:00Z', duration_seconds: 2700 },
+  { started_at: '2026-08-11T15:00:00Z', ended_at: '2026-08-11T15:10:30Z', duration_seconds: 630 },
+  { started_at: '2026-08-17T15:00:00Z', ended_at: '2026-08-17T15:30:00Z', duration_seconds: 1800 },
+  { started_at: '2026-08-11T18:00:00Z', ended_at: null, duration_seconds: null },
+];
+
+const adherence = buildWeeklyAdherence({ items, sessions, today });
 assert.equal(adherence.weekStart, '2026-08-10');
 assert.equal(adherence.weekEnd, '2026-08-16');
 assert.equal(adherence.plannedTasks, 3);
 assert.equal(adherence.completedTasks, 1);
 assert.equal(adherence.plannedMinutes, 130);
 assert.equal(adherence.completedMinutes, 60);
+assert.equal(adherence.trackedSeconds, 3330);
+assert.equal(adherence.trackedMinutes, 55);
+assert.equal(adherence.timeAdherencePercent, 42);
 assert.equal(adherence.adherencePercent, 46);
 assert.equal(adherence.remainingMinutes, 70);
 assert.equal(adherence.overdueTasks, 1);
@@ -58,4 +68,4 @@ const filtered = filterPlanByActiveProducts([
 assert.deepEqual(filtered.enrollments.map((item) => item.product_id), ['active', 'permanent']);
 assert.deepEqual(filtered.items.map((item) => item.product_id), ['active', 'permanent']);
 
-console.log('Aderência semanal: 21 verificações aprovadas.');
+console.log('Aderência semanal: 24 verificações aprovadas.');
