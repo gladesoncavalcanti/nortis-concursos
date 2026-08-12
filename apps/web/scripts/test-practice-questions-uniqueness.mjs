@@ -275,7 +275,7 @@ for (const [slug, expectedLabel] of newCorrectLabels) {
 }
 
 const correctionMigration = readFileSync(
-  `${migrationsDirectory}/20260811171733_fix_duplicate_practice_questions.sql`,
+  `${migrationsDirectory}/20260812012358_fix_duplicate_practice_questions.sql`,
   'utf8'
 );
 assert.doesNotMatch(correctionMigration, /\b(drop|delete|truncate|create|alter|grant|revoke)\b/i);
