@@ -7,6 +7,11 @@ const migrationPath = fileURLToPath(new URL(
   import.meta.url
 ));
 const sql = readFileSync(migrationPath, 'utf8');
+const encodingMigrationPath = fileURLToPath(new URL(
+  '../../../supabase/migrations/20260812050702_normalize_flashcard_text_encoding.sql',
+  import.meta.url
+));
+const encodingSql = readFileSync(encodingMigrationPath, 'utf8');
 
 assert.match(sql, /drop policy if exists "flashcard_decks_enrolled_read"/i);
 assert.match(sql, /drop policy if exists "flashcards_enrolled_read"/i);
@@ -40,4 +45,10 @@ assert.doesNotMatch(sql, /insert into public\.(orders|order_items|payments|downl
 assert.doesNotMatch(sql, /asaas|edge function|secret/i);
 assert.doesNotMatch(sql, /delete from|truncate/i);
 
-console.log('Flashcards por especialidade: 28 verificacoes estaticas aprovadas.');
+assert.match(encodingSql, /Revisão —/);
+assert.match(encodingSql, /Cartões baseados nos blocos oficiais/);
+assert.match(encodingSql, /Quais pontos do edital devem ser revisados em “/);
+assert.match(encodingSql, /subject\.title/);
+assert.doesNotMatch(encodingSql, /insert into|delete from|truncate|alter table|create policy/i);
+
+console.log('Flashcards por especialidade: 33 verificacoes estaticas aprovadas.');
