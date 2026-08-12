@@ -40,6 +40,14 @@ const FAQ_ITEMS = [
   },
 ];
 
+const toggleDetailsWithKeyboard = (event) => {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+
+  event.preventDefault();
+  const details = event.currentTarget.closest('details');
+  if (details) details.open = !details.open;
+};
+
 const SprintDiscursivaPage = () => {
   const [interestModal, setInterestModal] = useState({ isOpen: false, category: '', packageId: '' });
 
@@ -157,7 +165,10 @@ const SprintDiscursivaPage = () => {
         <div className="space-y-3">
           {FAQ_ITEMS.map((item) => (
             <details key={item.question} className="group rounded-xl border border-border bg-card px-5 py-4 shadow-sm">
-              <summary className="cursor-pointer list-none font-heading font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 rounded-sm">
+              <summary
+                onKeyDown={toggleDetailsWithKeyboard}
+                className="cursor-pointer list-none font-heading font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 rounded-sm"
+              >
                 <span className="flex items-center justify-between gap-4">
                   {item.question}
                   <span aria-hidden="true" className="text-xl leading-none text-[hsl(var(--accent))] transition-transform group-open:rotate-45">+</span>
@@ -168,7 +179,10 @@ const SprintDiscursivaPage = () => {
           ))}
 
           <details className="group rounded-xl border border-border bg-card px-5 py-4 shadow-sm">
-            <summary className="cursor-pointer list-none font-heading font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 rounded-sm">
+            <summary
+              onKeyDown={toggleDetailsWithKeyboard}
+              className="cursor-pointer list-none font-heading font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 rounded-sm"
+            >
               <span className="flex items-center justify-between gap-4">
                 Como meus dados serão usados?
                 <span aria-hidden="true" className="text-xl leading-none text-[hsl(var(--accent))] transition-transform group-open:rotate-45">+</span>
