@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { getMyProgress, submitReviewAttempt } from '@/api/progress.js';
+import StudyTimeHistoryPanel from '@/components/StudyTimeHistoryPanel.jsx';
 
 const ACTIVITY_LABELS = {
   question: 'Questão',
@@ -108,6 +109,8 @@ const ProgressPage = () => {
               <p className="mt-1 text-sm text-muted-foreground">{label}</p>
             </div>)}
           </div>
+
+          <StudyTimeHistoryPanel history={data.studyTime} />
 
           <section className="mt-8 rounded-2xl bg-card p-6">
             <div className="flex items-center gap-3">

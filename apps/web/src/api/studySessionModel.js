@@ -19,3 +19,10 @@ export function getStudySessionWindowStart(now = new Date()) {
   start.setDate(start.getDate() - weekday + 1);
   return start.toISOString();
 }
+
+export function getStudySessionHistoryWindowStart(now = new Date(), weekCount = 8) {
+  const start = new Date(getStudySessionWindowStart(now));
+  const safeWeekCount = Math.min(12, Math.max(1, Math.floor(Number(weekCount) || 8)));
+  start.setDate(start.getDate() - ((safeWeekCount - 1) * 7));
+  return start.toISOString();
+}

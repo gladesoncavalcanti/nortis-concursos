@@ -12,7 +12,7 @@ export async function getStudyPlan() {
       .select('product_id,status,expires_at,products(title)')
       .eq('status', 'active'),
     supabase.from('study_plan_items')
-      .select('id,product_id,title,scheduled_date,duration_minutes,completed,completed_at,item_source')
+      .select('id,product_id,syllabus_node_id,title,scheduled_date,duration_minutes,completed,completed_at,item_source,syllabus_nodes(id,title)')
       .order('scheduled_date'),
     getStudySessions(),
   ]);

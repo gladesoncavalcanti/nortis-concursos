@@ -5,6 +5,7 @@ import {
   formatStudySessionDuration,
   getStudySessionElapsedSeconds,
   getStudySessionWindowStart,
+  getStudySessionHistoryWindowStart,
 } from '../src/api/studySessionModel.js';
 
 assert.equal(getStudySessionElapsedSeconds('2026-08-11T10:00:00Z', new Date('2026-08-11T10:01:05Z')), 65);
@@ -17,6 +18,10 @@ assert.equal(formatStudySessionDuration(-1), '00:00:00');
 const monday = getStudySessionWindowStart(new Date(2026, 7, 11, 12, 0, 0));
 assert.equal(new Date(monday).getDay(), 1);
 assert.equal(new Date(monday).getHours(), 0);
+const historyStart = new Date(getStudySessionHistoryWindowStart(new Date(2026, 7, 11, 12, 0, 0), 8));
+assert.equal(historyStart.getDay(), 1);
+assert.equal(historyStart.getMonth(), 5);
+assert.equal(historyStart.getDate(), 22);
 
 const migrationPath = fileURLToPath(new URL(
   '../../../supabase/migrations/20260812013514_create_study_sessions.sql',

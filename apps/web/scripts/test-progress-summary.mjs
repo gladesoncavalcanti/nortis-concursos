@@ -30,6 +30,14 @@ assert.match(summary.activity.recent[0].label, /Simulado piloto/);
 assert.equal(summary.activity.recent.some((item) => item.label.includes('Pendente')), false);
 assert.deepEqual(summarizeProgress([], []).review, []);
 
+const withStudyTime = summarizeProgress([], [], [], new Date(2026, 7, 12, 12), [
+  { id: 'plan-a', title: 'Plano A', scheduled_date: '2026-08-12', duration_minutes: 30, completed: false },
+], [
+  { study_plan_item_id: 'plan-a', started_at: '2026-08-12T13:00:00Z', ended_at: '2026-08-12T13:15:00Z', duration_seconds: 900 },
+]);
+assert.equal(withStudyTime.studyTime.totalTrackedMinutes, 15);
+assert.equal(withStudyTime.studyTime.totalPlannedMinutes, 30);
+
 const correctedInReview = summarizeProgress([
   { question_id: 'diagnostic-a', is_correct: true, answered_at: '2026-08-10T12:00:00Z', attempt_context: 'practice' },
   { question_id: 'diagnostic-a', is_correct: false, answered_at: '2026-08-10T10:00:00Z', attempt_context: 'diagnostic' },

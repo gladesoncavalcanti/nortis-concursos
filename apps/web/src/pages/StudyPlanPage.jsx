@@ -14,6 +14,7 @@ import { getWeakestObjectiveSubjects } from '@/api/objectiveDiagnostic.js';
 import { finishStudySession, startStudySession } from '@/api/studySessions.js';
 import StudySessionTimer from '@/components/StudySessionTimer.jsx';
 import WeeklyAdherencePanel from '@/components/WeeklyAdherencePanel.jsx';
+import StudyTimeHistoryPanel from '@/components/StudyTimeHistoryPanel.jsx';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -96,6 +97,7 @@ const StudyPlanPage = () => {
     {loading ? <Loader2 className="mx-auto mt-16 h-8 w-8 animate-spin" /> : error && !data ? <p className="mt-8 rounded-2xl bg-card p-6">{error}</p> : <>
       <div className="mt-8 rounded-2xl border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 p-6"><h2 className="flex items-center gap-2 text-xl font-bold"><Sparkles className="h-5 w-5" />Semana sugerida</h2><p className="mt-2 text-sm text-muted-foreground">Usa separadamente seu tempo disponível, autopercepção e o ciclo diagnóstico mais recente. Você continua livre para editar o plano.</p><Button className="mt-4" disabled={busy || !form.productId} onClick={suggestWeek}>Gerar minha semana</Button></div>
       <WeeklyAdherencePanel items={data.items} sessions={data.sessions} />
+      <StudyTimeHistoryPanel items={data.items} sessions={data.sessions} compact />
       <StudySessionTimer activeSession={data.activeSession} items={data.items} busy={busy} onFinish={finishSession} />
       <form onSubmit={add} className="mt-6 grid gap-4 rounded-2xl bg-card p-6 sm:grid-cols-2"><label className="text-sm font-medium">Produto<select className="mt-2 w-full rounded-lg border bg-background p-3" value={form.productId} onChange={(event) => setForm((current) => ({ ...current, productId: event.target.value }))}>{data.enrollments.map((enrollment) => <option key={enrollment.product_id} value={enrollment.product_id}>{enrollment.products?.title || 'Produto'}</option>)}</select></label><label className="text-sm font-medium">Tarefa<input required minLength={2} maxLength={160} className="mt-2 w-full rounded-lg border bg-background p-3" value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} /></label><label className="text-sm font-medium">Data<input required type="date" className="mt-2 w-full rounded-lg border bg-background p-3" value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} /></label><label className="text-sm font-medium">Duração (minutos)<input required type="number" min="5" max="480" className="mt-2 w-full rounded-lg border bg-background p-3" value={form.duration} onChange={(event) => setForm((current) => ({ ...current, duration: event.target.value }))} /></label><Button className="sm:col-span-2" disabled={busy || !form.productId}><Plus className="mr-2 h-4 w-4" />Adicionar tarefa</Button></form>
       {error && <p className="mt-4 text-sm text-destructive">{error}</p>}{notice && <p className="mt-4 text-sm text-emerald-600">{notice}</p>}
