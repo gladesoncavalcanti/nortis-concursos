@@ -512,7 +512,7 @@ for (let i = 0; i < completeQuestions.length; i += 1) {
 }
 
 const qualityMigration = readFileSync(
-  `${migrationsDirectory}/20260812040000_fix_question_quality_issues.sql`,
+  `${migrationsDirectory}/20260812050000_fix_question_quality_issues.sql`,
   'utf8'
 );
 assert.doesNotMatch(
