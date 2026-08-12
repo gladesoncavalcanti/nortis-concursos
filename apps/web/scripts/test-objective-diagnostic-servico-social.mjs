@@ -99,9 +99,9 @@ assert.match(engineMigration, /attempt\.user_id = v_user_id/);
 assert.match(engineMigration, /attempt\.user_id = \(select auth\.uid\(\)\)/);
 assert.match(engineMigration, /revoke all on function public\.submit_diagnostic_answer\(uuid, uuid\) from public, anon/);
 
-assert.match(studyPlanSuggestions, /objectiveWeakSubjects=\[\],selfReportedWeakSubjects=\[\]/);
+assert.match(studyPlanSuggestions, /objectiveWeakSubjects\s*=\s*\[\],\s*selfReportedWeakSubjects\s*=\s*\[\]/);
 assert.match(studyPlanSuggestions, /Reforçar por desempenho/);
 assert.match(studyPlanSuggestions, /Revisar por autoavaliação/);
-assert.match(studyPlanSuggestions, /const objectiveSet=new Set\(objectiveWeakSubjects\)/);
+assert.match(studyPlanSuggestions, /const objectiveSet\s*=\s*new Set\(objectiveWeakSubjects\)/);
 
 console.log('Serviço Social: 4 questões, 16 alternativas, vínculos, fontes, proteções e plano semanal aprovados.');

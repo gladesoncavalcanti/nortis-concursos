@@ -99,7 +99,7 @@ assert.match(sql, /simulado-piloto-ciencias-contabeis/);
 assert.match(sql, /simulado-piloto-comunicacao-social/);
 assert.equal((sql.match(/Cinco questões autorais da Nortis/g) ?? []).length, 2);
 assert.equal((sql.match(/sem equivalência com nota oficial/g) ?? []).length, 3);
-assert.equal((sql.match(/\n\s+10,\n\s+40[012]10/g) ?? []).length, 3);
+assert.equal((sql.match(/\r?\n\s+10,\r?\n\s+40[012]10/g) ?? []).length, 3);
 
 const simulationQuestionBlock = sql.match(/with simulation_question_seed[\s\S]+?insert into public\.simulation_questions/i)?.[0] ?? '';
 const simulationQuestionRows = [...simulationQuestionBlock.matchAll(/\('simulado-piloto-(?:administracao|ciencias-contabeis|comunicacao-social)','pratica-[^']+',\d+\)/g)];
