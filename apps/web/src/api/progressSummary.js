@@ -1,3 +1,5 @@
+import { buildStudyTimeHistory } from './studyTimeHistory.js';
+
 function calculateStreak(activityDates, today = new Date()) {
   const days = new Set(activityDates.filter(Boolean).map((value) => new Date(value).toISOString().slice(0, 10)));
   let cursor = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
@@ -62,7 +64,7 @@ export function buildActivityHistory(attempts = [], sessions = [], flashcardRevi
   return { days, recent: entries.slice(0, 10), activityDates: entries.map((entry) => entry.occurredAt) };
 }
 
-export function summarizeProgress(attempts, sessions, flashcardReviews = [], today = new Date(), planItems = []) {
+export function summarizeProgress(attempts, sessions, flashcardReviews = [], today = new Date(), planItems = [], studySessions = []) {
   const correctAttempts = attempts.filter((attempt) => attempt.is_correct).length;
   const accuracy = attempts.length ? Math.round((correctAttempts / attempts.length) * 100) : 0;
   const latestByQuestion = new Map();
@@ -85,6 +87,7 @@ export function summarizeProgress(attempts, sessions, flashcardReviews = [], tod
   })).sort((a, b) => a.accuracy - b.accuracy || b.answered - a.answered);
   const completedSimulations = sessions.filter((session) => session.status === 'completed').length;
   const activity = buildActivityHistory(attempts, sessions, flashcardReviews, planItems, today);
+  const studyTime = buildStudyTimeHistory({ sessions: studySessions, items: planItems, now: today });
   const streak = calculateStreak(activity.activityDates, today);
   const achievements = [
     { id: 'first-step', title: 'Primeiro passo', description: 'Responda sua primeira questão.', unlocked: attempts.length >= 1 },
@@ -105,5 +108,6 @@ export function summarizeProgress(attempts, sessions, flashcardReviews = [], tod
     review,
     contentDiagnosis,
     activity,
+    studyTime,
   };
 }

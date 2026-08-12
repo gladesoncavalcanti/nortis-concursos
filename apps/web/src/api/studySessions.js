@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { getStudySessionWindowStart } from '@/api/studySessionModel.js';
+import { getStudySessionHistoryWindowStart } from '@/api/studySessionModel.js';
 
 const SESSION_FIELDS = 'id,product_id,study_plan_item_id,started_at,ended_at,duration_seconds';
 
@@ -7,7 +7,7 @@ export async function getStudySessions(now = new Date()) {
   const [{ data: recent, error: recentError }, { data: active, error: activeError }] = await Promise.all([
     supabase.from('study_sessions')
       .select(SESSION_FIELDS)
-      .gte('started_at', getStudySessionWindowStart(now))
+      .gte('started_at', getStudySessionHistoryWindowStart(now))
       .order('started_at', { ascending: false }),
     supabase.from('study_sessions')
       .select(SESSION_FIELDS)

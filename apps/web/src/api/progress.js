@@ -1,12 +1,13 @@
 import { supabase } from '@/lib/supabase';
 import { summarizeProgress } from '@/api/progressSummary.js';
+import { getStudyPlan } from '@/api/studyPlan.js';
 
 export async function getMyProgress() {
   const [
     { data: attempts, error: attemptsError },
     { data: sessions, error: sessionsError },
     { data: flashcardReviews, error: flashcardsError },
-    { data: planItems, error: planItemsError },
+    studyPlanResult,
   ] = await Promise.all([
     supabase.from('question_attempts')
       .select('id,question_id,is_correct,answered_at,questions(id,statement,syllabus_nodes(id,title),question_options(id,label,option_text,sort_order))')
@@ -14,9 +15,9 @@ export async function getMyProgress() {
       .order('id', { ascending: false }),
     supabase.from('simulation_sessions').select('id,status,correct_count,question_count,started_at,completed_at,simulations(title)').order('started_at', { ascending: false }),
     supabase.from('flashcard_progress').select('flashcard_id,last_reviewed_at').not('last_reviewed_at', 'is', null),
-    supabase.from('study_plan_items').select('id,title,completed,completed_at').eq('completed', true).not('completed_at', 'is', null),
+    getStudyPlan(),
   ]);
-  if (attemptsError || sessionsError || flashcardsError || planItemsError) return { data: null, error: 'Não foi possível carregar seu progresso agora.' };
+  if (attemptsError || sessionsError || flashcardsError || studyPlanResult.error) return { data: null, error: 'Não foi possível carregar seu progresso agora.' };
   const normalizedAttempts = (attempts ?? []).map((attempt) => ({
     ...attempt,
     questions: attempt.questions ? {
@@ -26,7 +27,17 @@ export async function getMyProgress() {
       ),
     } : null,
   }));
-  return { data: summarizeProgress(normalizedAttempts, sessions ?? [], flashcardReviews ?? [], new Date(), planItems ?? []), error: null };
+  return {
+    data: summarizeProgress(
+      normalizedAttempts,
+      sessions ?? [],
+      flashcardReviews ?? [],
+      new Date(),
+      studyPlanResult.data.items,
+      studyPlanResult.data.sessions
+    ),
+    error: null,
+  };
 }
 
 export async function submitReviewAttempt(questionId, selectedOptionId) {
