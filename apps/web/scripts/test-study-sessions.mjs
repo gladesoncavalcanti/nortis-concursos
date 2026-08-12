@@ -19,7 +19,7 @@ assert.equal(new Date(monday).getDay(), 1);
 assert.equal(new Date(monday).getHours(), 0);
 
 const migrationPath = fileURLToPath(new URL(
-  '../../../supabase/migrations/20260811214244_create_study_sessions.sql',
+  '../../../supabase/migrations/20260812013514_create_study_sessions.sql',
   import.meta.url
 ));
 const sql = readFileSync(migrationPath, 'utf8');
