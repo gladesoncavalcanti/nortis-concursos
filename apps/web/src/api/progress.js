@@ -1,12 +1,14 @@
 import { supabase } from '@/lib/supabase';
 import { summarizeProgress } from '@/api/progressSummary.js';
 import { getStudyPlan } from '@/api/studyPlan.js';
+import { getMyFlashcards } from '@/api/flashcards.js';
+import { buildFlashcardInsights } from '@/api/flashcardInsights.js';
 
 export async function getMyProgress() {
   const [
     { data: attempts, error: attemptsError },
     { data: sessions, error: sessionsError },
-    { data: flashcardReviews, error: flashcardsError },
+    flashcardResult,
     studyPlanResult,
   ] = await Promise.all([
     supabase.from('question_attempts')
@@ -14,10 +16,14 @@ export async function getMyProgress() {
       .order('answered_at', { ascending: false })
       .order('id', { ascending: false }),
     supabase.from('simulation_sessions').select('id,status,correct_count,question_count,started_at,completed_at,simulations(title)').order('started_at', { ascending: false }),
-    supabase.from('flashcard_progress').select('flashcard_id,last_reviewed_at').not('last_reviewed_at', 'is', null),
+    getMyFlashcards(),
     getStudyPlan(),
   ]);
-  if (attemptsError || sessionsError || flashcardsError || studyPlanResult.error) return { data: null, error: 'Não foi possível carregar seu progresso agora.' };
+  if (attemptsError || sessionsError || flashcardResult.error || studyPlanResult.error) return { data: null, error: 'Não foi possível carregar seu progresso agora.' };
+  const flashcardReviews = flashcardResult.data
+    .flatMap((deck) => deck.flashcards ?? [])
+    .map((card) => card.progress ? { flashcard_id: card.id, ...card.progress } : null)
+    .filter((progress) => progress?.last_reviewed_at);
   const normalizedAttempts = (attempts ?? []).map((attempt) => ({
     ...attempt,
     questions: attempt.questions ? {
@@ -28,14 +34,17 @@ export async function getMyProgress() {
     } : null,
   }));
   return {
-    data: summarizeProgress(
+    data: {
+      ...summarizeProgress(
       normalizedAttempts,
       sessions ?? [],
-      flashcardReviews ?? [],
+      flashcardReviews,
       new Date(),
       studyPlanResult.data.items,
       studyPlanResult.data.sessions
-    ),
+      ),
+      flashcardInsights: buildFlashcardInsights(flashcardResult.data),
+    },
     error: null,
   };
 }

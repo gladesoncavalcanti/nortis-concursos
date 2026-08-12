@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 export async function getMyFlashcards(){
   const [{data:decks,error:deckError},{data:progress,error:progressError}]=await Promise.all([
     supabase.from('flashcard_decks').select('id,title,description,sort_order,flashcards(id,front_text,back_text,sort_order)').order('sort_order'),
-    supabase.from('flashcard_progress').select('flashcard_id,repetitions,next_review_at')
+    supabase.from('flashcard_progress').select('flashcard_id,repetitions,interval_days,ease_factor,last_rating,last_reviewed_at,next_review_at')
   ]);
   if(deckError||progressError)return{data:[],error:'Não foi possível carregar os flashcards agora.'};
   const byCard=new Map((progress??[]).map(item=>[item.flashcard_id,item]));
