@@ -23,7 +23,6 @@ create policy "flashcard_decks_enrolled_read" on public.flashcard_decks
         select 1
         from public.student_study_profiles profile
         where profile.user_id = (select auth.uid())
-          and profile.product_id = flashcard_decks.product_id
           and profile.target_specialty_id = flashcard_decks.syllabus_node_id
       )
     )
@@ -45,7 +44,6 @@ create policy "flashcards_enrolled_read" on public.flashcards
        and (enrollment.expires_at is null or enrollment.expires_at > now())
       left join public.student_study_profiles profile
         on profile.user_id = (select auth.uid())
-       and profile.product_id = deck.product_id
       where deck.id = flashcards.deck_id
         and deck.active
         and (
@@ -113,7 +111,6 @@ begin
     select 1
     from public.student_study_profiles profile
     where profile.user_id = v_user
-      and profile.product_id = v_product
       and profile.target_specialty_id = v_specialty
   ) then
     raise exception 'specialty_mismatch';
