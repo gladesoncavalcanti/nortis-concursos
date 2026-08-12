@@ -240,6 +240,37 @@ for (const diagnostic of diagnostics) {
   );
 }
 
+// Lote 2: pares com duplicação semântica cross-especialidade já identificados
+// na auditoria editorial. Mesmo critério do laço por bloco acima (Jaccard de
+// bigramas ≤ 0,45), mas aplicado a pares que pertencem a especialidades e
+// blocos oficiais diferentes.
+const crossSpecialtyPairs = [
+  ['diagnostico-administracao-liquidacao-despesa', 'diagnostico-ciencias-contabeis-liquidacao-despesa'],
+  ['diagnostico-educador-social-seguridade-social', 'diagnostico-servico-social-seguridade-social'],
+  ['diagnostico-comunicacao-social-impessoalidade', 'pratica-tecnico-administrativo-publicidade-impessoal'],
+  ['diagnostico-agente-social-abordagem-rua', 'diagnostico-cuidador-social-populacao-rua'],
+  ['diagnostico-tecnico-administrativo-anulacao-revogacao', 'diagnostico-direito-legislacao-autotutela-administrativa'],
+  ['diagnostico-direito-legislacao-ldo', 'pratica-servico-social-ldo-prioridades'],
+];
+
+for (const [slugA, slugB] of crossSpecialtyPairs) {
+  const a = questions.get(slugA);
+  const b = questions.get(slugB);
+  assert.ok(a, `Questão ausente no catálogo efetivo: ${slugA}.`);
+  assert.ok(b, `Questão ausente no catálogo efetivo: ${slugB}.`);
+
+  const statementSimilarity = jaccard(a.statement, b.statement);
+  const correctAnswerSimilarity = jaccard(a.options.get(a.correctLabel), b.options.get(b.correctLabel));
+  assert.ok(
+    statementSimilarity <= 0.45,
+    `${slugA} x ${slugB}: enunciados cross-especialidade com similaridade ${statementSimilarity.toFixed(3)} (> 0,45).`
+  );
+  assert.ok(
+    correctAnswerSimilarity <= 0.45,
+    `${slugA} x ${slugB}: respostas cross-especialidade com similaridade ${correctAnswerSimilarity.toFixed(3)} (> 0,45).`
+  );
+}
+
 for (const question of completeQuestions) {
   const explanation = normalize(question.explanation);
   for (const otherQuestion of completeQuestions) {
@@ -285,4 +316,70 @@ assert.doesNotMatch(
   /ANAC|Instrução Normativa nº 78\/2014/i
 );
 
-console.log('Integridade editorial: 68 pares diagnóstico/prática e 5 correções prioritárias aprovados.');
+// Lote 2: vínculos, ausência de fraseado "meta" e fonte reforçada.
+const crossSpecialtyRewrites = [
+  'diagnostico-ciencias-contabeis-liquidacao-despesa',
+  'diagnostico-servico-social-seguridade-social',
+  'pratica-tecnico-administrativo-publicidade-impessoal',
+  'diagnostico-cuidador-social-populacao-rua',
+  'diagnostico-tecnico-administrativo-anulacao-revogacao',
+  'pratica-servico-social-ldo-prioridades',
+];
+const expectedSubjectSlugs = new Map([
+  ['diagnostico-ciencias-contabeis-liquidacao-despesa', '4-orcamento-publico-administracao-financeira-e-orcamentaria-afo'],
+  ['diagnostico-servico-social-seguridade-social', '4-estado-politicas-sociais-planejamento-e-gestao'],
+  ['pratica-tecnico-administrativo-publicidade-impessoal', '1-nocoes-de-direito-constitucional'],
+  ['diagnostico-cuidador-social-populacao-rua', '5-populacao-em-situacao-de-rua-e-nocoes-de-abordagem-e-acolhimento-social'],
+  ['diagnostico-tecnico-administrativo-anulacao-revogacao', '2-nocoes-de-direito-administrativo-e-legislacao'],
+  ['pratica-servico-social-ldo-prioridades', '4-estado-politicas-sociais-planejamento-e-gestao'],
+]);
+
+for (const slug of crossSpecialtyRewrites) {
+  const question = questions.get(slug);
+  assert.ok(question, `Questão ausente após a migration do Lote 2: ${slug}.`);
+  assert.equal(question.options.size, 4, `${slug}: deve continuar com exatamente 4 alternativas.`);
+  assert.ok(question.correctLabel, `${slug}: deve continuar com gabarito definido.`);
+  assert.equal(
+    question.subject_slug,
+    expectedSubjectSlugs.get(slug),
+    `${slug}: bloco oficial não pode mudar em relação ao estado anterior à correção.`
+  );
+  assert.match(question.source_reference, /Questão autoral Nortis\.$/, `${slug}: deve continuar autoral Nortis.`);
+}
+
+for (const slug of ['diagnostico-agente-social-saude-mental', 'diagnostico-cuidador-social-saude-mental']) {
+  const question = questions.get(slug);
+  assert.ok(question, `Questão ausente após a migration do Lote 2: ${slug}.`);
+  assert.doesNotMatch(
+    question.statement,
+    /adequad[ao] ao conteúdo previsto no edital|pedagogicamente adequad[ao]/i,
+    `${slug}: enunciado ainda usa fraseado de "meta" em vez de perguntar pela conduta profissional.`
+  );
+}
+assert.match(
+  questions.get('diagnostico-agente-social-saude-mental').source_reference,
+  /Lei Federal nº 10\.216\/2001/,
+  'diagnostico-agente-social-saude-mental: fonte deve citar a Lei Federal nº 10.216/2001, não apenas o edital.'
+);
+
+const crossSpecialtyMigration = readFileSync(
+  `${migrationsDirectory}/20260812030000_fix_cross_specialty_duplicate_questions.sql`,
+  'utf8'
+);
+assert.doesNotMatch(
+  crossSpecialtyMigration,
+  /\b(drop|delete|truncate|create|alter|grant|revoke)\b/i,
+  'Migration do Lote 2 não pode conter comandos estruturais.'
+);
+assert.doesNotMatch(
+  crossSpecialtyMigration,
+  /orders|payments|asaas|edge function|secret/i,
+  'Migration do Lote 2 não pode tocar checkout, pagamentos, Asaas, Edge Functions ou secrets.'
+);
+assert.doesNotMatch(
+  crossSpecialtyMigration,
+  /insert\s+into/i,
+  'Migration do Lote 2 deve ser exclusivamente UPDATE por slug (idempotente), sem INSERT.'
+);
+
+console.log('Integridade editorial: 68 pares diagnóstico/prática, 6 pares cross-especialidade, 5 correções prioritárias e Lote 2 (8 questões) aprovados.');
