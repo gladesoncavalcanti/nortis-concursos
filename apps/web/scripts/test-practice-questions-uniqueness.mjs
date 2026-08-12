@@ -363,7 +363,7 @@ assert.match(
 );
 
 const crossSpecialtyMigration = readFileSync(
-  `${migrationsDirectory}/20260812030000_fix_cross_specialty_duplicate_questions.sql`,
+  `${migrationsDirectory}/20260812043056_fix_cross_specialty_duplicate_questions.sql`,
   'utf8'
 );
 assert.doesNotMatch(
