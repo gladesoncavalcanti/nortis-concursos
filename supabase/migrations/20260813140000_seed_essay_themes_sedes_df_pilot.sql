@@ -12,6 +12,13 @@
 -- seis titulos/comandos-base fornecidos foi adicionado por conta propria
 -- (apenas ajustes minimos de pontuacao para caber no modelo de dados).
 --
+-- PENDENCIA REGISTRADA: o PDF-fonte da matriz autoral citada acima nao
+-- foi anexado nesta sessao de trabalho. Os seis titulos/comandos-base
+-- usados aqui vieram transcritos literalmente no comando que autorizou
+-- este lote (nao foram inferidos, resumidos nem expandidos a partir do
+-- PDF). A conferencia documental direta contra o PDF original permanece
+-- pendente ate que o arquivo seja fornecido em uma sessao futura.
+--
 -- Escopo estritamente restrito a public.essay_themes: adiciona uma
 -- coluna `slug` (com indice unico) para permitir upsert idempotente no
 -- mesmo padrao ja usado em public.simulations/public.questions (ver
