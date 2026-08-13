@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Bot, ChevronLeft, Loader2, Lock } from 'lucide-react';
+import { ArrowRight, Bot, ChevronLeft, Loader2, Lock, PenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { getMyProgress } from '@/api/progress.js';
 import { getStudyPlan } from '@/api/studyPlan.js';
@@ -63,6 +63,15 @@ const StudyTutorPage = () => {
             <Lock className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
             <p>Orientação privada calculada no seu navegador a partir do progresso e do plano da sua conta. Nenhum texto é enviado a um provedor externo de IA.</p>
           </div>
+
+          <Link
+            to="/minha-conta/tutor/redacao"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground hover:border-[hsl(var(--accent))]"
+          >
+            <PenLine className="h-4 w-4 text-[hsl(var(--accent))]" aria-hidden="true" />
+            Praticar redação por tema
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
 
           {loading ? <Loader2 className="mx-auto mt-16 h-8 w-8 animate-spin" /> : error ? (
             <p className="mt-8 rounded-2xl bg-card p-6">{error}</p>
