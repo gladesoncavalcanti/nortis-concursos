@@ -17,3 +17,4 @@ Só decisões técnicas **novas**, tomadas depois destes três documentos, que a
 ## Documentos adicionais registrados
 
 - **`fundacao-discursiva-tutor-nortis.md`** — schema, RLS, fluxo de estado, rotas e testes da fundação técnica do fluxo discursivo (`essay_themes`/`essay_submissions`, PR #80). Documenta apenas a fundação técnica — explicitamente não inclui rubrica, taxonomia, motor de IA ou qualquer artefato pedagógico oficial (ver seção própria do documento).
+- **`plano-integracao-contratos-oficiais-tutor-nortis.md`** — PLANO (não contrato) de como os onze artefatos oficiais do motor de correção (Rubrica, Taxonomia, Espelho, CAC, DLP, Contrato JSON, Prompt Consolidado etc.) se integrariam ao produto quando o conteúdo literal deles existir — quem consome, ordem recomendada, testes, segurança. Não inventa nenhum conteúdo desses artefatos.
