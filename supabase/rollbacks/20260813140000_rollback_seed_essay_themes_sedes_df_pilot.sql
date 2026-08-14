@@ -15,12 +15,12 @@
 
 delete from public.essay_themes
 where slug in (
-  'suas-e-pnas-principios-e-organizacao-territorial',
+  'suas-e-pnas',
   'protecao-social-basica-e-especial',
-  'intersetorialidade-na-protecao-social',
-  'territorializacao-e-diagnostico-socioassistencial',
-  'beneficios-e-programas-socioassistenciais-do-df',
-  'resposta-estatal-as-violacoes-de-direitos'
+  'intersetorialidade',
+  'territorializacao-e-diagnostico',
+  'beneficios-e-programas-do-df',
+  'direitos-e-violacoes'
 );
 
 -- Só remova a coluna/índice se nenhum outro tema (fora deste seed)

@@ -21,13 +21,45 @@ const migrationPath = fileURLToPath(new URL(
 const migration = readFileSync(migrationPath, 'utf8').replace(/\r\n/g, '\n');
 
 const EXPECTED_SLUGS = [
-  'suas-e-pnas-principios-e-organizacao-territorial',
+  'suas-e-pnas',
   'protecao-social-basica-e-especial',
-  'intersetorialidade-na-protecao-social',
-  'territorializacao-e-diagnostico-socioassistencial',
-  'beneficios-e-programas-socioassistenciais-do-df',
-  'resposta-estatal-as-violacoes-de-direitos',
+  'intersetorialidade',
+  'territorializacao-e-diagnostico',
+  'beneficios-e-programas-do-df',
+  'direitos-e-violacoes',
 ];
+
+// Fonte canônica (decisão humana de reconciliação literal, 2026-08-13):
+// transcrição exata do PDF-fonte (Nortis_Redacao_Quadrix_SEDES_DF_2026.pdf,
+// Seção 6, item 16, página 32 — confirmado por fonte dupla idêntica em
+// Nortis_Redacao_SEDES_DF_2026_Direcao_Editorial_V2.pdf, página 26). Sem
+// paráfrase, ampliação, modernização ou complemento próprio.
+const LITERAL_PDF_CONTENT = {
+  'suas-e-pnas': {
+    title: 'SUAS e PNAS',
+    prompt_text: 'Explique princípios, proteções, seguranças e organização territorial.',
+  },
+  'protecao-social-basica-e-especial': {
+    title: 'Proteção social básica e especial',
+    prompt_text: 'Diferencie CRAS/CREAS, PAIF/PAEFI, média/alta complexidade.',
+  },
+  'intersetorialidade': {
+    title: 'Intersetorialidade',
+    prompt_text: 'Analise a articulação entre assistência, saúde, educação, justiça e segurança.',
+  },
+  'territorializacao-e-diagnostico': {
+    title: 'Territorialização e diagnóstico',
+    prompt_text: 'Explique por que o território orienta a atuação socioassistencial.',
+  },
+  'beneficios-e-programas-do-df': {
+    title: 'Benefícios e programas do DF',
+    prompt_text: 'Relacione benefícios, segurança de renda e acompanhamento familiar.',
+  },
+  'direitos-e-violacoes': {
+    title: 'Direitos e violações',
+    prompt_text: 'Analise resposta estatal diante de violação de direitos.',
+  },
+};
 
 // Bloco de dados (CTE theme_seed) isolado do resto do arquivo — usado
 // para checar duplicidade real dos temas sem contar a referência
@@ -123,4 +155,23 @@ EXPECTED_SLUGS.forEach((slug) => {
   assert.match(guardBlockMatch[0], new RegExp(`'${slug}'`), `guarda não verifica o slug ${slug}`);
 });
 
-console.log(`Piloto de temas de treino (seed) — 13 verificações aprovadas, ${EXPECTED_SLUGS.length} temas.`);
+// 14) reconciliação literal: title/prompt_text de cada tema batem
+// EXATAMENTE (mesma acentuação/pontuação) com a transcrição do
+// PDF-fonte — decisão humana de 2026-08-13, pendência documental
+// encerrada. Cada valor precisa aparecer literalmente no bloco de
+// dados, entre aspas simples (delimitador de string SQL), para excluir
+// qualquer paráfrase residual.
+Object.entries(LITERAL_PDF_CONTENT).forEach(([slug, { title, prompt_text }]) => {
+  assert.ok(
+    dataBlock.includes(`'${title}'`),
+    `título do tema ${slug} não bate literalmente com o PDF-fonte (esperado: "${title}")`
+  );
+  assert.ok(
+    dataBlock.includes(`'${prompt_text}'`),
+    `comando do tema ${slug} não bate literalmente com o PDF-fonte (esperado: "${prompt_text}")`
+  );
+});
+assert.match(migration, /CONFERENCIA DOCUMENTAL ENCERRADA/);
+assert.match(migration, /pendencia documental do PR #81 esta ENCERRADA/);
+
+console.log(`Piloto de temas de treino (seed) — 14 verificações aprovadas, ${EXPECTED_SLUGS.length} temas, conteúdo reconciliado literalmente com o PDF-fonte.`);

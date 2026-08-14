@@ -6,63 +6,38 @@
 -- Fonte editorial: Nortis Concursos - Redacao Quadrix SEDES-DF 2026 -
 -- Secao 6: Matriz de temas com maior potencial discursivo. Material
 -- autoral Nortis; NAO e publicacao oficial do Instituto Quadrix nem da
--- SEDES-DF. Os seis temas abaixo sao linhas de treino Nortis derivadas
--- dessa matriz autoral - NAO sao "temas oficiais" da banca, e nenhuma
--- previsao de incidencia foi atribuida a eles. Nenhum conteudo alem dos
--- seis titulos/comandos-base fornecidos foi adicionado por conta propria
--- (apenas ajustes minimos de pontuacao para caber no modelo de dados).
+-- SEDES-DF. Os seis temas abaixo sao linhas de treino Nortis - NAO sao
+-- "temas oficiais" da banca, e nenhuma previsao de incidencia foi
+-- atribuida a eles.
 --
--- CONFERENCIA DOCUMENTAL REALIZADA (atualizacao posterior a esta
--- migration, com FONTE DUPLA CONFIRMADA em sessao seguinte): dois
--- PDFs foram disponibilizados e lidos na integra contendo a mesma
--- Secao 6 "Matriz de temas com maior potencial discursivo", com texto
--- identico entre si -
+-- CONFERENCIA DOCUMENTAL ENCERRADA (DECISAO HUMANA - reconciliacao
+-- literal com o PDF-fonte, 2026-08-13): a auditoria anterior (ver
+-- historico abaixo) encontrou 4 de 6 temas com DIVERGENCIA MATERIAL
+-- frente ao texto original da Secao 6, confirmado por fonte dupla
+-- identica -
 -- (a) Nortis_Redacao_Quadrix_SEDES_DF_2026.pdf (edicao original,
 --     pagina 32, item 16) e
 -- (b) Nortis_Redacao_SEDES_DF_2026_Direcao_Editorial_V2.pdf (edicao
---     visual V2 do mesmo manual, pagina 26) -
--- confirmando que a Secao 6 e de fato a fonte primaria dos seis temas
--- abaixo (dois outros PDFs recebidos na mesma sessao -
--- "V3_Premium_Modelos_Nota_Alta" e "V3_Premium_ABNT_Justificada" - sao
--- uma familia de material DIFERENTE, sem esta matriz; ver nota em
+--     visual V2 do mesmo manual, pagina 26).
+-- Diante disso, foi tomada a decisao humana de adotar como fonte
+-- CANONICA a redacao LITERAL do PDF-fonte - os seis titulos/comandos
+-- abaixo sao TRANSCRICOES do PDF, sem parafrase, ampliacao,
+-- modernizacao ou complemento proprio (os slugs foram ajustados para
+-- refletir os novos titulos - campo tecnico, nao editorial). A
+-- pendencia documental do PR #81 esta ENCERRADA: o conteudo foi
+-- reconciliado com a fonte original.
+--
+-- Historico (para auditoria - NAO reflete mais o conteudo semeado
+-- abaixo): a versao anterior desta migration usava titulos/comandos
+-- parafraseados/expandidos a partir da mesma Secao 6, registrados e
+-- classificados tema a tema (IDENTICO / EQUIVALENTE COM AJUSTE
+-- EDITORIAL MINIMO / DIVERGENCIA MATERIAL) nos comentarios do PR #81 e
+-- no commit dad07a0 desta branch - ver esse commit e o comentario do
+-- PR para o detalhe completo da comparacao anterior. Os PDFs
+-- complementares "V3_Premium_Modelos_Nota_Alta" e
+-- "V3_Premium_ABNT_Justificada" continuam sendo uma familia de material
+-- DIFERENTE, sem esta matriz (ver nota em
 -- docs/claude-staging/knowledge/plano-integracao-contratos-oficiais-tutor-nortis.md).
---
--- Classificacao tema a tema (titulo/comando da migration vs.
--- eixo/comando da Secao 6 do PDF-fonte):
--- (1) SUAS e PNAS - DIVERGENCIA MATERIAL no comando: PDF nao tem o
---     sufixo "no ambito do SUAS e da PNAS".
--- (2) Protecao basica/especial - EQUIVALENTE COM AJUSTE EDITORIAL
---     MINIMO: PDF usa notacao de tabela com barras ("CRAS/CREAS",
---     "PAIF/PAEFI", "media/alta complexidade"), migration expande em
---     prosa ("e", "proteção de") sem alterar o conteudo informado.
--- (3) Intersetorialidade - DIVERGENCIA MATERIAL: PDF diz apenas
---     "assistencia" (nao "assistencia social") e nao tem o sufixo "no
---     atendimento de demandas complexas" (clausula importada de outra
---     celula da tabela do PDF).
--- (4) Territorializacao - EQUIVALENTE COM AJUSTE EDITORIAL MINIMO: o
---     comando bate exatamente com o PDF; so o titulo do eixo no PDF e
---     mais curto ("Territorializacao e diagnostico", sem
---     "socioassistencial").
--- (5) Beneficios - DIVERGENCIA MATERIAL: PDF nao tem
---     "socioassistenciais" apos "beneficios" nem no eixo nem no
---     comando - o PDF usa "beneficios" em sentido mais amplo.
--- (6) Direitos - DIVERGENCIA MATERIAL, a mais relevante das seis: o
---     eixo no PDF chama-se "Direitos e violacoes" (nao "Resposta
---     estatal as violacoes de direitos" - o titulo da migration e uma
---     parafrase do COMANDO do PDF, usada como se fosse o nome do
---     eixo), e o comando do PDF e "Analise resposta estatal diante de
---     violacao de direitos" (sem "a" antes de "resposta", singular
---     "violacao").
---
--- Resultado: 4 de 6 temas (1, 3, 5, 6) tem DIVERGENCIA MATERIAL no
--- titulo e/ou comando frente ao PDF-fonte (confirmado por duas fontes
--- identicas); 2 de 6 (2, 4) sao apenas ajuste editorial minimo
--- (formatacao/tamanho do titulo, sem mudar o conteudo). Por isso esta
--- conferencia NAO foi encerrada como "identica" - a pendencia
--- documental permanece ABERTA para decisao humana sobre se os seis
--- temas devem ser corrigidos para bater literalmente com o PDF antes
--- de qualquer aplicacao remota. NENHUM conteudo pedagogico foi
--- alterado nesta migration em funcao deste achado.
 --
 -- Escopo estritamente restrito a public.essay_themes: adiciona uma
 -- coluna `slug` (com indice unico) para permitir upsert idempotente no
@@ -86,8 +61,7 @@
 -- separada, pequena e controlada (um UPDATE ou uma migration adicional
 -- futura), a ser feita somente depois que o frontend da Fundacao
 -- Discursiva (PR #80) estiver de fato em producao. Esta migration em si
--- NAO deve ser aplicada ao ambiente remoto nesta sessao (ver Fase 8 do
--- comando que originou este trabalho).
+-- NAO deve ser aplicada ao ambiente remoto nesta sessao.
 
 alter table public.essay_themes
   add column if not exists slug text;
@@ -99,45 +73,45 @@ create unique index if not exists essay_themes_slug_uidx
 with theme_seed(slug, title, prompt_text, source_reference, sort_order) as (
   values
     (
-      'suas-e-pnas-principios-e-organizacao-territorial',
-      'SUAS e PNAS — princípios e organização territorial',
-      'Explique princípios, proteções, seguranças e organização territorial no âmbito do SUAS e da PNAS.',
-      'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.',
+      'suas-e-pnas',
+      'SUAS e PNAS',
+      'Explique princípios, proteções, seguranças e organização territorial.',
+      'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Transcrição literal do PDF-fonte. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.',
       10
     ),
     (
       'protecao-social-basica-e-especial',
       'Proteção social básica e especial',
-      'Diferencie CRAS e CREAS, PAIF e PAEFI, e proteção de média e alta complexidade.',
-      'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.',
+      'Diferencie CRAS/CREAS, PAIF/PAEFI, média/alta complexidade.',
+      'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Transcrição literal do PDF-fonte. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.',
       20
     ),
     (
-      'intersetorialidade-na-protecao-social',
-      'Intersetorialidade na proteção social',
-      'Analise a articulação entre assistência social, saúde, educação, justiça e segurança no atendimento de demandas complexas.',
-      'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.',
+      'intersetorialidade',
+      'Intersetorialidade',
+      'Analise a articulação entre assistência, saúde, educação, justiça e segurança.',
+      'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Transcrição literal do PDF-fonte. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.',
       30
     ),
     (
-      'territorializacao-e-diagnostico-socioassistencial',
-      'Territorialização e diagnóstico socioassistencial',
+      'territorializacao-e-diagnostico',
+      'Territorialização e diagnóstico',
       'Explique por que o território orienta a atuação socioassistencial.',
-      'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.',
+      'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Transcrição literal do PDF-fonte. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.',
       40
     ),
     (
-      'beneficios-e-programas-socioassistenciais-do-df',
-      'Benefícios e programas socioassistenciais do DF',
-      'Relacione benefícios socioassistenciais, segurança de renda e acompanhamento familiar.',
-      'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.',
+      'beneficios-e-programas-do-df',
+      'Benefícios e programas do DF',
+      'Relacione benefícios, segurança de renda e acompanhamento familiar.',
+      'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Transcrição literal do PDF-fonte. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.',
       50
     ),
     (
-      'resposta-estatal-as-violacoes-de-direitos',
-      'Resposta estatal às violações de direitos',
-      'Analise a resposta estatal diante de situações de violação de direitos.',
-      'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.',
+      'direitos-e-violacoes',
+      'Direitos e violações',
+      'Analise resposta estatal diante de violação de direitos.',
+      'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Transcrição literal do PDF-fonte. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.',
       60
     )
 )
@@ -174,12 +148,12 @@ begin
   from public.essay_themes theme
   join public.products product on product.id = theme.product_id
   where theme.slug in (
-    'suas-e-pnas-principios-e-organizacao-territorial',
+    'suas-e-pnas',
     'protecao-social-basica-e-especial',
-    'intersetorialidade-na-protecao-social',
-    'territorializacao-e-diagnostico-socioassistencial',
-    'beneficios-e-programas-socioassistenciais-do-df',
-    'resposta-estatal-as-violacoes-de-direitos'
+    'intersetorialidade',
+    'territorializacao-e-diagnostico',
+    'beneficios-e-programas-do-df',
+    'direitos-e-violacoes'
   )
   and product.slug = 'nexo-social-sedes-df-2026';
 

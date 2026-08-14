@@ -18,12 +18,12 @@ begin
   for i in 1..2 loop
     with theme_seed(slug, title, prompt_text, source_reference, sort_order) as (
       values
-        ('suas-e-pnas-principios-e-organizacao-territorial', 'SUAS e PNAS — princípios e organização territorial', 'Explique princípios, proteções, seguranças e organização territorial no âmbito do SUAS e da PNAS.', 'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.', 10),
-        ('protecao-social-basica-e-especial', 'Proteção social básica e especial', 'Diferencie CRAS e CREAS, PAIF e PAEFI, e proteção de média e alta complexidade.', 'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.', 20),
-        ('intersetorialidade-na-protecao-social', 'Intersetorialidade na proteção social', 'Analise a articulação entre assistência social, saúde, educação, justiça e segurança no atendimento de demandas complexas.', 'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.', 30),
-        ('territorializacao-e-diagnostico-socioassistencial', 'Territorialização e diagnóstico socioassistencial', 'Explique por que o território orienta a atuação socioassistencial.', 'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.', 40),
-        ('beneficios-e-programas-socioassistenciais-do-df', 'Benefícios e programas socioassistenciais do DF', 'Relacione benefícios socioassistenciais, segurança de renda e acompanhamento familiar.', 'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.', 50),
-        ('resposta-estatal-as-violacoes-de-direitos', 'Resposta estatal às violações de direitos', 'Analise a resposta estatal diante de situações de violação de direitos.', 'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.', 60)
+        ('suas-e-pnas', 'SUAS e PNAS', 'Explique princípios, proteções, seguranças e organização territorial.', 'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Transcrição literal do PDF-fonte. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.', 10),
+        ('protecao-social-basica-e-especial', 'Proteção social básica e especial', 'Diferencie CRAS/CREAS, PAIF/PAEFI, média/alta complexidade.', 'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Transcrição literal do PDF-fonte. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.', 20),
+        ('intersetorialidade', 'Intersetorialidade', 'Analise a articulação entre assistência, saúde, educação, justiça e segurança.', 'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Transcrição literal do PDF-fonte. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.', 30),
+        ('territorializacao-e-diagnostico', 'Territorialização e diagnóstico', 'Explique por que o território orienta a atuação socioassistencial.', 'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Transcrição literal do PDF-fonte. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.', 40),
+        ('beneficios-e-programas-do-df', 'Benefícios e programas do DF', 'Relacione benefícios, segurança de renda e acompanhamento familiar.', 'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Transcrição literal do PDF-fonte. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.', 50),
+        ('direitos-e-violacoes', 'Direitos e violações', 'Analise resposta estatal diante de violação de direitos.', 'Nortis Concursos — Redação Quadrix SEDES-DF 2026 — Seção 6: Matriz de temas com maior potencial discursivo. Transcrição literal do PDF-fonte. Material autoral Nortis; não é publicação oficial do Instituto Quadrix nem da SEDES-DF.', 60)
     )
     insert into public.essay_themes (
       product_id, syllabus_node_id, slug, title, prompt_text, source_reference,
@@ -53,12 +53,12 @@ begin
       from public.essay_themes theme
       join public.products product on product.id = theme.product_id
       where theme.slug in (
-        'suas-e-pnas-principios-e-organizacao-territorial',
+        'suas-e-pnas',
         'protecao-social-basica-e-especial',
-        'intersetorialidade-na-protecao-social',
-        'territorializacao-e-diagnostico-socioassistencial',
-        'beneficios-e-programas-socioassistenciais-do-df',
-        'resposta-estatal-as-violacoes-de-direitos'
+        'intersetorialidade',
+        'territorializacao-e-diagnostico',
+        'beneficios-e-programas-do-df',
+        'direitos-e-violacoes'
       )
       and product.slug = 'nexo-social-sedes-df-2026';
 
@@ -77,36 +77,36 @@ insert into seed_test_results
 select 'exatamente_6_temas', count(*) = 6, 'count=' || count(*)
 from public.essay_themes
 where slug in (
-  'suas-e-pnas-principios-e-organizacao-territorial',
+  'suas-e-pnas',
   'protecao-social-basica-e-especial',
-  'intersetorialidade-na-protecao-social',
-  'territorializacao-e-diagnostico-socioassistencial',
-  'beneficios-e-programas-socioassistenciais-do-df',
-  'resposta-estatal-as-violacoes-de-direitos'
+  'intersetorialidade',
+  'territorializacao-e-diagnostico',
+  'beneficios-e-programas-do-df',
+  'direitos-e-violacoes'
 );
 
 insert into seed_test_results
 select 'nenhum_duplicado_por_slug', count(*) = count(distinct slug), 'rows=' || count(*) || ' distinct_slugs=' || count(distinct slug)
 from public.essay_themes
 where slug in (
-  'suas-e-pnas-principios-e-organizacao-territorial',
+  'suas-e-pnas',
   'protecao-social-basica-e-especial',
-  'intersetorialidade-na-protecao-social',
-  'territorializacao-e-diagnostico-socioassistencial',
-  'beneficios-e-programas-socioassistenciais-do-df',
-  'resposta-estatal-as-violacoes-de-direitos'
+  'intersetorialidade',
+  'territorializacao-e-diagnostico',
+  'beneficios-e-programas-do-df',
+  'direitos-e-violacoes'
 );
 
 insert into seed_test_results
 select 'produto_correto', bool_and(product_id = (select id from public.products where slug = 'nexo-social-sedes-df-2026')), 'ok'
 from public.essay_themes
 where slug in (
-  'suas-e-pnas-principios-e-organizacao-territorial',
+  'suas-e-pnas',
   'protecao-social-basica-e-especial',
-  'intersetorialidade-na-protecao-social',
-  'territorializacao-e-diagnostico-socioassistencial',
-  'beneficios-e-programas-socioassistenciais-do-df',
-  'resposta-estatal-as-violacoes-de-direitos'
+  'intersetorialidade',
+  'territorializacao-e-diagnostico',
+  'beneficios-e-programas-do-df',
+  'direitos-e-violacoes'
 );
 
 -- title/prompt_text nunca devem conter a palavra "oficial" (afirmacao
@@ -118,12 +118,12 @@ insert into seed_test_results
 select 'nenhum_tema_oficial_no_texto', not exists (
   select 1 from public.essay_themes
   where slug in (
-    'suas-e-pnas-principios-e-organizacao-territorial',
+    'suas-e-pnas',
     'protecao-social-basica-e-especial',
-    'intersetorialidade-na-protecao-social',
-    'territorializacao-e-diagnostico-socioassistencial',
-    'beneficios-e-programas-socioassistenciais-do-df',
-    'resposta-estatal-as-violacoes-de-direitos'
+    'intersetorialidade',
+    'territorializacao-e-diagnostico',
+    'beneficios-e-programas-do-df',
+    'direitos-e-violacoes'
   )
   and (title ilike '%oficial%' or prompt_text ilike '%oficial%')
 ), 'ok';
@@ -132,12 +132,12 @@ insert into seed_test_results
 select 'active_false_por_padrao', bool_and(active = false), 'ok'
 from public.essay_themes
 where slug in (
-  'suas-e-pnas-principios-e-organizacao-territorial',
+  'suas-e-pnas',
   'protecao-social-basica-e-especial',
-  'intersetorialidade-na-protecao-social',
-  'territorializacao-e-diagnostico-socioassistencial',
-  'beneficios-e-programas-socioassistenciais-do-df',
-  'resposta-estatal-as-violacoes-de-direitos'
+  'intersetorialidade',
+  'territorializacao-e-diagnostico',
+  'beneficios-e-programas-do-df',
+  'direitos-e-violacoes'
 );
 
 insert into seed_test_results
