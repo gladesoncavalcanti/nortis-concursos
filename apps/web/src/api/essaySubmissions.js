@@ -24,6 +24,60 @@ export async function createEssayDraft({ themeId }) {
 }
 
 /**
+ * Get-or-create: devolve o rascunho já aberto do aluno para o tema, ou
+ * cria um novo se não existir nenhum. Regra de negócio (migration
+ * 20260813150000_add_essay_submissions_one_draft_per_theme.sql): no
+ * máximo 1 draft aberto por usuário+tema — múltiplas TENTATIVAS
+ * históricas (submitted em diante) continuam ilimitadas.
+ *
+ * A garantia final de unicidade é do banco (índice único parcial
+ * essay_submissions_one_open_draft_per_theme_uidx), não desta função —
+ * o SELECT abaixo é só o caminho feliz para evitar uma escrita
+ * desnecessária. Em caso de corrida real (clique duplo, duas abas,
+ * requisições concorrentes chegando entre o SELECT e o INSERT), o
+ * banco rejeita a segunda inserção com 23505 (unique_violation); esse
+ * erro é tratado aqui como "o draft já existe" — busca de novo e
+ * devolve o vencedor da corrida, nunca propaga o erro ao aluno.
+ */
+export async function getOrCreateEssayDraft({ themeId }) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { data: null, error: 'Sessão não encontrada.' };
+
+  const findOpenDraft = () => supabase
+    .from('essay_submissions')
+    .select(SUBMISSION_FIELDS)
+    .eq('user_id', user.id)
+    .eq('theme_id', themeId)
+    .eq('status', 'draft')
+    .maybeSingle();
+
+  const { data: existing, error: selectError } = await findOpenDraft();
+  if (selectError) return { data: null, error: 'Não foi possível iniciar a redação agora.' };
+  if (existing) return { data: existing, error: null };
+
+  const { data: created, error: insertError } = await supabase
+    .from('essay_submissions')
+    .insert({ user_id: user.id, theme_id: themeId })
+    .select(SUBMISSION_FIELDS)
+    .single();
+
+  if (!insertError) return { data: created, error: null };
+
+  // Corrida perdida: outra requisição concorrente já criou o draft
+  // entre o SELECT e o INSERT acima — o índice único parcial rejeitou
+  // esta segunda inserção. O draft concorrente é o resultado correto.
+  if (insertError.code === '23505') {
+    const { data: raceWinner, error: raceSelectError } = await findOpenDraft();
+    if (raceSelectError || !raceWinner) {
+      return { data: null, error: 'Não foi possível iniciar a redação agora.' };
+    }
+    return { data: raceWinner, error: null };
+  }
+
+  return { data: null, error: 'Não foi possível iniciar a redação agora.' };
+}
+
+/**
  * Atualiza o texto de uma redação ainda em rascunho. A RLS
  * (essay_submissions_draft_owner_update) já impede a atualização quando
  * o status não é mais 'draft' — o UPDATE simplesmente não afeta nenhuma
