@@ -45,8 +45,11 @@ const EssayThemesPage = () => {
             <ChevronLeft className="mr-1 h-4 w-4" />Tutor Nortis
           </Link>
           <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Tutor Nortis</p>
-          <h1 className="mt-2 text-3xl font-bold">Temas de redação</h1>
+          <h1 className="mt-2 text-3xl font-bold">Temas de treino Nortis</h1>
           <p className="mt-3 text-muted-foreground">Escolha um tema para praticar. Sua redação fica salva como rascunho até você enviá-la.</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Os temas são elaborados para treinamento a partir dos conteúdos do edital. Não representam previsão oficial da banca.
+          </p>
 
           {loading ? (
             <Loader2 className="mx-auto mt-16 h-8 w-8 animate-spin" aria-hidden="true" />
@@ -67,6 +70,9 @@ const EssayThemesPage = () => {
                     <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{theme.syllabus_nodes.title}</p>
                   )}
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{theme.prompt_text}</p>
+                  {theme.source_reference && (
+                    <p className="mt-2 text-xs text-muted-foreground/80">{theme.source_reference}</p>
+                  )}
                   <Button
                     className="mt-4"
                     disabled={startingThemeId === theme.id}
