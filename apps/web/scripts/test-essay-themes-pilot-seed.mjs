@@ -11,7 +11,14 @@ const migrationPath = fileURLToPath(new URL(
   '../../../supabase/migrations/20260813140000_seed_essay_themes_sedes_df_pilot.sql',
   import.meta.url
 ));
-const migration = readFileSync(migrationPath, 'utf8');
+// Normaliza CRLF->LF: um checkout fresco no Windows (ex.: git worktree
+// add a partir do zero) pode trazer o arquivo com CRLF mesmo quando o
+// conteúdo é idêntico — sem isso, regexes com \n literal (ex.: a
+// checagem do bloco de dados abaixo) dão falso negativo dependendo de
+// como o worktree foi criado. Achado real durante a simulação de
+// pós-merge (Fase 3): o mesmo arquivo tinha LF neste worktree e CRLF
+// no worktree criado do zero a partir do merge simulado.
+const migration = readFileSync(migrationPath, 'utf8').replace(/\r\n/g, '\n');
 
 const EXPECTED_SLUGS = [
   'suas-e-pnas-principios-e-organizacao-territorial',
