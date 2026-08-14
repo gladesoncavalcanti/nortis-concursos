@@ -13,29 +13,56 @@
 -- (apenas ajustes minimos de pontuacao para caber no modelo de dados).
 --
 -- CONFERENCIA DOCUMENTAL REALIZADA (atualizacao posterior a esta
--- migration): o PDF-fonte foi disponibilizado em sessao seguinte e
--- lido na integra (Nortis_Redacao_Quadrix_SEDES_DF_2026.pdf, Secao 6,
--- item 16 "Matriz de temas com maior potencial discursivo", pagina
--- 32). Achado: os seis titulos/comandos-base usados abaixo sao
--- PARAFRASES/expansoes do comando original transcrito no PDF, nao
--- transcricoes literais - diferencas encontradas: (1) SUAS/PNAS - PDF
--- nao tem o sufixo "no ambito do SUAS e da PNAS"; (2) protecao
--- basica/especial - PDF usa barras ("CRAS/CREAS", "PAIF/PAEFI",
--- "media/alta complexidade"), nao "e"/"proteção de"; (3)
--- intersetorialidade - PDF diz "assistencia" (nao "assistencia
--- social") e nao tem o sufixo "no atendimento de demandas
--- complexas"; (4) territorializacao - comando bate exatamente, so o
--- titulo do eixo no PDF e mais curto ("Territorializacao e
--- diagnostico", sem "socioassistencial"); (5) beneficios - PDF nao
--- tem "socioassistenciais" apos "beneficios", nem no eixo nem no
--- comando; (6) direitos - maior divergencia: o eixo no PDF chama-se
--- "Direitos e violacoes" (nao "Resposta estatal as violacoes de
--- direitos"), e o comando do PDF e "Analise resposta estatal diante
--- de violacao de direitos" (sem "a" antes de "resposta", singular
--- "violacao"). NENHUM conteudo pedagogico foi alterado nesta migration
--- em funcao deste achado - fica registrado para decisao humana sobre
--- se os seis temas devem ser corrigidos para bater literalmente com o
--- PDF antes da aplicacao remota.
+-- migration, com FONTE DUPLA CONFIRMADA em sessao seguinte): dois
+-- PDFs foram disponibilizados e lidos na integra contendo a mesma
+-- Secao 6 "Matriz de temas com maior potencial discursivo", com texto
+-- identico entre si -
+-- (a) Nortis_Redacao_Quadrix_SEDES_DF_2026.pdf (edicao original,
+--     pagina 32, item 16) e
+-- (b) Nortis_Redacao_SEDES_DF_2026_Direcao_Editorial_V2.pdf (edicao
+--     visual V2 do mesmo manual, pagina 26) -
+-- confirmando que a Secao 6 e de fato a fonte primaria dos seis temas
+-- abaixo (dois outros PDFs recebidos na mesma sessao -
+-- "V3_Premium_Modelos_Nota_Alta" e "V3_Premium_ABNT_Justificada" - sao
+-- uma familia de material DIFERENTE, sem esta matriz; ver nota em
+-- docs/claude-staging/knowledge/plano-integracao-contratos-oficiais-tutor-nortis.md).
+--
+-- Classificacao tema a tema (titulo/comando da migration vs.
+-- eixo/comando da Secao 6 do PDF-fonte):
+-- (1) SUAS e PNAS - DIVERGENCIA MATERIAL no comando: PDF nao tem o
+--     sufixo "no ambito do SUAS e da PNAS".
+-- (2) Protecao basica/especial - EQUIVALENTE COM AJUSTE EDITORIAL
+--     MINIMO: PDF usa notacao de tabela com barras ("CRAS/CREAS",
+--     "PAIF/PAEFI", "media/alta complexidade"), migration expande em
+--     prosa ("e", "proteção de") sem alterar o conteudo informado.
+-- (3) Intersetorialidade - DIVERGENCIA MATERIAL: PDF diz apenas
+--     "assistencia" (nao "assistencia social") e nao tem o sufixo "no
+--     atendimento de demandas complexas" (clausula importada de outra
+--     celula da tabela do PDF).
+-- (4) Territorializacao - EQUIVALENTE COM AJUSTE EDITORIAL MINIMO: o
+--     comando bate exatamente com o PDF; so o titulo do eixo no PDF e
+--     mais curto ("Territorializacao e diagnostico", sem
+--     "socioassistencial").
+-- (5) Beneficios - DIVERGENCIA MATERIAL: PDF nao tem
+--     "socioassistenciais" apos "beneficios" nem no eixo nem no
+--     comando - o PDF usa "beneficios" em sentido mais amplo.
+-- (6) Direitos - DIVERGENCIA MATERIAL, a mais relevante das seis: o
+--     eixo no PDF chama-se "Direitos e violacoes" (nao "Resposta
+--     estatal as violacoes de direitos" - o titulo da migration e uma
+--     parafrase do COMANDO do PDF, usada como se fosse o nome do
+--     eixo), e o comando do PDF e "Analise resposta estatal diante de
+--     violacao de direitos" (sem "a" antes de "resposta", singular
+--     "violacao").
+--
+-- Resultado: 4 de 6 temas (1, 3, 5, 6) tem DIVERGENCIA MATERIAL no
+-- titulo e/ou comando frente ao PDF-fonte (confirmado por duas fontes
+-- identicas); 2 de 6 (2, 4) sao apenas ajuste editorial minimo
+-- (formatacao/tamanho do titulo, sem mudar o conteudo). Por isso esta
+-- conferencia NAO foi encerrada como "identica" - a pendencia
+-- documental permanece ABERTA para decisao humana sobre se os seis
+-- temas devem ser corrigidos para bater literalmente com o PDF antes
+-- de qualquer aplicacao remota. NENHUM conteudo pedagogico foi
+-- alterado nesta migration em funcao deste achado.
 --
 -- Escopo estritamente restrito a public.essay_themes: adiciona uma
 -- coluna `slug` (com indice unico) para permitir upsert idempotente no
