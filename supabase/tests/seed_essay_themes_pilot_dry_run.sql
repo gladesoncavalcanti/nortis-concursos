@@ -42,6 +42,30 @@ begin
       source_reference = excluded.source_reference,
       sort_order = excluded.sort_order,
       updated_at = now();
+
+    -- mesma guarda de integridade da migration real: se isto disparar
+    -- durante o teste do caminho feliz (produto existe), e uma falha
+    -- do teste, nao do cenario.
+    declare
+      v_seeded_count integer;
+    begin
+      select count(*) into v_seeded_count
+      from public.essay_themes theme
+      join public.products product on product.id = theme.product_id
+      where theme.slug in (
+        'suas-e-pnas-principios-e-organizacao-territorial',
+        'protecao-social-basica-e-especial',
+        'intersetorialidade-na-protecao-social',
+        'territorializacao-e-diagnostico-socioassistencial',
+        'beneficios-e-programas-socioassistenciais-do-df',
+        'resposta-estatal-as-violacoes-de-direitos'
+      )
+      and product.slug = 'nexo-social-sedes-df-2026';
+
+      if v_seeded_count <> 6 then
+        raise exception 'guarda disparou inesperadamente no caminho feliz: encontrou %, nao 6', v_seeded_count;
+      end if;
+    end;
   end loop;
 end;
 $seed$;

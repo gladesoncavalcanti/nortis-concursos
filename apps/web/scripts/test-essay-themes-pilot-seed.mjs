@@ -22,11 +22,19 @@ const EXPECTED_SLUGS = [
   'resposta-estatal-as-violacoes-de-direitos',
 ];
 
+// Bloco de dados (CTE theme_seed) isolado do resto do arquivo — usado
+// para checar duplicidade real dos temas sem contar a referência
+// legítima e adicional que a guarda de integridade (checagem 13) faz a
+// cada slug.
+const dataBlockMatch = migration.match(/with theme_seed[\s\S]*?\)\ninsert into public\.essay_themes/);
+assert.ok(dataBlockMatch, 'bloco de dados theme_seed não encontrado');
+const dataBlock = dataBlockMatch[0];
+
 // 1) exatamente os seis temas esperados
-// 2) nenhum duplicado — cada slug aparece exatamente uma vez no arquivo
+// 2) nenhum duplicado — cada slug aparece exatamente uma vez no bloco de dados
 EXPECTED_SLUGS.forEach((slug) => {
-  const occurrences = migration.split(`'${slug}'`).length - 1;
-  assert.equal(occurrences, 1, `slug ${slug} deveria aparecer exatamente 1 vez (achou ${occurrences})`);
+  const occurrences = dataBlock.split(`'${slug}'`).length - 1;
+  assert.equal(occurrences, 1, `slug ${slug} deveria aparecer exatamente 1 vez no bloco de dados (achou ${occurrences})`);
 });
 
 // 3) idempotência — upsert por slug com índice único parcial (mesmo
@@ -52,9 +60,6 @@ assert.doesNotMatch(migration, /alter table\s+public\.products/i);
 // cabeçalho — o próprio cabeçalho contém essas frases como NEGAÇÃO
 // ("NÃO são temas oficiais...", "nenhuma previsão de incidência..."),
 // o que faria uma checagem no arquivo inteiro dar falso positivo.
-const dataBlockMatch = migration.match(/with theme_seed[\s\S]*?\)\ninsert into public\.essay_themes/);
-assert.ok(dataBlockMatch, 'bloco de dados theme_seed não encontrado');
-const dataBlock = dataBlockMatch[0];
 assert.doesNotMatch(dataBlock, /tema oficial/i);
 assert.doesNotMatch(dataBlock, /previs[aã]o de incid[eê]ncia/i);
 assert.match(migration, /não é publicação oficial do Instituto Quadrix nem da SEDES-DF/);
@@ -97,4 +102,18 @@ assert.doesNotMatch(migration, /sprint_discursiva|sprint-discursiva/i);
 assert.doesNotMatch(migration, /discursive_interest_leads/i);
 assert.doesNotMatch(migration, /\bdrop\b|\btruncate\b/i);
 
-console.log(`Piloto de temas de treino (seed) — 12 verificações aprovadas, ${EXPECTED_SLUGS.length} temas.`);
+// 13) guarda de integridade pós-insert: se o produto não existir/não
+// coincidir, o upsert por join afeta 0 linhas silenciosamente (sem
+// erro) — comprovado em
+// supabase/tests/seed_essay_themes_pilot_missing_product.sql. A
+// migration precisa detectar isso e falhar explicitamente, nunca
+// "ter sucesso" sem semear os seis temas no produto certo.
+assert.match(migration, /raise exception 'seed_essay_themes_pilot:/);
+assert.match(migration, /v_seeded_count <> 6/);
+EXPECTED_SLUGS.forEach((slug) => {
+  const guardBlockMatch = migration.match(/do \$guard\$[\s\S]*?\$guard\$;/);
+  assert.ok(guardBlockMatch, 'guarda de integridade não encontrada');
+  assert.match(guardBlockMatch[0], new RegExp(`'${slug}'`), `guarda não verifica o slug ${slug}`);
+});
+
+console.log(`Piloto de temas de treino (seed) — 13 verificações aprovadas, ${EXPECTED_SLUGS.length} temas.`);

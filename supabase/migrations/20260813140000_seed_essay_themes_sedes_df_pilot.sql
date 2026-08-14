@@ -113,3 +113,33 @@ on conflict (slug) where slug is not null do update set
   source_reference = excluded.source_reference,
   sort_order = excluded.sort_order,
   updated_at = now();
+
+-- Guarda de integridade: se o produto 'nexo-social-sedes-df-2026' nao
+-- existir (renomeado, slug diferente, ou inativo), o INSERT acima
+-- afeta silenciosamente 0 linhas - sem erro, sem aviso (comprovado em
+-- supabase/tests/seed_essay_themes_pilot_missing_product.sql). Essa
+-- guarda transforma esse silencio em falha explicita da migration,
+-- para nunca deixar a aplicacao "ter sucesso" sem realmente ter
+-- semeado os seis temas no produto correto.
+do $guard$
+declare
+  v_seeded_count integer;
+begin
+  select count(*) into v_seeded_count
+  from public.essay_themes theme
+  join public.products product on product.id = theme.product_id
+  where theme.slug in (
+    'suas-e-pnas-principios-e-organizacao-territorial',
+    'protecao-social-basica-e-especial',
+    'intersetorialidade-na-protecao-social',
+    'territorializacao-e-diagnostico-socioassistencial',
+    'beneficios-e-programas-socioassistenciais-do-df',
+    'resposta-estatal-as-violacoes-de-direitos'
+  )
+  and product.slug = 'nexo-social-sedes-df-2026';
+
+  if v_seeded_count <> 6 then
+    raise exception 'seed_essay_themes_pilot: esperava 6 temas vinculados ao produto nexo-social-sedes-df-2026, encontrou %. Produto nao existe, esta inativo, ou o slug mudou.', v_seeded_count;
+  end if;
+end;
+$guard$;
