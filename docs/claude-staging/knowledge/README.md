@@ -13,3 +13,7 @@ Este arquivo **não repete** o conteúdo dos documentos de arquitetura já exist
 ## Quando registrar uma decisão nova aqui
 
 Só decisões técnicas **novas**, tomadas depois destes três documentos, que ainda não estão registradas em lugar nenhum. Formato sugerido ao ativar: um arquivo por decisão, com data e contexto, dentro deste diretório — sem reabrir ou reescrever os três documentos acima.
+
+## Documentos adicionais registrados
+
+- **`fundacao-discursiva-tutor-nortis.md`** — schema, RLS, fluxo de estado, rotas e testes da fundação técnica do fluxo discursivo (`essay_themes`/`essay_submissions`, PR #80). Documenta apenas a fundação técnica — explicitamente não inclui rubrica, taxonomia, motor de IA ou qualquer artefato pedagógico oficial (ver seção própria do documento).
