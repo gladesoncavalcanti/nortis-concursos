@@ -12,12 +12,30 @@
 -- seis titulos/comandos-base fornecidos foi adicionado por conta propria
 -- (apenas ajustes minimos de pontuacao para caber no modelo de dados).
 --
--- PENDENCIA REGISTRADA: o PDF-fonte da matriz autoral citada acima nao
--- foi anexado nesta sessao de trabalho. Os seis titulos/comandos-base
--- usados aqui vieram transcritos literalmente no comando que autorizou
--- este lote (nao foram inferidos, resumidos nem expandidos a partir do
--- PDF). A conferencia documental direta contra o PDF original permanece
--- pendente ate que o arquivo seja fornecido em uma sessao futura.
+-- CONFERENCIA DOCUMENTAL REALIZADA (atualizacao posterior a esta
+-- migration): o PDF-fonte foi disponibilizado em sessao seguinte e
+-- lido na integra (Nortis_Redacao_Quadrix_SEDES_DF_2026.pdf, Secao 6,
+-- item 16 "Matriz de temas com maior potencial discursivo", pagina
+-- 32). Achado: os seis titulos/comandos-base usados abaixo sao
+-- PARAFRASES/expansoes do comando original transcrito no PDF, nao
+-- transcricoes literais - diferencas encontradas: (1) SUAS/PNAS - PDF
+-- nao tem o sufixo "no ambito do SUAS e da PNAS"; (2) protecao
+-- basica/especial - PDF usa barras ("CRAS/CREAS", "PAIF/PAEFI",
+-- "media/alta complexidade"), nao "e"/"proteção de"; (3)
+-- intersetorialidade - PDF diz "assistencia" (nao "assistencia
+-- social") e nao tem o sufixo "no atendimento de demandas
+-- complexas"; (4) territorializacao - comando bate exatamente, so o
+-- titulo do eixo no PDF e mais curto ("Territorializacao e
+-- diagnostico", sem "socioassistencial"); (5) beneficios - PDF nao
+-- tem "socioassistenciais" apos "beneficios", nem no eixo nem no
+-- comando; (6) direitos - maior divergencia: o eixo no PDF chama-se
+-- "Direitos e violacoes" (nao "Resposta estatal as violacoes de
+-- direitos"), e o comando do PDF e "Analise resposta estatal diante
+-- de violacao de direitos" (sem "a" antes de "resposta", singular
+-- "violacao"). NENHUM conteudo pedagogico foi alterado nesta migration
+-- em funcao deste achado - fica registrado para decisao humana sobre
+-- se os seis temas devem ser corrigidos para bater literalmente com o
+-- PDF antes da aplicacao remota.
 --
 -- Escopo estritamente restrito a public.essay_themes: adiciona uma
 -- coluna `slug` (com indice unico) para permitir upsert idempotente no
