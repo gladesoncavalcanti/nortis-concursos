@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, FileText, Loader2, PenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { getActiveEssayThemes } from '@/api/essayThemes.js';
-import { createEssayDraft } from '@/api/essaySubmissions.js';
+import { getOrCreateEssayDraft } from '@/api/essaySubmissions.js';
 
 const EssayThemesPage = () => {
   const navigate = useNavigate();
@@ -25,9 +25,15 @@ const EssayThemesPage = () => {
   }, []);
 
   const startEssay = async (themeId) => {
+    // Bloqueia o próprio clique duplo antes de qualquer chamada de rede
+    // (o botão já fica desabilitado por causa disto). A garantia contra
+    // duas abas ou requisições concorrentes fica em getOrCreateEssayDraft
+    // + no índice único parcial do banco — aqui é só a primeira linha de
+    // defesa, mais rápida.
+    if (startingThemeId) return;
     setStartingThemeId(themeId);
     setError(null);
-    const { data, error: createError } = await createEssayDraft({ themeId });
+    const { data, error: createError } = await getOrCreateEssayDraft({ themeId });
     if (createError || !data) {
       setError(createError ?? 'Não foi possível iniciar a redação agora.');
       setStartingThemeId(null);

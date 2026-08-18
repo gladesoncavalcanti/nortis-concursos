@@ -49,7 +49,11 @@ assert.match(app, /path="\/minha-conta\/tutor\/redacao\/:submissionId"/);
 
 const themesPage = read('pages/EssayThemesPage.jsx');
 assert.match(themesPage, /getActiveEssayThemes/);
-assert.match(themesPage, /createEssayDraft/);
+// getOrCreateEssayDraft (não createEssayDraft direto): regra "1 draft
+// por tema" (20260818023136_add_essay_submissions_one_draft_per_theme.sql)
+// exige buscar o rascunho existente antes de criar um novo — ver
+// test-essay-draft-per-theme.mjs para a verificação dedicada dessa regra.
+assert.match(themesPage, /getOrCreateEssayDraft/);
 assert.match(themesPage, /Nenhum tema disponível no momento/); // estado vazio
 assert.match(themesPage, /role="alert"/); // estado de erro
 assert.match(themesPage, /animate-spin/); // estado de carregamento
