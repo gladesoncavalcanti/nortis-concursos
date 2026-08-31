@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, ExternalLink, FileSearch, MapPin, Radar, ShieldCheck } from 'lucide-react';
+import ContestInterestCta from '@/components/ContestInterestCta.jsx';
 import { MONITORED_CONTESTS } from '@/config/monitoredContests.js';
 
 const STATUS_STYLES = {
@@ -129,17 +130,25 @@ const ConcursosPage = () => (
               <p className="mt-5 flex-1 text-sm leading-6 text-muted-foreground">{contest.summary}</p>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <ContestInterestCta
+                  contestSlug={contest.slug}
+                  contestTitle={contest.title}
+                  className="inline-flex items-center justify-center gap-2"
+                />
                 <Link
                   to={`/concursos/${contest.slug}`}
-                  className="inline-flex items-center justify-center rounded-md bg-[hsl(var(--primary))] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[hsl(var(--primary))]/90"
+                  className="inline-flex items-center justify-center rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-muted"
                 >
-                  Ver acompanhamento
+                  Detalhes
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
+              </div>
+
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
                 {contest.internalHref ? (
                   <Link
                     to={contest.internalHref}
-                    className="inline-flex items-center justify-center rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-muted"
+                    className="inline-flex items-center justify-center rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-muted sm:flex-1"
                   >
                     Página Nortis
                   </Link>
@@ -148,7 +157,7 @@ const ConcursosPage = () => (
                     href={contest.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-muted"
+                    className="inline-flex items-center justify-center rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-muted sm:flex-1"
                   >
                     Fonte oficial
                     <ExternalLink className="ml-2 h-4 w-4" />

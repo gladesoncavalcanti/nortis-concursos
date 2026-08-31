@@ -2,6 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, MapPin, ShieldCheck } from 'lucide-react';
+import ContestInterestCta from '@/components/ContestInterestCta.jsx';
 import { getMonitoredContestBySlug } from '@/config/monitoredContests.js';
 
 const ConcursoDetailPage = () => {
@@ -70,6 +71,17 @@ const ConcursoDetailPage = () => {
               {contest.title}
             </h1>
             <p className="mt-4 max-w-3xl text-lg leading-8 text-white/78">{contest.summary}</p>
+            <div className="mt-8 max-w-xl">
+              <ContestInterestCta
+                contestSlug={contest.slug}
+                contestTitle={contest.title}
+                className="w-full gap-2 bg-[#d3a52f] text-[hsl(var(--primary))] hover:bg-[#f1c85b] sm:w-auto"
+              />
+              <p className="mt-3 text-sm leading-6 text-white/65">
+                Para registrar interesse, o aluno precisa criar conta ou fazer login. Esse registro
+                não libera matrícula, não envolve pagamento e serve apenas para medir demanda por concurso.
+              </p>
+            </div>
           </div>
         </section>
 
