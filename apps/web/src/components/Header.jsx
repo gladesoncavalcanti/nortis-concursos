@@ -75,7 +75,7 @@ const Header = ({ setIsCartOpen }) => {
 
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center space-x-4">
-            <Link to="/login" className="text-[hsl(var(--background))]/50 hover:text-[hsl(var(--accent))] transition-colors" title="Admin Login">
+            <Link to="/admin" className="text-[hsl(var(--background))]/50 hover:text-[hsl(var(--accent))] transition-colors" title="Painel interno">
               <Shield className="w-4 h-4" />
             </Link>
             
