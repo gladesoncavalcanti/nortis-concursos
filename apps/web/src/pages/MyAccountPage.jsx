@@ -15,6 +15,7 @@ import { buildNextBestAction } from '@/api/nextBestAction.js';
 import { buildDailyStudyAgenda } from '@/api/dailyStudyAgenda.js';
 import PersonalizationQuiz from '@/components/PersonalizationQuiz.jsx';
 import DailyStudyAgenda from '@/components/DailyStudyAgenda.jsx';
+import FreeSedesAccessCta from '@/components/FreeSedesAccessCta.jsx';
 
 const STATUS_LABELS = {
   active: 'Ativo',
@@ -74,6 +75,21 @@ const MyAccountPage = () => {
       isMounted = false;
     };
   }, []);
+
+  const reloadEnrollments = async () => {
+    setIsLoading(true);
+    setLoadError(null);
+
+    const { data, error } = await getMyEnrollments();
+
+    if (error) {
+      setLoadError(error);
+    } else {
+      setEnrollments(data);
+    }
+
+    setIsLoading(false);
+  };
 
   const hasActiveEnrollment = enrollments.some(hasAvailableAccess);
 
@@ -437,13 +453,12 @@ const MyAccountPage = () => {
                       Você ainda não possui produtos liberados nesta conta.
                     </p>
                     <p className="text-xs text-muted-foreground mb-4">
-                      Vendas temporariamente pausadas durante o pré-lançamento.
+                      Libere gratuitamente a preparação SEDES-DF 2026 na sua conta.
                     </p>
-                    <Link to="/apostilas">
-                      <Button className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90">
-                        Ver apostilas
-                      </Button>
-                    </Link>
+                    <FreeSedesAccessCta
+                      onClaimed={reloadEnrollments}
+                      className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
+                    />
                   </div>
                 )}
               </div>

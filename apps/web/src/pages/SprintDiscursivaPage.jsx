@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button.jsx';
 import { NORTIS_WHATSAPP_URL } from '@/config/contact.js';
 import { DISCURSIVA_PACKAGES, formatDiscursivaPrice } from '@/config/discursivaCatalog.js';
 import DiscursivaInterestModal from '@/components/DiscursivaInterestModal.jsx';
+import FreeSedesAccessCta from '@/components/FreeSedesAccessCta.jsx';
 
 const STEPS = [
   { icon: FileText, title: 'Envie sua resposta', text: 'Texto digitado e, quando necessário, imagem do manuscrito.' },
@@ -91,7 +92,17 @@ const SprintDiscursivaPage = () => {
             </Button>
           </Link>
         </div>
-        <p className="mt-5 text-xs text-white/55">Fase inicial com vagas e capacidade de atendimento limitadas.</p>
+        <div className="mt-5 flex flex-col items-center gap-3">
+          <p className="text-xs text-white/55">Fase inicial com vagas e capacidade de atendimento limitadas.</p>
+          <FreeSedesAccessCta
+            variant="outline"
+            label="Liberar Central gratuita SEDES-DF"
+            className="w-full border-white/30 bg-white/5 text-white hover:bg-white/10 hover:text-white sm:w-auto"
+          />
+          <p className="max-w-xl text-xs text-white/55">
+            A Central gratuita libera estudo autônomo. A Sprint Discursiva com correção humana permanece em lista de interesse.
+          </p>
+        </div>
       </div>
     </section>
 
