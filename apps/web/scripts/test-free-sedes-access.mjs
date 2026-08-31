@@ -61,8 +61,14 @@ assert.match(cta, /navigate\('\/minha-conta'\)/);
 
 // Páginas expõem o fluxo gratuito e preservam a separação da Sprint paga.
 assert.match(materiais, /FreeSedesAccessCta/);
-assert.match(materiais, /edital verticalizado, questões autorais,\s*\n\s*simulados, flashcards, plano de estudos e treino discursivo inicial/);
-assert.match(materiais, /sem compra online nesta liberação/);
+assert.match(materiais, /por tempo provisório de lançamento/);
+assert.match(materiais, /criar conta ou fazer login/);
+assert.match(materiais, /sem passar por checkout, pagamentos ou Asaas/);
+assert.match(materiais, /68 questões/);
+assert.match(materiais, /68 práticas/);
+assert.match(materiais, /15 simulados/);
+assert.match(materiais, /6 temas/);
+assert.match(materiais, /não altera o preço da apostila/);
 assert.match(sprint, /FreeSedesAccessCta/);
 assert.match(sprint, /A Sprint Discursiva com correção humana permanece em lista de interesse/);
 assert.match(account, /FreeSedesAccessCta/);
