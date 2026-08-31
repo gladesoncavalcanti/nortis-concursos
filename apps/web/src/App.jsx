@@ -42,6 +42,7 @@ import SprintDiscursivaPage from '@/pages/SprintDiscursivaPage.jsx';
 import ConcursosPage from '@/pages/ConcursosPage.jsx';
 import ConcursoDetailPage from '@/pages/ConcursoDetailPage.jsx';
 import ComeceAquiPage from '@/pages/ComeceAquiPage.jsx';
+import AdminDashboardPage from '@/pages/AdminDashboardPage.jsx';
 import SuccessPage from '@/pages/SuccessPage.jsx';
 import PedidoSucessoPage from '@/pages/PedidoSucessoPage.jsx';
 import PedidoPendentePage from '@/pages/PedidoPendentePage.jsx';
@@ -106,6 +107,7 @@ function App() {
                 <Route path="/concursos" element={<ConcursosPage />} />
                 <Route path="/concursos/:slug" element={<ConcursoDetailPage />} />
                 <Route path="/comece-aqui" element={<ComeceAquiPage />} />
+                <Route path="/admin" element={<ProtectedRoute><AdminDashboardPage /></ProtectedRoute>} />
                 <Route path="/success" element={<SuccessPage />} />
                 <Route path="/pedido/sucesso" element={<PedidoSucessoPage />} />
                 <Route path="/pedido/pendente" element={<PedidoPendentePage />} />
