@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Download, HelpCircle, AlertTriangle, Scale, PenLine, CalendarClock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import FreeSampleModal from '@/components/FreeSampleModal.jsx';
+import FreeSedesAccessCta from '@/components/FreeSedesAccessCta.jsx';
 
 /**
  * Pré-lançamento (Sprint Social 1.3): mesmos pilares editoriais do
@@ -27,15 +28,15 @@ const MateriaisGratuitosPage = () => {
     <>
       <Helmet>
         <title>Conteúdos gratuitos | Nortis Concursos</title>
-        <meta name="description" content="Estamos preparando materiais gratuitos para apoiar sua preparação para a SEDES-DF 2026. Cadastre-se para receber a amostra do Nexo Social quando ela estiver disponível." />
+        <meta name="description" content="Libere gratuitamente a Central Nortis SEDES-DF 2026 com edital verticalizado, questões, simulados, flashcards, plano de estudos e treino discursivo." />
         <link rel="canonical" href="https://www.nortisconcursos.com.br/materiais-gratuitos" />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Conteúdos gratuitos | Nortis Concursos" />
-        <meta property="og:description" content="Estamos preparando materiais gratuitos para apoiar sua preparação para a SEDES-DF 2026. Cadastre-se para receber a amostra do Nexo Social quando ela estiver disponível." />
+        <meta property="og:description" content="Libere gratuitamente a Central Nortis SEDES-DF 2026 com edital verticalizado, questões, simulados, flashcards, plano de estudos e treino discursivo." />
         <meta property="og:url" content="https://www.nortisconcursos.com.br/materiais-gratuitos" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Conteúdos gratuitos | Nortis Concursos" />
-        <meta name="twitter:description" content="Estamos preparando materiais gratuitos para apoiar sua preparação para a SEDES-DF 2026. Cadastre-se para receber a amostra do Nexo Social quando ela estiver disponível." />
+        <meta name="twitter:description" content="Libere gratuitamente a Central Nortis SEDES-DF 2026 com edital verticalizado, questões, simulados, flashcards, plano de estudos e treino discursivo." />
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -51,17 +52,21 @@ const MateriaisGratuitosPage = () => {
               </h1>
               <div className="h-1 w-24 bg-[hsl(var(--accent))] mx-auto rounded-full mb-6"></div>
               <p className="text-xl text-white/90 max-w-3xl mx-auto font-body font-light">
-                Estamos preparando materiais gratuitos para apoiar sua preparação para a SEDES-DF 2026.
-                Cadastre-se para receber a amostra do Nexo Social quando ela estiver disponível.
+                Libere sem custo a Central Nortis SEDES-DF 2026: edital verticalizado, questões autorais,
+                simulados, flashcards, plano de estudos e treino discursivo inicial.
               </p>
-              <Button
-                type="button"
-                onClick={() => setIsSampleModalOpen(true)}
-                className="mt-8 h-12 px-8 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Cadastrar interesse na amostra
-              </Button>
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <FreeSedesAccessCta className="h-12 px-8 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium" />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsSampleModalOpen(true)}
+                  className="h-12 px-8 border-white/30 bg-transparent font-bold text-white hover:bg-white/10 hover:text-white"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Receber avisos da Nortis
+                </Button>
+              </div>
             </motion.div>
           </div>
         </section>
@@ -71,7 +76,7 @@ const MateriaisGratuitosPage = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold font-heading text-foreground mb-4">O que estamos preparando</h2>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                Temas que vão acompanhar o lançamento da Nortis nas redes sociais.
+                Acesso gratuito para começar a estudar hoje, sem compra online nesta liberação.
               </p>
             </div>
 
@@ -103,8 +108,11 @@ const MateriaisGratuitosPage = () => {
                 className="h-12 px-8 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium"
               >
                 <Download className="w-4 h-4 mr-2" />
-                Cadastrar interesse na amostra
+                Receber avisos da Nortis
               </Button>
+              <p className="mt-4 text-xs text-muted-foreground">
+                O acesso gratuito é liberado na sua conta Nortis. A Sprint Discursiva com correção humana continua em lista de interesse.
+              </p>
             </div>
           </div>
         </section>

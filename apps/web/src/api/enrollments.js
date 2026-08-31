@@ -55,3 +55,37 @@ export async function getMyEnrollments() {
 
   return { data: enrollments, error: null };
 }
+
+/**
+ * Libera acesso gratuito ao produto SEDES-DF 2026 por meio de RPC
+ * protegida no banco. O frontend não cria matrícula diretamente e não
+ * toca em orders/checkout/pagamentos/Asaas.
+ */
+export async function claimFreeSedesAccess() {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { data: null, error: 'Entre ou crie sua conta para liberar o acesso gratuito.' };
+  }
+
+  const { data, error } = await supabase.rpc('claim_free_sedes_df_access');
+
+  if (error) {
+    if (error.message?.includes('access_revoked')) {
+      return {
+        data: null,
+        error: 'Este acesso não pode ser reativado automaticamente. Fale com a Nortis para regularizar.',
+      };
+    }
+
+    if (error.message?.includes('free_product_not_available')) {
+      return { data: null, error: 'O acesso gratuito ainda não está disponível para este produto.' };
+    }
+
+    return { data: null, error: 'Não foi possível liberar o acesso gratuito agora.' };
+  }
+
+  return { data: data?.[0] ?? null, error: null };
+}
