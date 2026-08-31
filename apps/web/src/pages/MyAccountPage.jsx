@@ -453,7 +453,7 @@ const MyAccountPage = () => {
                       Você ainda não possui produtos liberados nesta conta.
                     </p>
                     <p className="text-xs text-muted-foreground mb-4">
-                      Libere gratuitamente a preparação SEDES-DF 2026 na sua conta.
+                      Libere o acesso provisório de lançamento à preparação SEDES-DF 2026 na sua conta.
                     </p>
                     <FreeSedesAccessCta
                       onClaimed={reloadEnrollments}

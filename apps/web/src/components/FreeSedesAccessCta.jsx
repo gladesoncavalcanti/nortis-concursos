@@ -35,7 +35,7 @@ const FreeSedesAccessCta = ({
     }
 
     setIsClaiming(false);
-    toast.success('Acesso gratuito liberado na sua Central Nortis.');
+    toast.success('Acesso provisório de lançamento liberado na sua Central Nortis.');
     await onClaimed?.();
     navigate('/minha-conta');
   };

@@ -58,14 +58,19 @@ assert.match(cta, /useAuth\(\)/);
 assert.match(cta, /navigate\('\/signup'\)/);
 assert.match(cta, /claimFreeSedesAccess\(\)/);
 assert.match(cta, /navigate\('\/minha-conta'\)/);
+assert.match(cta, /Acesso provisório de lançamento liberado/);
 
 // Páginas expõem o fluxo gratuito e preservam a separação da Sprint paga.
 assert.match(materiais, /FreeSedesAccessCta/);
-assert.match(materiais, /edital verticalizado, questões autorais,\s*\n\s*simulados, flashcards, plano de estudos e treino discursivo inicial/);
+assert.match(materiais, /caráter provisório de lançamento/);
+assert.match(materiais, /edital verticalizado, questões autorais, simulados, flashcards, plano de estudos e treino discursivo inicial/);
 assert.match(materiais, /sem compra online nesta liberação/);
 assert.match(sprint, /FreeSedesAccessCta/);
+assert.match(sprint, /Liberar acesso provisório SEDES-DF/);
+assert.match(sprint, /gratuita nesta fase provisória de lançamento/);
 assert.match(sprint, /A Sprint Discursiva com correção humana permanece em lista de interesse/);
 assert.match(account, /FreeSedesAccessCta/);
+assert.match(account, /acesso provisório de lançamento/);
 assert.match(account, /onClaimed=\{reloadEnrollments\}/);
 
 console.log('Acesso gratuito SEDES-DF: verificações estáticas aprovadas.');
