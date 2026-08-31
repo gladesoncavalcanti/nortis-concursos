@@ -43,6 +43,7 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+#variable_conflict use_column
 declare
   v_user_id uuid := auth.uid();
   v_contest_slug text := lower(trim(p_contest_slug));
@@ -63,6 +64,7 @@ begin
     raise exception 'invalid_contest_slug' using errcode = '22023';
   end if;
 
+  return query
   insert into public.contest_interest_leads (
     user_id,
     contest_slug,
@@ -79,14 +81,10 @@ begin
   )
   on conflict (user_id, contest_slug)
   do update set last_confirmed_at = now()
-  returning contest_interest_leads.contest_slug,
-            contest_interest_leads.first_interested_at,
-            contest_interest_leads.last_confirmed_at
-    into contest_slug,
-         first_interested_at,
-         last_confirmed_at;
-
-  return next;
+  returning
+    public.contest_interest_leads.contest_slug,
+    public.contest_interest_leads.first_interested_at,
+    public.contest_interest_leads.last_confirmed_at;
 end;
 $$;
 
