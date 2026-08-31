@@ -99,4 +99,3 @@ comment on table public.contest_interest_leads is
 
 comment on function public.claim_contest_interest(text) is
   'Registra ou reconfirma interesse do usuario autenticado por um concurso monitorado permitido, sem duplicar linha.';
-

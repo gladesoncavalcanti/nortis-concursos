@@ -23,4 +23,3 @@ export async function claimContestInterest(contestSlug) {
 
   return { data: data?.[0] ?? null, error: null };
 }
-

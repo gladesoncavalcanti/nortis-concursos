@@ -66,4 +66,3 @@ const ContestInterestCta = ({
 };
 
 export default ContestInterestCta;
-
