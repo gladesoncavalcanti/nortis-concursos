@@ -96,11 +96,12 @@ const SprintDiscursivaPage = () => {
           <p className="text-xs text-white/55">Fase inicial com vagas e capacidade de atendimento limitadas.</p>
           <FreeSedesAccessCta
             variant="outline"
-            label="Liberar Central gratuita SEDES-DF"
+            label="Liberar acesso provisório SEDES-DF"
             className="w-full border-white/30 bg-white/5 text-white hover:bg-white/10 hover:text-white sm:w-auto"
           />
           <p className="max-w-xl text-xs text-white/55">
-            A Central gratuita libera estudo autônomo. A Sprint Discursiva com correção humana permanece em lista de interesse.
+            A Central está gratuita nesta fase provisória de lançamento para liberar estudo autônomo.
+            A Sprint Discursiva com correção humana permanece em lista de interesse.
           </p>
         </div>
       </div>

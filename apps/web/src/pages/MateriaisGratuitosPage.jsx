@@ -28,15 +28,15 @@ const MateriaisGratuitosPage = () => {
     <>
       <Helmet>
         <title>Conteúdos gratuitos | Nortis Concursos</title>
-        <meta name="description" content="Libere gratuitamente a Central Nortis SEDES-DF 2026 com edital verticalizado, questões, simulados, flashcards, plano de estudos e treino discursivo." />
+        <meta name="description" content="Libere o acesso provisório de lançamento à Central Nortis SEDES-DF 2026, com edital verticalizado, questões, simulados, flashcards, plano de estudos e treino discursivo." />
         <link rel="canonical" href="https://www.nortisconcursos.com.br/materiais-gratuitos" />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Conteúdos gratuitos | Nortis Concursos" />
-        <meta property="og:description" content="Libere gratuitamente a Central Nortis SEDES-DF 2026 com edital verticalizado, questões, simulados, flashcards, plano de estudos e treino discursivo." />
+        <meta property="og:description" content="Libere o acesso provisório de lançamento à Central Nortis SEDES-DF 2026, com edital verticalizado, questões, simulados, flashcards, plano de estudos e treino discursivo." />
         <meta property="og:url" content="https://www.nortisconcursos.com.br/materiais-gratuitos" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Conteúdos gratuitos | Nortis Concursos" />
-        <meta name="twitter:description" content="Libere gratuitamente a Central Nortis SEDES-DF 2026 com edital verticalizado, questões, simulados, flashcards, plano de estudos e treino discursivo." />
+        <meta name="twitter:description" content="Libere o acesso provisório de lançamento à Central Nortis SEDES-DF 2026, com edital verticalizado, questões, simulados, flashcards, plano de estudos e treino discursivo." />
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -52,8 +52,8 @@ const MateriaisGratuitosPage = () => {
               </h1>
               <div className="h-1 w-24 bg-[hsl(var(--accent))] mx-auto rounded-full mb-6"></div>
               <p className="text-xl text-white/90 max-w-3xl mx-auto font-body font-light">
-                Libere sem custo a Central Nortis SEDES-DF 2026: edital verticalizado, questões autorais,
-                simulados, flashcards, plano de estudos e treino discursivo inicial.
+                Libere sem custo, em caráter provisório de lançamento, a Central Nortis SEDES-DF 2026:
+                edital verticalizado, questões autorais, simulados, flashcards, plano de estudos e treino discursivo inicial.
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <FreeSedesAccessCta className="h-12 px-8 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium" />
@@ -76,7 +76,7 @@ const MateriaisGratuitosPage = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold font-heading text-foreground mb-4">O que estamos preparando</h2>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                Acesso gratuito para começar a estudar hoje, sem compra online nesta liberação.
+                Acesso provisório de lançamento para começar a estudar hoje, sem compra online nesta liberação.
               </p>
             </div>
 
@@ -111,7 +111,8 @@ const MateriaisGratuitosPage = () => {
                 Receber avisos da Nortis
               </Button>
               <p className="mt-4 text-xs text-muted-foreground">
-                O acesso gratuito é liberado na sua conta Nortis. A Sprint Discursiva com correção humana continua em lista de interesse.
+                O acesso é gratuito nesta fase provisória de lançamento e fica liberado na sua conta Nortis.
+                A Sprint Discursiva com correção humana continua em lista de interesse.
               </p>
             </div>
           </div>
