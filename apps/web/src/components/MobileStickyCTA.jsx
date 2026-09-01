@@ -1,15 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Bell } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 
 /**
- * Barra fixa de conversão, mobile-only (Fase 17). Pré-lançamento (Sprint
- * Social 1.2): leva para captura de lead em /materiais-gratuitos — não
- * cria checkout, não adiciona ao carrinho, não altera preço. Some
- * automaticamente fora das páginas comerciais e enquanto o carrinho está
- * aberto (isCartOpen), para nunca cobrir o drawer ou o botão "Finalizar
- * Compra".
+ * Barra fixa de conversão, mobile-only. Leva para a página do produto,
+ * onde o usuário adiciona a apostila ao carrinho antes do checkout
+ * hospedado da Asaas. Some automaticamente fora das páginas comerciais
+ * e enquanto o carrinho está aberto.
  */
 const VISIBLE_PATHS = ['/', '/sedes-df-2026', '/apostilas'];
 
@@ -37,14 +35,14 @@ const MobileStickyCTA = ({ isCartOpen }) => {
             className="text-lg font-bold leading-tight"
             style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: '#f4efe4' }}
           >
-            Pré-lançamento
+            R$ 29,90
           </p>
-          <p className="text-[10px] text-[#f4efe4]/50 truncate">Vendas temporariamente pausadas</p>
+          <p className="text-[10px] text-[#f4efe4]/50 truncate">Lançamento · antes R$ 69,90</p>
         </div>
-        <Link to="/materiais-gratuitos" className="shrink-0">
+        <Link to="/product/nexo-social-sedes-df-2026" className="shrink-0">
           <Button className="h-11 px-5 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium">
-            <Bell className="w-4 h-4 mr-1.5" />
-            Conteúdos grátis
+            <ShoppingCart className="w-4 h-4 mr-1.5" />
+            Comprar
           </Button>
         </Link>
       </div>

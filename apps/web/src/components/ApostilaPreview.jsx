@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Download, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
-import FreeSampleModal from '@/components/FreeSampleModal.jsx';
 
 /**
  * "Veja por dentro da apostila" (Fase 4) — mockup de leitor + card
@@ -32,7 +31,6 @@ const BULLETS = ['PDF digital', 'Acesso imediato', 'Banca Quadrix', '741 página
 
 const ApostilaPreview = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isSampleModalOpen, setIsSampleModalOpen] = useState(false);
 
   const active = PREVIEW_PAGES[activeIndex];
 
@@ -180,20 +178,18 @@ const ApostilaPreview = () => {
             </ul>
 
             <div className="mb-6">
-              <span className="text-3xl font-bold text-[#f4efe4] tracking-tight">Pré-lançamento</span>
-              <p className="text-xs text-[#f4efe4]/45 mt-1">Vendas temporariamente pausadas</p>
+              <span className="text-3xl font-bold text-[#f4efe4] tracking-tight">R$ 29,90</span>
+              <p className="text-xs text-[#f4efe4]/45 mt-1">
+                Promoção de lançamento · de <span className="line-through">R$ 69,90</span> por R$ 29,90
+              </p>
             </div>
 
             <div className="mt-auto space-y-3">
-              <Button
-                type="button"
-                onClick={() => setIsSampleModalOpen(true)}
-                className="w-full h-12 font-bold text-sm uppercase tracking-wide rounded-sm text-[#f1c85b] hover:text-[#f1c85b] transition-premium"
-                style={{ border: '1px solid #d3a52f', background: 'rgba(211,165,47,0.08)' }}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Baixar amostra grátis
-              </Button>
+              <Link to="/product/nexo-social-sedes-df-2026" className="block">
+                <Button className="w-full h-12 font-bold text-sm uppercase tracking-wide rounded-sm bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium">
+                  Comprar por R$ 29,90
+                </Button>
+              </Link>
               <Link to="/materiais-gratuitos" className="block">
                 <Button
                   type="button"
@@ -207,10 +203,6 @@ const ApostilaPreview = () => {
           </motion.div>
         </div>
       </div>
-
-      {/* Modal "amostra grátis" — captura real de lead (Fase 5),
-          isolado em componente próprio por ter estado/validação/envio. */}
-      <FreeSampleModal isOpen={isSampleModalOpen} onClose={() => setIsSampleModalOpen(false)} />
     </section>
   );
 };

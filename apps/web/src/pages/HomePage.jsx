@@ -304,19 +304,32 @@ const HomePage = () => {
                 </ul>
 
                 <div className="mb-5">
-                  <span className="text-4xl font-bold font-heading text-[hsl(var(--primary))] tracking-tight">Pré-lançamento</span>
-                  <p className="text-xs text-muted-foreground mt-1">Vendas temporariamente pausadas</p>
+                  <span className="text-4xl font-bold font-heading text-[hsl(var(--primary))] tracking-tight">R$ 29,90</span>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Promoção de lançamento · de <span className="line-through">R$ 69,90</span> por R$ 29,90
+                  </p>
                 </div>
 
                 <PreLaunchNotice className="mb-5" />
 
-                <Button
-                  type="button"
-                  onClick={() => setIsHeroSampleModalOpen(true)}
-                  className="w-full bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold py-6 text-lg transition-premium shadow-premium"
-                >
-                  <Download className="w-5 h-5 mr-2" /> Baixar amostra grátis
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Link to="/product/nexo-social-sedes-df-2026" className="flex-1">
+                    <Button
+                      type="button"
+                      className="w-full bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 font-bold py-6 text-lg transition-premium shadow-premium"
+                    >
+                      Comprar por R$ 29,90
+                    </Button>
+                  </Link>
+                  <Button
+                    type="button"
+                    onClick={() => setIsHeroSampleModalOpen(true)}
+                    variant="outline"
+                    className="flex-1 w-full py-6 text-lg font-semibold"
+                  >
+                    <Download className="w-5 h-5 mr-2" /> Amostra grátis
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

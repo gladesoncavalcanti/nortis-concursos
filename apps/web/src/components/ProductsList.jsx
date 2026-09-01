@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Info, Loader2 } from 'lucide-react';
+import { Loader2, ShoppingCart } from 'lucide-react';
 import { getSupabaseProducts } from '@/api/supabaseProducts';
 import { adaptSupabaseProduct } from '@/api/productsAdapter';
 
@@ -60,9 +60,9 @@ const ProductCard = ({ product, index }) => {
                   <span className="text-sm line-through text-muted-foreground">{originalPrice}</span>
                 )}
               </div>
-              <div className="w-full flex items-center justify-center gap-2 rounded-md border border-border bg-muted py-2.5 text-sm font-semibold text-muted-foreground">
-                <Info className="h-4 w-4" />
-                Vendas temporariamente pausadas
+              <div className="w-full flex items-center justify-center gap-2 rounded-md bg-[hsl(var(--accent))] py-2.5 text-sm font-bold text-[hsl(var(--accent-foreground))]">
+                <ShoppingCart className="h-4 w-4" />
+                Comprar por {displayPrice}
               </div>
             </div>
           </div>

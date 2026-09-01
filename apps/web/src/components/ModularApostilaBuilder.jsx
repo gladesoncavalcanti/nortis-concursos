@@ -9,7 +9,6 @@ import {
   MapPin,
   Brain,
   Check,
-  Eye,
   BookOpen,
   FileText,
 } from 'lucide-react';
@@ -192,15 +191,17 @@ const ModularApostilaBuilder = () => {
                 className="text-2xl font-bold"
                 style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: '#f4efe4' }}
               >
-                Pré-lançamento
+                R$ 29,90
               </span>
             </div>
-            <p className="text-[11px] text-[#f4efe4]/40 mb-5">Vendas temporariamente pausadas</p>
+            <p className="text-[11px] text-[#f4efe4]/40 mb-5">
+              Promoção de lançamento · de <span className="line-through">R$ 69,90</span> por R$ 29,90
+            </p>
 
-            <Link to="/#preview-apostila">
+            <Link to="/product/nexo-social-sedes-df-2026">
               <Button className="w-full h-11 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium">
-                <Eye className="w-4 h-4 mr-2" />
-                Ver a apostila por dentro
+                <BookOpen className="w-4 h-4 mr-2" />
+                Comprar apostila completa
               </Button>
             </Link>
           </motion.div>
