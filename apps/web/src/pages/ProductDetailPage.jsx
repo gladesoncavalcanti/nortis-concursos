@@ -2,16 +2,20 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Loader2, CheckCircle2, ShieldCheck, ArrowLeft, Info } from 'lucide-react';
+import { Loader2, CheckCircle2, ShieldCheck, ArrowLeft, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PreLaunchNotice from '@/components/PreLaunchNotice.jsx';
 import { getProduct } from '@/api/EcommerceApi';
 import { getSupabaseProductByIdOrSlug } from '@/api/supabaseProducts';
 import { adaptSupabaseProduct } from '@/api/productsAdapter';
+import { useCart } from '@/hooks/useCart.jsx';
+import { useToast } from '@/hooks/use-toast';
 
-const ProductDetailPage = () => {
+const ProductDetailPage = ({ setIsCartOpen }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const { toast } = useToast();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -57,6 +61,25 @@ const ProductDetailPage = () => {
   // ser editada por aqui. Em vez de mostrar essa imagem, renderizamos uma
   // capa 100% HTML/CSS para este produto específico.
   const isNexoSocial = product?.title?.includes('Nexo Social');
+
+  const handleAddToCart = async () => {
+    if (!selectedVariant) return;
+
+    try {
+      await addToCart(product, selectedVariant, 1, selectedVariant.inventory_quantity ?? 9999);
+      toast({
+        title: 'Apostila adicionada ao carrinho',
+        description: 'Revise os dados de pagamento para seguir ao checkout seguro da Asaas.',
+      });
+      setIsCartOpen?.(true);
+    } catch (err) {
+      toast({
+        title: 'Não foi possível adicionar ao carrinho',
+        description: err.message || 'Tente novamente em instantes.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -158,7 +181,9 @@ const ProductDetailPage = () => {
                         <span className="text-lg line-through text-muted-foreground">{originalPrice}</span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Vendas temporariamente pausadas</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Promoção de lançamento: de {originalPrice || displayPrice} por {displayPrice}.
+                    </p>
                   </div>
 
                   <PreLaunchNotice className="mb-7" />
@@ -182,10 +207,15 @@ const ProductDetailPage = () => {
                   )}
 
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-8">
-                    <div className="w-full sm:flex-1 flex items-center justify-center gap-2 h-12 rounded-md border border-border bg-muted text-sm font-semibold text-muted-foreground">
-                      <Info className="h-4 w-4" />
-                      Vendas temporariamente pausadas
-                    </div>
+                    <Button
+                      type="button"
+                      onClick={handleAddToCart}
+                      disabled={!selectedVariant}
+                      className="w-full sm:flex-1 h-12 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90"
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      Comprar por {displayPrice}
+                    </Button>
                     <Button
                       onClick={() => navigate('/materiais-gratuitos')}
                       variant="outline"
@@ -198,7 +228,7 @@ const ProductDetailPage = () => {
                   <div className="space-y-3 pt-6 border-t border-border">
                     <div className="flex items-center text-sm text-muted-foreground">
                       <ShieldCheck className="w-5 h-5 text-[hsl(var(--accent))] mr-3 flex-shrink-0" />
-                      Pagamento seguro via Asaas, quando as vendas forem reabertas
+                      Pagamento seguro via Asaas em ambiente hospedado
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <CheckCircle2 className="w-5 h-5 text-[hsl(var(--accent))] mr-3 flex-shrink-0" />

@@ -157,24 +157,26 @@ const AuthorityBlogSection = () => (
               </span>
             ))}
           </div>
-          <span className="text-2xl font-bold text-[#f4efe4] tracking-tight">Pré-lançamento</span>
-          <p className="text-xs text-[#f4efe4]/45 mt-1">Vendas temporariamente pausadas</p>
+          <span className="text-2xl font-bold text-[#f4efe4] tracking-tight">R$ 29,90</span>
+          <p className="text-xs text-[#f4efe4]/45 mt-1">
+            Promoção de lançamento · de <span className="line-through">R$ 69,90</span> por R$ 29,90
+          </p>
         </div>
         <div className="flex flex-col sm:flex-row md:flex-col gap-3">
-          <Link to="/apostilas">
+          <Link to="/product/nexo-social-sedes-df-2026">
             <Button
               className="w-full h-11 font-semibold text-sm rounded-sm text-[#f1c85b] hover:text-[#f1c85b] transition-premium"
               style={{ border: '1px solid #d3a52f', background: 'rgba(211,165,47,0.08)' }}
             >
               <ShoppingCart className="w-4 h-4 mr-2" />
-              Conhecer apostila
+              Comprar apostila
             </Button>
           </Link>
         </div>
       </div>
 
       <div className="text-center mt-10">
-        <Link to="/apostilas">
+        <Link to="/product/nexo-social-sedes-df-2026">
           <Button className="h-11 px-8 font-bold bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition-premium">
             Estudar com o material completo
           </Button>

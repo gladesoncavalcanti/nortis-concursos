@@ -101,7 +101,7 @@ function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
                 <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
-                <Route path="/product/:id" element={<ProductDetailPage />} />
+                <Route path="/product/:id" element={<ProductDetailPage setIsCartOpen={setIsCartOpen} />} />
                 <Route path="/sedes-df-2026" element={<SedesDfHubPage />} />
                 <Route path="/sprint-discursiva-sedes-df" element={<SprintDiscursivaPage />} />
                 <Route path="/concursos" element={<ConcursosPage />} />
