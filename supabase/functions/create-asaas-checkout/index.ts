@@ -51,6 +51,15 @@
 //     - fail-closed intencional: enquanto a entrega privada do PDF não
 //       estiver pronta, é mais seguro bloquear por padrão do que
 //       vender por engano.
+//   SALES_QA_MODE_ENABLED     (opcional; somente para teste controlado)
+//     - quando SALES_ENABLED não estiver "true", permite criar pedido e
+//       itens sem chamar a Asaas se o request trouxer o header
+//       x-nortis-qa-checkout-token com o valor exato de
+//       SALES_QA_CHECKOUT_TOKEN;
+//     - devolve uma URL mock local da Nortis, nunca uma página real de
+//       pagamento;
+//     - fail-closed: sem token forte configurado, sem header correto ou
+//       com SALES_QA_MODE_ENABLED diferente de "true", continua pausado.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.110.0';
 
@@ -111,10 +120,16 @@ const SALES_ENABLED =
   (Deno.env.get('SALES_ENABLED') ?? '')
     .trim()
     .toLowerCase() === 'true';
+const SALES_QA_MODE_ENABLED =
+  (Deno.env.get('SALES_QA_MODE_ENABLED') ?? '')
+    .trim()
+    .toLowerCase() === 'true';
+const SALES_QA_CHECKOUT_TOKEN = Deno.env.get('SALES_QA_CHECKOUT_TOKEN') ?? '';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type, x-nortis-qa-checkout-token',
 };
 
 function jsonResponse(body: unknown, status = 200) {
@@ -128,6 +143,15 @@ function onlyDigits(value: unknown): string {
   return String(value ?? '').replace(/\D/g, '');
 }
 
+function isAuthorizedQaCheckout(req: Request): boolean {
+  const token = SALES_QA_CHECKOUT_TOKEN.trim();
+  if (!SALES_QA_MODE_ENABLED || token.length < 32) {
+    return false;
+  }
+
+  return req.headers.get('x-nortis-qa-checkout-token') === token;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS_HEADERS });
@@ -136,7 +160,9 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: 'Method not allowed' }, 405);
   }
 
-  if (!SALES_ENABLED) {
+  const isQaCheckout = !SALES_ENABLED && isAuthorizedQaCheckout(req);
+
+  if (!SALES_ENABLED && !isQaCheckout) {
     return jsonResponse(
       {
         code: 'SALES_PAUSED',
@@ -151,7 +177,7 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: 'Serviço temporariamente indisponível.' }, 500);
   }
 
-  if (!ASAAS_API_KEY) {
+  if (!ASAAS_API_KEY && !isQaCheckout) {
     return jsonResponse({ error: 'ASAAS_API_KEY não configurada no servidor.' }, 500);
   }
 
@@ -315,6 +341,26 @@ Deno.serve(async (req) => {
       value: (product.sale_price_cents ?? product.price_cents) / 100,
     })),
   };
+
+  if (isQaCheckout) {
+    const checkoutUrl = `${SITE_URL}/pedido/pendente?order_id=${order.id}&modo=qa`;
+
+    await supabase
+      .from('orders')
+      .update({
+        checkout_url: checkoutUrl,
+        asaas_payment_id: `qa_checkout_${order.id}`,
+      })
+      .eq('id', order.id);
+
+    return jsonResponse({
+      checkoutUrl,
+      orderId: order.id,
+      mode: 'qa',
+      totalCents,
+      asaasRequestSkipped: true,
+    });
+  }
 
   let asaasResponse: Response;
   try {
