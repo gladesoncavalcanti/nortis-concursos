@@ -22,13 +22,10 @@
 //   - um usuário Supabase Auth real (JWT no header Authorization)
 //   - um convidado (identificado por buyer.email nesse caso)
 //
-// A Asaas exige um customerData completo pra criar o checkout — o corpo
-// da requisição precisa vir com:
-//   buyer: {
-//     name, email, cpfCnpj, phone, postalCode, address, addressNumber,
-//     province,              // obrigatórios (validados abaixo)
-//     complement, city, state // opcionais, enviados se vierem
-//   }
+// O corpo da requisição precisa trazer ao menos buyer.email para
+// identificar o pedido de convidado. Dados de CPF, telefone, endereço e
+// pagamento são coletados/validados diretamente no checkout hospedado
+// pela Asaas.
 //
 // Secrets necessários (configurar em Project Settings → Edge Functions
 // → Secrets, ou via painel de cada function):
@@ -139,10 +136,6 @@ function jsonResponse(body: unknown, status = 200) {
   });
 }
 
-function onlyDigits(value: unknown): string {
-  return String(value ?? '').replace(/\D/g, '');
-}
-
 function isAuthorizedQaCheckout(req: Request): boolean {
   const token = SALES_QA_CHECKOUT_TOKEN.trim();
   if (!SALES_QA_MODE_ENABLED || token.length < 32) {
@@ -202,19 +195,9 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: 'Informe items[] ou product_id/slug.' }, 400);
   }
 
-  // A Asaas exige esses campos em customerData pra criar o checkout
-  // (erro real já visto em produção: cpfCnpj, phone, address,
-  // addressNumber, postalCode e province são obrigatórios).
-  const REQUIRED_BUYER_FIELDS = [
-    'name',
-    'email',
-    'cpfCnpj',
-    'phone',
-    'postalCode',
-    'address',
-    'addressNumber',
-    'province',
-  ];
+  // A Nortis precisa de e-mail para identificar pedidos de convidado.
+  // O Checkout hospedado da Asaas coleta os demais dados do pagador.
+  const REQUIRED_BUYER_FIELDS = ['email'];
   const missingBuyerFields = REQUIRED_BUYER_FIELDS.filter((field) => !buyer?.[field]);
   if (missingBuyerFields.length > 0) {
     return jsonResponse(
@@ -310,7 +293,10 @@ Deno.serve(async (req) => {
   }
 
   // 4. Cria o Asaas Checkout — Pix + Cartão, hospedado pela própria Asaas.
-  //    Nenhum dado de cartão passa por aqui.
+  //    Nenhum dado de cartão passa por aqui. Também não enviamos
+  //    customerData: a própria página hospedada coleta CPF, telefone e
+  //    endereço, evitando rejeições prematuras por formatação local de
+  //    phone/postalCode.
   const asaasBody = {
     billingTypes: ['PIX', 'CREDIT_CARD'],
     chargeTypes: ['DETACHED'],
@@ -320,19 +306,6 @@ Deno.serve(async (req) => {
       successUrl: `${SITE_URL}/pedido/sucesso?order_id=${order.id}`,
       cancelUrl: `${SITE_URL}/pedido/erro?order_id=${order.id}`,
       expiredUrl: `${SITE_URL}/pedido/erro?order_id=${order.id}&motivo=expirado`,
-    },
-    customerData: {
-      name: buyer.name,
-      email: buyer.email,
-      cpfCnpj: onlyDigits(buyer.cpfCnpj),
-      phone: onlyDigits(buyer.phone),
-      postalCode: onlyDigits(buyer.postalCode),
-      address: buyer.address,
-      addressNumber: buyer.addressNumber,
-      complement: buyer.complement || undefined,
-      province: buyer.province,
-      city: buyer.city || undefined,
-      state: buyer.state || undefined,
     },
     items: resolvedItems.map(({ product, quantity }) => ({
       name: product.title,

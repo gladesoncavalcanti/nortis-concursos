@@ -11,6 +11,7 @@ const cart = read(new URL('../src/hooks/useCart.jsx', import.meta.url));
 const ordersApi = read(new URL('../src/api/orders.js', import.meta.url));
 const freeAccessApi = read(new URL('../src/api/enrollments.js', import.meta.url));
 const edgeFunction = read(new URL('../../../supabase/functions/create-asaas-checkout/index.ts', import.meta.url));
+const shoppingCart = read(new URL('../src/components/ShoppingCart.jsx', import.meta.url));
 
 const stripLineComments = (source) =>
   source
@@ -54,6 +55,12 @@ assert.match(edgeFunction, /totalCents/);
 assert.match(edgeFunction, /price_cents: product\.sale_price_cents \?\? product\.price_cents/);
 assert.match(edgeFunction, /value: \(product\.sale_price_cents \?\? product\.price_cents\) \/ 100/);
 assert.doesNotMatch(edgeFunction, /body\??\.(price|amount|total|value)|requested\.(price|amount|total|value)/);
+assert.doesNotMatch(stripLineComments(edgeFunction), /customerData:/);
+assert.match(edgeFunction, /O Checkout hospedado da Asaas coleta os demais dados do pagador/);
+
+assert.match(shoppingCart, /Identificação do pedido/);
+assert.match(shoppingCart, /CPF, telefone, endereço e forma de pagamento serão informados apenas na página segura da Asaas/);
+assert.doesNotMatch(shoppingCart, /placeholder="CPF ou CNPJ"|placeholder="Telefone"|placeholder="CEP"|placeholder="Endereço"/);
 
 assert.match(freeAccessApi, /claim_free_sedes_df_access/);
 assert.doesNotMatch(stripLineComments(freeAccessApi), /create-asaas-checkout|orders|order_items/i);

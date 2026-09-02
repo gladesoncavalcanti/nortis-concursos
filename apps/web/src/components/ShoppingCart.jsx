@@ -15,54 +15,24 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const EMPTY_BUYER = {
   name: '',
   email: '',
-  cpfCnpj: '',
-  phone: '',
-  postalCode: '',
-  address: '',
-  addressNumber: '',
-  complement: '',
-  province: '',
-  city: '',
-  state: '',
 };
 
-// Campos exigidos pela Asaas para criar o checkout (customerData) —
-// complement fica de fora de propósito, é o único opcional.
+// Dados mínimos para identificar o pedido na Nortis. CPF, telefone,
+// endereço e dados de pagamento são coletados diretamente na página
+// hospedada da Asaas.
 const REQUIRED_BUYER_FIELDS = [
   'name',
   'email',
-  'cpfCnpj',
-  'phone',
-  'postalCode',
-  'address',
-  'addressNumber',
-  'province',
-  'city',
-  'state',
 ];
-
-function onlyDigits(value) {
-  return String(value ?? '').replace(/\D/g, '');
-}
 
 function getBuyerValidationError(buyer) {
   for (const field of REQUIRED_BUYER_FIELDS) {
     if (!buyer[field] || !String(buyer[field]).trim()) {
-      return 'Preencha todos os dados obrigatórios para pagamento.';
+      return 'Preencha seu nome e e-mail para iniciar o pagamento.';
     }
   }
   if (!EMAIL_REGEX.test(buyer.email)) {
     return 'Informe um e-mail válido.';
-  }
-  const cpfCnpjDigits = onlyDigits(buyer.cpfCnpj);
-  if (cpfCnpjDigits.length !== 11 && cpfCnpjDigits.length !== 14) {
-    return 'Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) válido.';
-  }
-  if (onlyDigits(buyer.postalCode).length !== 8) {
-    return 'Informe um CEP válido (8 dígitos).';
-  }
-  if (buyer.state.trim().length !== 2) {
-    return 'Informe a UF com 2 letras (ex: DF).';
   }
   return null;
 }
@@ -116,11 +86,8 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
       const { checkoutUrl, error } = await createAsaasCheckout({
         items,
         buyer: {
-          ...effectiveBuyer,
-          cpfCnpj: onlyDigits(effectiveBuyer.cpfCnpj),
-          phone: onlyDigits(effectiveBuyer.phone),
-          postalCode: onlyDigits(effectiveBuyer.postalCode),
-          state: effectiveBuyer.state.trim().toUpperCase(),
+          name: effectiveBuyer.name,
+          email: effectiveBuyer.email,
         },
       });
 
@@ -233,7 +200,7 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
                 <div className="px-6 pb-6 bg-card border-t border-border pt-6">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                      Dados para pagamento (exigidos pela Asaas)
+                      Identificação do pedido
                     </label>
                     <div className="space-y-2">
                       <Input
@@ -247,61 +214,9 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
                         onChange={updateBuyerField('email')}
                         placeholder="Seu e-mail"
                       />
-                      <div className="grid grid-cols-2 gap-2">
-                        <Input
-                          value={buyer.cpfCnpj}
-                          onChange={updateBuyerField('cpfCnpj')}
-                          placeholder="CPF ou CNPJ"
-                        />
-                        <Input
-                          value={buyer.phone}
-                          onChange={updateBuyerField('phone')}
-                          placeholder="Telefone"
-                        />
-                      </div>
-                      <Input
-                        value={buyer.postalCode}
-                        onChange={updateBuyerField('postalCode')}
-                        placeholder="CEP"
-                      />
-                      <Input
-                        value={buyer.address}
-                        onChange={updateBuyerField('address')}
-                        placeholder="Endereço"
-                      />
-                      <div className="grid grid-cols-2 gap-2">
-                        <Input
-                          value={buyer.addressNumber}
-                          onChange={updateBuyerField('addressNumber')}
-                          placeholder="Número"
-                        />
-                        <Input
-                          value={buyer.complement}
-                          onChange={updateBuyerField('complement')}
-                          placeholder="Complemento (opcional)"
-                        />
-                      </div>
-                      <Input
-                        value={buyer.province}
-                        onChange={updateBuyerField('province')}
-                        placeholder="Bairro"
-                      />
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="col-span-2">
-                          <Input
-                            value={buyer.city}
-                            onChange={updateBuyerField('city')}
-                            placeholder="Cidade"
-                          />
-                        </div>
-                        <Input
-                          value={buyer.state}
-                          onChange={updateBuyerField('state')}
-                          placeholder="UF"
-                          maxLength={2}
-                          className="uppercase"
-                        />
-                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        CPF, telefone, endereço e forma de pagamento serão informados apenas na página segura da Asaas.
+                      </p>
                     </div>
                   </div>
                 </div>
