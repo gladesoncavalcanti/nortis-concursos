@@ -49,6 +49,12 @@ const SimulationsPage = () => {
 
   const questions = active?.simulation_questions ?? [];
   const answeredCount = Object.keys(answers).length;
+  const simulationHistory = (simulationId) => (hub?.sessions ?? [])
+    .filter((item) => item.simulation_id === simulationId && item.status === 'completed')
+    .sort((left, right) => String(right.completed_at ?? '').localeCompare(String(left.completed_at ?? '')));
+  const simulationAccuracy = (session) => session?.question_count
+    ? Math.round((Number(session.correct_count || 0) / Number(session.question_count || 0)) * 100)
+    : null;
 
   const begin = async (simulation) => {
     setBusy(true); setError(null);
@@ -130,7 +136,10 @@ const SimulationsPage = () => {
               <div className="mt-8 space-y-4">{hub.simulations.map((simulation) => {
                 const openSession = findOpenSimulationSession(hub.sessions, simulation.id);
                 const savedCount = openSession ? Object.keys(buildSavedSimulationAnswers(hub.answers, openSession.id)).length : 0;
-                return <article key={simulation.id} className="rounded-2xl bg-card p-6"><h2 className="text-xl font-semibold">{simulation.title}</h2>{simulation.description && <p className="mt-2 text-sm text-muted-foreground">{simulation.description}</p>}<p className="mt-3 text-xs text-muted-foreground">{simulation.simulation_questions.length} questões{simulation.time_limit_minutes ? ` · ${simulation.time_limit_minutes} minutos` : ''}</p>{openSession && <p className="mt-2 text-sm font-semibold text-[hsl(var(--accent))]">Sessão em andamento · {savedCount} respostas salvas</p>}<Button className="mt-4" disabled={busy} onClick={() => begin(simulation)}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{openSession ? 'Continuar simulado' : 'Iniciar simulado'}</Button></article>;
+                const history = simulationHistory(simulation.id);
+                const latestCompleted = history[0];
+                const accuracy = simulationAccuracy(latestCompleted);
+                return <article key={simulation.id} className="rounded-2xl bg-card p-6"><h2 className="text-xl font-semibold">{simulation.title}</h2>{simulation.description && <p className="mt-2 text-sm text-muted-foreground">{simulation.description}</p>}<p className="mt-3 text-xs text-muted-foreground">{simulation.simulation_questions.length} questões{simulation.time_limit_minutes ? ` · ${simulation.time_limit_minutes} minutos` : ''}</p>{latestCompleted && <div className="mt-4 rounded-xl bg-muted p-4"><p className="text-sm font-semibold">Último resultado: {latestCompleted.correct_count}/{latestCompleted.question_count} acertos{accuracy !== null ? ` · ${accuracy}%` : ''}</p><p className="mt-1 text-xs text-muted-foreground">{accuracy < 60 ? 'Prioridade: revisar fundamentos antes de repetir.' : accuracy < 75 ? 'Prioridade: reforçar pontos instáveis.' : 'Resultado estável: mantenha simulados periódicos.'}</p></div>}{openSession && <p className="mt-2 text-sm font-semibold text-[hsl(var(--accent))]">Sessão em andamento · {savedCount} respostas salvas</p>}<div className="mt-4 flex flex-col gap-3 sm:flex-row"><Button disabled={busy} onClick={() => begin(simulation)}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{openSession ? 'Continuar simulado' : latestCompleted ? 'Refazer simulado' : 'Iniciar simulado'}</Button>{latestCompleted && <Button asChild variant="outline"><Link to="/minha-conta/progresso">Ver revisão</Link></Button>}</div></article>;
               })}</div>
             )
           ) : result ? (

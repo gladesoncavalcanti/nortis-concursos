@@ -18,6 +18,9 @@ import { Button } from '@/components/ui/button.jsx';
 import { getMyProgress, submitReviewAttempt } from '@/api/progress.js';
 import StudyTimeHistoryPanel from '@/components/StudyTimeHistoryPanel.jsx';
 import FlashcardInsightsPanel from '@/components/FlashcardInsightsPanel.jsx';
+import SmartReviewPanel from '@/components/SmartReviewPanel.jsx';
+import SubjectPerformancePanel from '@/components/SubjectPerformancePanel.jsx';
+import { buildSmartReviewQueue, buildSubjectPerformance } from '@/api/studentJourneyModel.js';
 
 const ACTIVITY_LABELS = {
   question: 'Questão',
@@ -88,6 +91,14 @@ const ProgressPage = () => {
     ['Simulados concluídos', data.completedSimulations],
   ] : [];
   const maxDailyActivity = Math.max(1, ...(data?.activity.days.map((day) => day.total) ?? [0]));
+  const smartReviewQueue = data ? buildSmartReviewQueue({
+    progress: data,
+    simulations: data.simulationSessions,
+  }) : [];
+  const subjectPerformance = data ? buildSubjectPerformance({
+    progress: data,
+    planItems: data.planItems ?? [],
+  }) : [];
 
   return <>
     <Helmet><title>Progresso e revisão - NORTIS CONCURSOS</title></Helmet>
@@ -114,6 +125,11 @@ const ProgressPage = () => {
           <StudyTimeHistoryPanel history={data.studyTime} />
 
           <FlashcardInsightsPanel insights={data.flashcardInsights} compact />
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <SmartReviewPanel queue={smartReviewQueue} compact />
+            <SubjectPerformancePanel subjects={subjectPerformance.slice(0, 6)} compact />
+          </div>
 
           <section className="mt-8 rounded-2xl bg-card p-6">
             <div className="flex items-center gap-3">

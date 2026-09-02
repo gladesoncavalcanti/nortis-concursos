@@ -36,6 +36,9 @@ import CommunityPage from '@/pages/CommunityPage.jsx';
 import StudyTutorPage from '@/pages/StudyTutorPage.jsx';
 import EssayThemesPage from '@/pages/EssayThemesPage.jsx';
 import EssayEditorPage from '@/pages/EssayEditorPage.jsx';
+import StudentJourneyPage from '@/pages/StudentJourneyPage.jsx';
+import MaterialsLibraryPage from '@/pages/MaterialsLibraryPage.jsx';
+import StudentOnboardingPage from '@/pages/StudentOnboardingPage.jsx';
 import ProductDetailPage from '@/pages/ProductDetailPage.jsx';
 import SedesDfHubPage from '@/pages/SedesDfHubPage.jsx';
 import SprintDiscursivaPage from '@/pages/SprintDiscursivaPage.jsx';
@@ -178,6 +181,9 @@ function App() {
                 <Route path="/minha-conta/progresso" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
                 <Route path="/minha-conta/flashcards" element={<ProtectedRoute><FlashcardsPage /></ProtectedRoute>} />
                 <Route path="/minha-conta/plano" element={<ProtectedRoute><StudyPlanPage /></ProtectedRoute>} />
+                <Route path="/minha-conta/trilha" element={<ProtectedRoute><StudentJourneyPage /></ProtectedRoute>} />
+                <Route path="/minha-conta/biblioteca" element={<ProtectedRoute><MaterialsLibraryPage /></ProtectedRoute>} />
+                <Route path="/minha-conta/onboarding" element={<ProtectedRoute><StudentOnboardingPage /></ProtectedRoute>} />
                 <Route path="/minha-conta/comunidade" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
                 <Route path="/minha-conta/tutor" element={<ProtectedRoute><StudyTutorPage /></ProtectedRoute>} />
                 <Route path="/minha-conta/tutor/redacao" element={<ProtectedRoute><EssayThemesPage /></ProtectedRoute>} />
