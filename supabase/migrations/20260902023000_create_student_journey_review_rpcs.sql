@@ -179,3 +179,143 @@ grant execute on function public.get_admin_lead_nurture_queue() to authenticated
 
 comment on function public.get_admin_lead_nurture_queue() is
   'Retorna fila interna de nutrição de leads somente para admin; não envia e-mail, WhatsApp ou mensagem externa.';
+
+
+create or replace function public.get_my_anonymous_performance_benchmark()
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_payload jsonb;
+begin
+  if v_user_id is null then
+    raise exception 'authentication_required' using errcode = '28000';
+  end if;
+
+  if not exists (
+    select 1
+    from public.enrollments enrollment
+    where enrollment.user_id = v_user_id
+      and enrollment.status = 'active'
+      and (enrollment.expires_at is null or enrollment.expires_at > now())
+  ) then
+    raise exception 'active_enrollment_required' using errcode = '42501';
+  end if;
+
+  with active_students as (
+    select distinct enrollment.user_id
+    from public.enrollments enrollment
+    where enrollment.status = 'active'
+      and (enrollment.expires_at is null or enrollment.expires_at > now())
+  ),
+  question_stats as (
+    select
+      attempt.user_id,
+      count(*)::integer as answered,
+      count(*) filter (where attempt.is_correct)::integer as correct
+    from public.question_attempts attempt
+    join active_students student on student.user_id = attempt.user_id
+    group by attempt.user_id
+  ),
+  simulation_stats as (
+    select
+      session.user_id,
+      count(*) filter (where session.status = 'completed')::integer as completed_simulations,
+      avg(
+        case
+          when session.status = 'completed' and session.question_count > 0
+          then (session.correct_count::numeric / session.question_count::numeric) * 100
+          else null
+        end
+      ) as average_simulation_accuracy
+    from public.simulation_sessions session
+    join active_students student on student.user_id = session.user_id
+    group by session.user_id
+  ),
+  study_time_stats as (
+    select
+      study_session.user_id,
+      coalesce(sum(study_session.duration_seconds), 0)::integer as studied_seconds
+    from public.study_sessions study_session
+    join active_students student on student.user_id = study_session.user_id
+    where study_session.ended_at is not null
+      and study_session.started_at >= now() - interval '30 days'
+    group by study_session.user_id
+  ),
+  per_student as (
+    select
+      student.user_id,
+      coalesce(question_stats.answered, 0) as answered,
+      coalesce(question_stats.correct, 0) as correct,
+      case
+        when coalesce(question_stats.answered, 0) > 0
+        then round((question_stats.correct::numeric / question_stats.answered::numeric) * 100)::integer
+        else 0
+      end as question_accuracy,
+      coalesce(simulation_stats.completed_simulations, 0) as completed_simulations,
+      coalesce(round(simulation_stats.average_simulation_accuracy)::integer, 0) as average_simulation_accuracy,
+      coalesce(study_time_stats.studied_seconds, 0) as studied_seconds
+    from active_students student
+    left join question_stats on question_stats.user_id = student.user_id
+    left join simulation_stats on simulation_stats.user_id = student.user_id
+    left join study_time_stats on study_time_stats.user_id = student.user_id
+  ),
+  cohort as (
+    select
+      count(*)::integer as student_count,
+      round(avg(answered))::integer as average_answered,
+      round(avg(question_accuracy))::integer as average_question_accuracy,
+      round(avg(completed_simulations))::integer as average_completed_simulations,
+      round(avg(average_simulation_accuracy))::integer as average_simulation_accuracy,
+      round(avg(studied_seconds))::integer as average_studied_seconds
+    from per_student
+  ),
+  mine as (
+    select *
+    from per_student
+    where user_id = v_user_id
+  )
+  select jsonb_build_object(
+    'generated_at', now(),
+    'privacy', jsonb_build_object(
+      'mode', 'anonymous_cohort',
+      'minimum_sample', 3,
+      'public_ranking', false
+    ),
+    'sample_ready', cohort.student_count >= 3,
+    'cohort_size', cohort.student_count,
+    'mine', jsonb_build_object(
+      'answered', coalesce(mine.answered, 0),
+      'question_accuracy', coalesce(mine.question_accuracy, 0),
+      'completed_simulations', coalesce(mine.completed_simulations, 0),
+      'average_simulation_accuracy', coalesce(mine.average_simulation_accuracy, 0),
+      'studied_minutes_last_30_days', round(coalesce(mine.studied_seconds, 0)::numeric / 60)::integer
+    ),
+    'cohort', case
+      when cohort.student_count >= 3 then jsonb_build_object(
+        'average_answered', coalesce(cohort.average_answered, 0),
+        'average_question_accuracy', coalesce(cohort.average_question_accuracy, 0),
+        'average_completed_simulations', coalesce(cohort.average_completed_simulations, 0),
+        'average_simulation_accuracy', coalesce(cohort.average_simulation_accuracy, 0),
+        'average_studied_minutes_last_30_days', round(coalesce(cohort.average_studied_seconds, 0)::numeric / 60)::integer
+      )
+      else null
+    end
+  )
+  into v_payload
+  from cohort
+  left join mine on true;
+
+  return v_payload;
+end;
+$$;
+
+revoke all on function public.get_my_anonymous_performance_benchmark() from public;
+revoke all on function public.get_my_anonymous_performance_benchmark() from anon;
+grant execute on function public.get_my_anonymous_performance_benchmark() to authenticated;
+
+comment on function public.get_my_anonymous_performance_benchmark() is
+  'Retorna comparativo agregado e anônimo do próprio aluno contra a coorte ativa, sem ranking nominal e com amostra mínima.';

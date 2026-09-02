@@ -20,6 +20,7 @@ import StudyTimeHistoryPanel from '@/components/StudyTimeHistoryPanel.jsx';
 import FlashcardInsightsPanel from '@/components/FlashcardInsightsPanel.jsx';
 import SmartReviewPanel from '@/components/SmartReviewPanel.jsx';
 import SubjectPerformancePanel from '@/components/SubjectPerformancePanel.jsx';
+import AnonymousBenchmarkPanel from '@/components/AnonymousBenchmarkPanel.jsx';
 import { buildSmartReviewQueue, buildSubjectPerformance } from '@/api/studentJourneyModel.js';
 
 const ACTIVITY_LABELS = {
@@ -130,6 +131,8 @@ const ProgressPage = () => {
             <SmartReviewPanel queue={smartReviewQueue} compact />
             <SubjectPerformancePanel subjects={subjectPerformance.slice(0, 6)} compact />
           </div>
+
+          <AnonymousBenchmarkPanel benchmark={data.benchmark} />
 
           <section className="mt-8 rounded-2xl bg-card p-6">
             <div className="flex items-center gap-3">

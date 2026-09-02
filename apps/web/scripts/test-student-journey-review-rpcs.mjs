@@ -15,6 +15,11 @@ assert.match(migration, /grant execute on function public\.get_my_simulation_rev
 assert.match(migration, /create or replace function public\.get_admin_lead_nurture_queue\(\)/);
 assert.match(migration, /profile\.role = 'admin'/);
 assert.match(migration, /comment on function public\.get_admin_lead_nurture_queue\(\) is/);
+assert.match(migration, /create or replace function public\.get_my_anonymous_performance_benchmark\(\)/);
+assert.match(migration, /'minimum_sample', 3/);
+assert.match(migration, /'public_ranking', false/);
+assert.match(migration, /cohort\.student_count >= 3/);
+assert.match(migration, /grant execute on function public\.get_my_anonymous_performance_benchmark\(\) to authenticated/);
 assert.doesNotMatch(migration, /grant select on .*contest_interest_leads.*authenticated/i);
 assert.doesNotMatch(migration, /create table public\.orders|alter table public\.orders|create-asaas-checkout|asaas_webhook/i);
 
