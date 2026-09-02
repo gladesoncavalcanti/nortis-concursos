@@ -8,14 +8,16 @@ export async function getMyProgress() {
   const [
     { data: attempts, error: attemptsError },
     { data: sessions, error: sessionsError },
+    { data: benchmark, error: benchmarkError },
     flashcardResult,
     studyPlanResult,
   ] = await Promise.all([
     supabase.from('question_attempts')
-      .select('id,question_id,is_correct,answered_at,questions(id,statement,syllabus_nodes(id,title),question_options(id,label,option_text,sort_order))')
+      .select('id,question_id,is_correct,answered_at,attempt_context,questions(id,statement,syllabus_nodes(id,title),question_options(id,label,option_text,sort_order))')
       .order('answered_at', { ascending: false })
       .order('id', { ascending: false }),
     supabase.from('simulation_sessions').select('id,status,correct_count,question_count,started_at,completed_at,simulations(title)').order('started_at', { ascending: false }),
+    supabase.rpc('get_my_anonymous_performance_benchmark'),
     getMyFlashcards(),
     getStudyPlan(),
   ]);
@@ -44,6 +46,9 @@ export async function getMyProgress() {
       studyPlanResult.data.sessions
       ),
       flashcardInsights: buildFlashcardInsights(flashcardResult.data),
+      benchmark: benchmarkError ? null : benchmark,
+      simulationSessions: sessions ?? [],
+      planItems: studyPlanResult.data.items,
     },
     error: null,
   };

@@ -21,6 +21,7 @@ const Header = ({ setIsCartOpen }) => {
     { path: '/sprint-discursiva-sedes-df', label: 'Discursiva' },
     { path: '/concursos', label: 'Concursos' },
     { path: '/materiais-gratuitos', label: 'Materiais Gratuitos' },
+    { path: '/minha-conta/trilha', label: 'Trilha' },
     { path: '/sobre', label: 'Sobre' },
     { path: '/contato', label: 'Contato' }
   ];

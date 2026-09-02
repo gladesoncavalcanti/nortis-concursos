@@ -274,6 +274,26 @@ const MyAccountPage = () => {
             />
           )}
 
+          {hasActiveEnrollment && (
+            <section className="mb-8 grid gap-4 md:grid-cols-3" aria-label="Atalhos inteligentes da Central Nortis">
+              <Link to="/minha-conta/trilha" className="rounded-2xl bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[hsl(var(--accent))]">Jornada</p>
+                <h2 className="mt-2 font-bold text-foreground">Trilha SEDES guiada</h2>
+                <p className="mt-2 text-sm text-muted-foreground">Diagnóstico, plano, questões, simulado, discursiva e revisão em sequência.</p>
+              </Link>
+              <Link to="/minha-conta/progresso" className="rounded-2xl bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[hsl(var(--accent))]">Revisão</p>
+                <h2 className="mt-2 font-bold text-foreground">Caderno de erros</h2>
+                <p className="mt-2 text-sm text-muted-foreground">Priorize erros recentes e assuntos com desempenho mais fraco.</p>
+              </Link>
+              <Link to="/minha-conta/biblioteca" className="rounded-2xl bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[hsl(var(--accent))]">Biblioteca</p>
+                <h2 className="mt-2 font-bold text-foreground">Materiais por área</h2>
+                <p className="mt-2 text-sm text-muted-foreground">Apostila, edital, prática e acompanhamento organizados por produto.</p>
+              </Link>
+            </section>
+          )}
+
           <div className="grid lg:grid-cols-3 gap-8">
             {/* User Info */}
             <motion.div

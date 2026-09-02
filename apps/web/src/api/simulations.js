@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { summarizeSimulationReview } from '@/api/simulationReviewModel.js';
 
 export async function getSimulationHub() {
   const [simulationResult, sessionResult, answerResult] = await Promise.all([
@@ -52,4 +53,21 @@ export async function answerSimulationQuestion(sessionId, questionId, optionId) 
 export async function finishSimulation(sessionId) {
   const { data, error } = await supabase.rpc('finish_simulation', { p_session_id: sessionId });
   return error ? { data: null, error: 'Não foi possível concluir o simulado.' } : { data: data?.[0], error: null };
+}
+
+export async function getMySimulationReview(sessionId) {
+  const { data, error } = await supabase.rpc('get_my_simulation_review', {
+    p_session_id: sessionId,
+  });
+  if (error) {
+    return { data: null, error: 'Não foi possível carregar a revisão deste simulado.' };
+  }
+  const rows = data ?? [];
+  return {
+    data: {
+      rows,
+      summary: summarizeSimulationReview(rows),
+    },
+    error: null,
+  };
 }

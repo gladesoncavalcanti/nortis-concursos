@@ -37,7 +37,7 @@ const ContestInterestCta = ({
     }
 
     setIsClaimed(true);
-    toast.success(`Interesse registrado para ${contestTitle}.`);
+    toast.success(`Interesse registrado para ${contestTitle}. Vamos usar isso para priorizar avisos e materiais.`);
   };
 
   return (

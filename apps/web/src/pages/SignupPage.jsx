@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
@@ -18,6 +18,9 @@ const SignupPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect');
+  const safeRedirect = redirectTo?.startsWith('/minha-conta') ? redirectTo : '/minha-conta/onboarding';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,10 +57,10 @@ const SignupPage = () => {
     if (result.success) {
       if (result.requiresEmailConfirmation) {
         toast.success(PENDING_CONFIRMATION_MESSAGE);
-        navigate('/login?cadastro=sucesso');
+        navigate(`/login?cadastro=sucesso&redirect=${encodeURIComponent(safeRedirect)}`);
       } else {
         toast.success('Conta criada com sucesso');
-        navigate('/minha-conta');
+        navigate(safeRedirect);
       }
     } else {
       toast.error(result.error || 'Erro ao criar conta');
