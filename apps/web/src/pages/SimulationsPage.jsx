@@ -7,6 +7,7 @@ import {
   answerSimulationQuestion,
   finishSimulation,
   getSimulationHub,
+  getMySimulationReview,
   startSimulation,
 } from '@/api/simulations.js';
 import {
@@ -26,6 +27,8 @@ const SimulationsPage = () => {
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
   const [savingQuestion, setSavingQuestion] = useState(null);
+  const [review, setReview] = useState(null);
+  const [reviewLoading, setReviewLoading] = useState(false);
   const [clock, setClock] = useState(Date.now());
 
   useEffect(() => {
@@ -113,12 +116,17 @@ const SimulationsPage = () => {
           ? { ...item, status: 'completed', completed_at: new Date().toISOString(), ...summary }
           : item),
       }));
+      setReviewLoading(true);
+      const reviewResult = await getMySimulationReview(session.id);
+      setReview(reviewResult.data);
+      if (reviewResult.error) setError(reviewResult.error);
+      setReviewLoading(false);
     }
     setBusy(false);
   };
 
   const closeResult = () => {
-    setActive(null); setSession(null); setAnswers({}); setResult(null); setError(null);
+    setActive(null); setSession(null); setAnswers({}); setResult(null); setReview(null); setError(null);
   };
 
   return (
@@ -143,7 +151,10 @@ const SimulationsPage = () => {
               })}</div>
             )
           ) : result ? (
-            <div className="mt-8 rounded-2xl bg-card p-8 text-center"><ClipboardCheck className="mx-auto mb-4 h-10 w-10 text-[hsl(var(--accent))]" /><h2 className="text-2xl font-bold">Simulado concluído</h2><p className="mt-3 text-lg">{result.correct_count} acertos de {result.question_count} questões</p><Button className="mt-6" variant="outline" onClick={closeResult}>Ver outros simulados</Button></div>
+            <div className="mt-8 space-y-6">
+              <div className="rounded-2xl bg-card p-8 text-center"><ClipboardCheck className="mx-auto mb-4 h-10 w-10 text-[hsl(var(--accent))]" /><h2 className="text-2xl font-bold">Simulado concluído</h2><p className="mt-3 text-lg">{result.correct_count} acertos de {result.question_count} questões</p><Button className="mt-6" variant="outline" onClick={closeResult}>Ver outros simulados</Button></div>
+              {reviewLoading ? <div className="rounded-2xl bg-card p-6 text-center"><Loader2 className="mx-auto h-6 w-6 animate-spin" /><p className="mt-2 text-sm text-muted-foreground">Montando revisão pós-prova...</p></div> : review && <section className="rounded-2xl bg-card p-6"><h3 className="text-xl font-bold">Revisão pós-prova por bloco</h3><p className="mt-2 text-sm text-muted-foreground">Agora você vê o desempenho por conteúdo e os erros que precisam voltar para revisão.</p><div className="mt-5 grid gap-3 sm:grid-cols-3"><div className="rounded-xl bg-muted p-4"><p className="text-2xl font-bold">{review.summary.accuracy}%</p><p className="text-xs text-muted-foreground">aproveitamento</p></div><div className="rounded-xl bg-muted p-4"><p className="text-2xl font-bold">{review.summary.incorrect}</p><p className="text-xs text-muted-foreground">erros para revisar</p></div><div className="rounded-xl bg-muted p-4"><p className="text-2xl font-bold">{review.summary.contents.length}</p><p className="text-xs text-muted-foreground">blocos avaliados</p></div></div><div className="mt-5 space-y-3">{review.summary.contents.map((content) => <article key={content.id} className="rounded-xl bg-muted p-4"><div className="flex items-center justify-between gap-3"><h4 className="font-semibold">{content.title}</h4><span className="font-bold">{content.accuracy}%</span></div><p className="mt-1 text-xs text-muted-foreground">{content.correct}/{content.total} acertos · {content.status === 'weak' ? 'reforçar antes de repetir a prova' : content.status === 'attention' ? 'manter em revisão' : 'estável'}</p></article>)}</div>{review.summary.incorrectQuestions.length > 0 && <div className="mt-6 border-t border-border pt-5"><h4 className="font-semibold">Erros da tentativa</h4><ol className="mt-3 space-y-3">{review.summary.incorrectQuestions.map((item) => <li key={item.question_id} className="rounded-xl bg-muted p-4"><p className="text-sm font-medium">{item.question_order}. {item.statement}</p><p className="mt-2 text-xs text-muted-foreground">Marcada: {item.selected_label}. {item.selected_text}</p><p className="mt-1 text-xs text-muted-foreground">Correta: {item.correct_label}. {item.correct_text}</p>{item.explanation && <p className="mt-2 text-xs text-muted-foreground">{item.explanation}</p>}</li>)}</ol></div>}</section>}
+            </div>
           ) : (
             <div className="mt-8 space-y-6">
               <div className="sticky top-20 z-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[hsl(var(--accent))]/30 bg-card p-4 shadow-sm"><div><h2 className="text-xl font-bold">{active.title}</h2><p className="text-sm text-muted-foreground">{answeredCount} de {questions.length} respostas salvas</p></div><div className={`flex items-center gap-2 rounded-xl px-4 py-2 font-mono text-lg font-bold ${remainingSeconds === 0 ? 'bg-red-500/10 text-red-700 dark:text-red-400' : 'bg-muted'}`} role="timer" aria-label={remainingSeconds === null ? 'Simulado sem limite de tempo' : `${remainingSeconds} segundos restantes`}><Clock3 className="h-5 w-5" />{formatSimulationTime(remainingSeconds)}</div></div>

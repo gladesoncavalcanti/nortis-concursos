@@ -17,6 +17,8 @@ const LoginPage = () => {
 
   const cadastroSucesso = searchParams.get('cadastro') === 'sucesso';
   const emailConfirmado = searchParams.get('confirmed') === '1';
+  const redirectTo = searchParams.get('redirect');
+  const safeRedirect = redirectTo?.startsWith('/minha-conta') ? redirectTo : '/minha-conta';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,7 +39,7 @@ const LoginPage = () => {
 
     if (result.success) {
       toast.success('Login realizado com sucesso');
-      navigate('/minha-conta');
+      navigate(safeRedirect);
     } else {
       toast.error(result.error || 'E-mail ou senha inválidos.');
     }

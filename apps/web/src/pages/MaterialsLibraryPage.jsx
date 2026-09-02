@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button.jsx';
 import { getMyEnrollments } from '@/api/enrollments.js';
 import { requestDownloadUrl } from '@/api/downloads.js';
 import { buildMaterialsLibrary } from '@/api/studentJourneyModel.js';
+import { getStudyProfile } from '@/api/studyProfile.js';
+import { getMySyllabus } from '@/api/syllabus.js';
 
 const MaterialsLibraryPage = () => {
   const [library, setLibrary] = useState([]);
@@ -15,10 +17,14 @@ const MaterialsLibraryPage = () => {
 
   useEffect(() => {
     let mounted = true;
-    getMyEnrollments().then(({ data, error: loadError }) => {
+    Promise.all([getMyEnrollments(), getStudyProfile(), getMySyllabus()]).then(([enrollments, profile, syllabus]) => {
       if (!mounted) return;
-      setLibrary(buildMaterialsLibrary({ enrollments: data }));
-      setError(loadError);
+      setLibrary(buildMaterialsLibrary({
+        enrollments: enrollments.data,
+        profile: profile.data,
+        syllabus: syllabus.data,
+      }));
+      setError(enrollments.error || profile.error || syllabus.error);
       setLoading(false);
     });
     return () => { mounted = false; };
@@ -71,6 +77,11 @@ const MaterialsLibraryPage = () => {
                       <p className="mt-1 text-sm text-muted-foreground">
                         {product.active ? 'Acesso ativo' : 'Acesso indisponível no momento'}
                       </p>
+                      {(product.roleLabel || product.specialtyTitle) && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Recorte atual: {product.roleLabel || 'cargo não definido'}{product.specialtyTitle ? ` · ${product.specialtyTitle}` : ''}
+                        </p>
+                      )}
                     </div>
                     <Button
                       size="sm"

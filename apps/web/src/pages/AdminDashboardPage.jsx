@@ -171,6 +171,30 @@ const AdminDashboardPage = () => {
                   )}
                 </Panel>
 
+                <Panel title="Funil de nutrição do radar" description="Fila interna: não envia e-mail, WhatsApp ou mensagem automática.">
+                  {dashboard.lead_nurture?.contest_queue?.length ? (
+                    <div className="space-y-3">
+                      {dashboard.lead_nurture.contest_queue.slice(0, 8).map((lead) => (
+                        <div key={`${lead.email}-${lead.contest_slug}`} className="rounded-xl bg-muted p-4">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                              <p className="font-semibold">{lead.email}</p>
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                {lead.contest_slug} · {lead.funnel_stage}
+                              </p>
+                            </div>
+                            <span className="rounded-full bg-card px-3 py-1 text-xs font-semibold text-muted-foreground">
+                              {lead.recommended_action}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState />
+                  )}
+                </Panel>
+
                 <Panel title="Interesse na Sprint Discursiva" description="Agrupamento por categoria, especialidade e pacote.">
                   {dashboard.discursive_interest_by_package?.length ? (
                     <div className="space-y-3">

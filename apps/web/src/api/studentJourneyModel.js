@@ -195,7 +195,15 @@ export function buildGuidedSedesJourney({
   };
 }
 
-export function buildMaterialsLibrary({ enrollments = [] } = {}) {
+function flattenNodes(nodes = []) {
+  return nodes.flatMap((node) => [node, ...flattenNodes(node.children ?? [])]);
+}
+
+export function buildMaterialsLibrary({ enrollments = [], profile = null, syllabus = [] } = {}) {
+  const flatNodes = flattenNodes(syllabus);
+  const specialty = flatNodes.find((node) => node.id === profile?.target_specialty_id) ?? null;
+  const roleLabel = profile?.target_role || null;
+
   return (enrollments ?? []).map((enrollment) => {
     const modules = enrollment.modules ?? [];
     const groups = [
@@ -221,6 +229,8 @@ export function buildMaterialsLibrary({ enrollments = [] } = {}) {
       enrollmentId: enrollment.id,
       title: enrollment.products?.title ?? 'Produto liberado',
       status: enrollment.status,
+      roleLabel,
+      specialtyTitle: specialty?.title ?? null,
       active: enrollment.status === 'active' &&
         (!enrollment.expires_at || new Date(enrollment.expires_at).getTime() > Date.now()),
       groups,
@@ -235,6 +245,7 @@ export function buildStudentJourneyState({
   plan = null,
   essayThemes = [],
   flashcardDecks = [],
+  syllabus = [],
 } = {}) {
   const activeEnrollments = (enrollments ?? []).filter((enrollment) =>
     enrollment.status === 'active' &&
@@ -255,6 +266,6 @@ export function buildStudentJourneyState({
       essayThemes,
       flashcardDecks,
     }),
-    library: buildMaterialsLibrary({ enrollments }),
+    library: buildMaterialsLibrary({ enrollments, profile, syllabus }),
   };
 }
