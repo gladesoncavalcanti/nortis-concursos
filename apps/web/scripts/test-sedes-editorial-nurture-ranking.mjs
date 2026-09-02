@@ -8,6 +8,8 @@ const migration = readFileSync(
 const libraryPage = readFileSync('apps/web/src/pages/MaterialsLibraryPage.jsx', 'utf8');
 const onboardingPage = readFileSync('apps/web/src/pages/StudentOnboardingPage.jsx', 'utf8');
 const progressPage = readFileSync('apps/web/src/pages/ProgressPage.jsx', 'utf8');
+const studentRankingApi = readFileSync('apps/web/src/api/studentRanking.js', 'utf8');
+const studentRankingPanel = readFileSync('apps/web/src/components/StudentRankingPanel.jsx', 'utf8');
 
 assert.match(migration, /create table if not exists public\.lead_nurture_preferences/);
 assert.match(migration, /create table if not exists public\.lead_nurture_events/);
@@ -15,6 +17,11 @@ assert.match(migration, /create table if not exists public\.student_ranking_pref
 assert.match(migration, /upsert_my_lead_nurture_preferences/);
 assert.match(migration, /upsert_my_ranking_preference/);
 assert.match(migration, /get_student_opt_in_leaderboard/);
+assert.match(migration, /where product\.slug = 'nexo-social-sedes-df-2026'[\s\S]+?and product\.active = true/);
+assert.match(migration, /enrollment\.product_id = v_product_id/);
+assert.match(migration, /question\.product_id = v_product_id/);
+assert.match(migration, /simulation\.product_id = v_product_id/);
+assert.match(migration, /study_session\.product_id = v_product_id/);
 assert.match(migration, /create or replace function public\.get_admin_lead_nurture_queue\(\)/);
 assert.match(migration, /email_opt_in_total/);
 assert.match(migration, /nurture_events/);
@@ -40,5 +47,9 @@ assert.match(libraryPage, /SEDES_LEARNING_ASSETS/);
 assert.match(libraryPage, /Mapas, resumos e trilhas por especialidade/);
 assert.match(onboardingPage, /LeadNurtureOptInPanel/);
 assert.match(progressPage, /StudentRankingPanel/);
+assert.match(studentRankingApi, /getMyRankingPreference/);
+assert.match(studentRankingPanel, /getMyRankingPreference/);
+assert.match(studentRankingPanel, /setDisplayName\(preferenceResult\.data\?\.display_name/);
+assert.match(studentRankingPanel, /setEnabled\(Boolean\(preferenceResult\.data\?\.enabled\)\)/);
 
 console.log('SEDES editorial, nutrição opt-in e ranking: verificações estáticas aprovadas.');

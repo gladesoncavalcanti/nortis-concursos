@@ -186,15 +186,27 @@ set search_path = ''
 as $$
 declare
   v_user_id uuid := auth.uid();
+  v_product_id uuid;
 begin
   if v_user_id is null then
     raise exception 'authentication_required' using errcode = '28000';
+  end if;
+
+  select product.id
+  into v_product_id
+  from public.products product
+  where product.slug = 'nexo-social-sedes-df-2026'
+    and product.active = true;
+
+  if v_product_id is null then
+    raise exception 'sedes_product_not_found' using errcode = 'P0002';
   end if;
 
   if not exists (
     select 1
     from public.enrollments enrollment
     where enrollment.user_id = v_user_id
+      and enrollment.product_id = v_product_id
       and enrollment.status = 'active'
       and (enrollment.expires_at is null or enrollment.expires_at > now())
   ) then
@@ -206,6 +218,7 @@ begin
     from public.student_ranking_preferences preference
     join public.enrollments enrollment on enrollment.user_id = preference.user_id
     where preference.enabled = true
+      and enrollment.product_id = v_product_id
       and enrollment.status = 'active'
       and (enrollment.expires_at is null or enrollment.expires_at > now())
   ) < 3 then
@@ -218,6 +231,7 @@ begin
     from public.student_ranking_preferences preference
     join public.enrollments enrollment on enrollment.user_id = preference.user_id
     where preference.enabled = true
+      and enrollment.product_id = v_product_id
       and enrollment.status = 'active'
       and (enrollment.expires_at is null or enrollment.expires_at > now())
   ),
@@ -227,6 +241,9 @@ begin
       count(*)::integer as answered,
       count(*) filter (where attempt.is_correct)::integer as correct
     from public.question_attempts attempt
+    join public.questions question
+      on question.id = attempt.question_id
+     and question.product_id = v_product_id
     join opted_students student on student.user_id = attempt.user_id
     group by attempt.user_id
   ),
@@ -235,6 +252,9 @@ begin
       session.user_id,
       count(*) filter (where session.status = 'completed')::integer as completed_simulations
     from public.simulation_sessions session
+    join public.simulations simulation
+      on simulation.id = session.simulation_id
+     and simulation.product_id = v_product_id
     join opted_students student on student.user_id = session.user_id
     group by session.user_id
   ),
@@ -245,6 +265,7 @@ begin
     from public.study_sessions study_session
     join opted_students student on student.user_id = study_session.user_id
     where study_session.ended_at is not null
+      and study_session.product_id = v_product_id
       and study_session.started_at >= now() - interval '30 days'
     group by study_session.user_id
   ),

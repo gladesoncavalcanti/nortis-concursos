@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Trophy, Loader2, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import {
+  getMyRankingPreference,
   getStudentOptInLeaderboard,
   saveMyRankingPreference,
 } from '@/api/studentRanking.js';
@@ -23,10 +24,15 @@ const StudentRankingPanel = () => {
 
   useEffect(() => {
     let mounted = true;
-    getStudentOptInLeaderboard().then(({ data, error }) => {
+    Promise.all([
+      getMyRankingPreference(),
+      getStudentOptInLeaderboard(),
+    ]).then(([preferenceResult, leaderboardResult]) => {
       if (!mounted) return;
-      setRows(data);
-      setMessage(error);
+      setDisplayName(preferenceResult.data?.display_name ?? '');
+      setEnabled(Boolean(preferenceResult.data?.enabled));
+      setRows(leaderboardResult.data);
+      setMessage(preferenceResult.error || leaderboardResult.error);
       setLoading(false);
     });
     return () => { mounted = false; };

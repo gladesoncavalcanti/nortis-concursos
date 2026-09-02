@@ -1,5 +1,15 @@
 import { supabase } from '@/lib/supabase';
 
+export async function getMyRankingPreference() {
+  const { data, error } = await supabase
+    .from('student_ranking_preferences')
+    .select('enabled,display_name,updated_at')
+    .maybeSingle();
+
+  if (error) return { data: null, error: 'Não foi possível carregar sua preferência de ranking.' };
+  return { data: data ?? { enabled: false, display_name: '' }, error: null };
+}
+
 export async function getStudentOptInLeaderboard() {
   const { data, error } = await supabase.rpc('get_student_opt_in_leaderboard');
   if (error) return { data: [], error: 'Não foi possível carregar o ranking agora.' };
