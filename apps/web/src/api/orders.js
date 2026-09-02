@@ -5,25 +5,15 @@ import { supabase } from '@/lib/supabase';
  * `create-asaas-checkout`.
  *
  * Este arquivo NUNCA lida com dados de cartão — apenas envia a lista de
- * produtos/quantidades e os dados cadastrais do comprador, exigidos pela
- * Asaas para criar a cobrança (customerData). Cartão/CVV/validade são
- * preenchidos exclusivamente na página hospedada da Asaas, depois do
- * redirecionamento.
+ * produtos/quantidades e os dados mínimos para identificar o pedido.
+ * CPF, telefone, endereço, cartão/CVV/validade e Pix são preenchidos
+ * exclusivamente na página hospedada da Asaas, depois do redirecionamento.
  *
  * @param {object} params
  * @param {Array<{ productId: string, quantity: number }>} params.items
- * @param {object} params.buyer - dados cadastrais exigidos pela Asaas
+ * @param {object} params.buyer - dados mínimos do comprador
  * @param {string} params.buyer.name
  * @param {string} params.buyer.email
- * @param {string} params.buyer.cpfCnpj
- * @param {string} params.buyer.phone
- * @param {string} params.buyer.postalCode
- * @param {string} params.buyer.address
- * @param {string} params.buyer.addressNumber
- * @param {string} [params.buyer.complement]
- * @param {string} params.buyer.province - bairro
- * @param {string} [params.buyer.city]
- * @param {string} [params.buyer.state] - UF
  * @returns {Promise<{ checkoutUrl: string|null, orderId: string|null, error: string|null }>}
  */
 export async function createAsaasCheckout({ items, buyer }) {
