@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button.jsx';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import PersonalizationQuiz from '@/components/PersonalizationQuiz.jsx';
 import FreeSedesAccessCta from '@/components/FreeSedesAccessCta.jsx';
+import LeadNurtureOptInPanel from '@/components/LeadNurtureOptInPanel.jsx';
 
 const StudentOnboardingPage = () => {
   const { user } = useAuth();
@@ -56,6 +57,8 @@ const StudentOnboardingPage = () => {
           <div className="mt-8">
             <PersonalizationQuiz userId={user?.id} />
           </div>
+
+          <LeadNurtureOptInPanel />
         </div>
       </div>
     </>

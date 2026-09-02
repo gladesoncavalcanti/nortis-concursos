@@ -8,6 +8,7 @@ import { requestDownloadUrl } from '@/api/downloads.js';
 import { buildMaterialsLibrary } from '@/api/studentJourneyModel.js';
 import { getStudyProfile } from '@/api/studyProfile.js';
 import { getMySyllabus } from '@/api/syllabus.js';
+import { SEDES_LEARNING_ASSETS } from '@/config/sedesLearningAssets.js';
 
 const MaterialsLibraryPage = () => {
   const [library, setLibrary] = useState([]);
@@ -113,6 +114,35 @@ const MaterialsLibraryPage = () => {
                         </ul>
                       </article>
                     ))}
+                  </div>
+
+                  <div className="mt-6 rounded-xl bg-muted p-4">
+                    <h3 className="font-semibold">Mapas, resumos e trilhas por especialidade</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Materiais curtos conectados às funcionalidades ativas. Itens em preparação ficam marcados sem promessa de entrega imediata.
+                    </p>
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      {SEDES_LEARNING_ASSETS.map((asset) => (
+                        <article key={asset.id} className="rounded-lg bg-card p-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-xs font-bold uppercase tracking-wide text-[hsl(var(--accent))]">{asset.type}</p>
+                              <h4 className="mt-1 font-semibold">{asset.title}</h4>
+                            </div>
+                            <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${asset.status === 'ativo' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' : 'bg-amber-500/10 text-amber-700 dark:text-amber-300'}`}>
+                              {asset.status}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-xs text-muted-foreground">{asset.specialty} · {asset.description}</p>
+                          {asset.status === 'ativo' && (
+                            <Link to={asset.route} className="mt-2 inline-flex items-center text-xs font-bold text-[hsl(var(--accent))] hover:underline">
+                              Estudar agora
+                              <ArrowRight className="ml-1 h-3.5 w-3.5" aria-hidden="true" />
+                            </Link>
+                          )}
+                        </article>
+                      ))}
+                    </div>
                   </div>
                 </section>
               ))}

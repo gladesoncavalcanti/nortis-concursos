@@ -182,6 +182,10 @@ const AdminDashboardPage = () => {
                               <p className="mt-1 text-xs text-muted-foreground">
                                 {lead.contest_slug} · {lead.funnel_stage}
                               </p>
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                Canais autorizados: {lead.email_opt_in ? 'e-mail' : ''}{lead.email_opt_in && lead.whatsapp_opt_in ? ' + ' : ''}{lead.whatsapp_opt_in ? 'WhatsApp' : ''}{!lead.email_opt_in && !lead.whatsapp_opt_in ? 'nenhum' : ''}
+                                {Number(lead.nurture_event_count ?? 0) > 0 ? ` · ${lead.nurture_event_count} evento(s)` : ''}
+                              </p>
                             </div>
                             <span className="rounded-full bg-card px-3 py-1 text-xs font-semibold text-muted-foreground">
                               {lead.recommended_action}
