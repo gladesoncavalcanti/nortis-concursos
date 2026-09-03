@@ -21,6 +21,10 @@ assert.match(migration, /primary key \(user_id, question_id\)/);
 assert.match(migration, /question_favorites_self_read/);
 assert.match(migration, /question_favorites_self_insert/);
 assert.match(migration, /question_favorites_self_delete/);
+assert.match(migration, /from public\.questions question/);
+assert.match(migration, /join public\.enrollments enrollment/);
+assert.match(migration, /enrollment\.product_id = question\.product_id/);
+assert.match(migration, /enrollment\.status = 'active'/);
 
 assert.match(migration, /create table if not exists public\.student_material_marks/);
 assert.match(migration, /student_material_marks_self_update/);

@@ -31,13 +31,39 @@ drop policy if exists "question_favorites_self_insert" on public.question_favori
 create policy "question_favorites_self_insert"
 on public.question_favorites for insert
 to authenticated
-with check ((select auth.uid()) = user_id);
+with check (
+  (select auth.uid()) = user_id
+  and exists (
+    select 1
+    from public.questions question
+    join public.enrollments enrollment
+      on enrollment.product_id = question.product_id
+     and enrollment.user_id = (select auth.uid())
+     and enrollment.status = 'active'
+     and (enrollment.expires_at is null or enrollment.expires_at > now())
+    where question.id = question_favorites.question_id
+      and question.active = true
+  )
+);
 
 drop policy if exists "question_favorites_self_delete" on public.question_favorites;
 create policy "question_favorites_self_delete"
 on public.question_favorites for delete
 to authenticated
-using ((select auth.uid()) = user_id);
+using (
+  (select auth.uid()) = user_id
+  and exists (
+    select 1
+    from public.questions question
+    join public.enrollments enrollment
+      on enrollment.product_id = question.product_id
+     and enrollment.user_id = (select auth.uid())
+     and enrollment.status = 'active'
+     and (enrollment.expires_at is null or enrollment.expires_at > now())
+    where question.id = question_favorites.question_id
+      and question.active = true
+  )
+);
 
 revoke all on public.question_favorites from anon, authenticated;
 grant select, insert, delete on public.question_favorites to authenticated;
