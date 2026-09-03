@@ -30,3 +30,40 @@ export function formatSimulationTime(seconds) {
   const remainder = safeSeconds % 60;
   return `${String(minutes).padStart(2, '0')}:${String(remainder).padStart(2, '0')}`;
 }
+
+export function buildSimulationReportCard(sessions = [], simulationId) {
+  const completed = sessions
+    .filter((session) => session.simulation_id === simulationId && session.status === 'completed')
+    .sort((left, right) =>
+      String(right.completed_at ?? '').localeCompare(String(left.completed_at ?? ''))
+      || String(right.id ?? '').localeCompare(String(left.id ?? ''))
+    );
+
+  const latest = completed[0] ?? null;
+  const previous = completed[1] ?? null;
+  const accuracy = latest?.question_count
+    ? Math.round((Number(latest.correct_count || 0) / Number(latest.question_count || 0)) * 100)
+    : null;
+  const previousAccuracy = previous?.question_count
+    ? Math.round((Number(previous.correct_count || 0) / Number(previous.question_count || 0)) * 100)
+    : null;
+  const delta = accuracy !== null && previousAccuracy !== null ? accuracy - previousAccuracy : null;
+
+  const status = accuracy === null
+    ? 'not_started'
+    : accuracy < 60
+      ? 'reinforce'
+      : accuracy < 75
+        ? 'attention'
+        : 'stable';
+
+  return {
+    attempts: completed.length,
+    latest,
+    accuracy,
+    previousAccuracy,
+    delta,
+    status,
+    history: completed.slice(0, 5),
+  };
+}

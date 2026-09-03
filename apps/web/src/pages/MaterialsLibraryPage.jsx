@@ -1,30 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookMarked, ChevronLeft, Download, Loader2 } from 'lucide-react';
+import { ArrowRight, BookMarked, CheckCircle2, ChevronLeft, Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { getMyEnrollments } from '@/api/enrollments.js';
 import { requestDownloadUrl } from '@/api/downloads.js';
 import { buildMaterialsLibrary } from '@/api/studentJourneyModel.js';
 import { getStudyProfile } from '@/api/studyProfile.js';
 import { getMySyllabus } from '@/api/syllabus.js';
+import { getMyMaterialMarks, setMaterialMark } from '@/api/materialMarks.js';
 import { SEDES_LEARNING_ASSETS } from '@/config/sedesLearningAssets.js';
 
 const MaterialsLibraryPage = () => {
   const [library, setLibrary] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [marks, setMarks] = useState([]);
   const [downloadingId, setDownloadingId] = useState(null);
+  const [markingId, setMarkingId] = useState(null);
 
   useEffect(() => {
     let mounted = true;
-    Promise.all([getMyEnrollments(), getStudyProfile(), getMySyllabus()]).then(([enrollments, profile, syllabus]) => {
+    Promise.all([getMyEnrollments(), getStudyProfile(), getMySyllabus(), getMyMaterialMarks()]).then(([enrollments, profile, syllabus, materialMarks]) => {
       if (!mounted) return;
       setLibrary(buildMaterialsLibrary({
         enrollments: enrollments.data,
         profile: profile.data,
         syllabus: syllabus.data,
       }));
+      setMarks(materialMarks.data ?? []);
       setError(enrollments.error || profile.error || syllabus.error);
       setLoading(false);
     });
@@ -38,6 +42,18 @@ const MaterialsLibraryPage = () => {
     if (downloadError || !url) setError(downloadError || 'Não foi possível gerar o link agora.');
     else window.open(url, '_blank', 'noopener,noreferrer');
     setDownloadingId(null);
+  };
+
+  const markStudied = async (assetId) => {
+    if (markingId) return;
+    setMarkingId(assetId);
+    const { error: markError } = await setMaterialMark(assetId, 'reviewed');
+    if (markError) setError(markError);
+    else setMarks((current) => [
+      { material_key: assetId, status: 'reviewed', updated_at: new Date().toISOString() },
+      ...current.filter((mark) => mark.material_key !== assetId),
+    ]);
+    setMarkingId(null);
   };
 
   return (
@@ -135,10 +151,24 @@ const MaterialsLibraryPage = () => {
                           </div>
                           <p className="mt-2 text-xs text-muted-foreground">{asset.specialty} · {asset.description}</p>
                           {asset.status === 'ativo' && (
-                            <Link to={asset.route} className="mt-2 inline-flex items-center text-xs font-bold text-[hsl(var(--accent))] hover:underline">
-                              Estudar agora
-                              <ArrowRight className="ml-1 h-3.5 w-3.5" aria-hidden="true" />
-                            </Link>
+                            <div className="mt-3 flex flex-wrap items-center gap-3">
+                              <Link to={asset.route} className="inline-flex items-center text-xs font-bold text-[hsl(var(--accent))] hover:underline">
+                                Estudar agora
+                                <ArrowRight className="ml-1 h-3.5 w-3.5" aria-hidden="true" />
+                              </Link>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                disabled={markingId === asset.id}
+                                onClick={() => markStudied(asset.id)}
+                              >
+                                {marks.some((mark) => mark.material_key === asset.id)
+                                  ? <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
+                                  : null}
+                                {marks.some((mark) => mark.material_key === asset.id) ? 'Estudado' : 'Marcar estudado'}
+                              </Button>
+                            </div>
                           )}
                         </article>
                       ))}

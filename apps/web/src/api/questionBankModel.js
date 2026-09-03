@@ -29,12 +29,17 @@ function latestAttempts(attempts = []) {
 export function buildQuestionBankView({
   questions = [],
   attempts = [],
+  favorites = [],
   visibleNodes = [],
   status = 'all',
   contentId = 'all',
+  searchText = '',
+  onlyFavorites = false,
 }) {
   const visibleIds = collectNodeIds(visibleNodes);
   const attemptsByQuestion = latestAttempts(attempts);
+  const favoriteIds = new Set(favorites.map((favorite) => favorite.question_id));
+  const normalizedSearch = searchText.trim().toLocaleLowerCase('pt-BR');
   const scopedQuestions = questions
     .filter((question) => question.syllabus_node_id && visibleIds.has(question.syllabus_node_id))
     .map((question) => {
@@ -43,6 +48,7 @@ export function buildQuestionBankView({
         ...question,
         syllabusNode: normalizeNode(question),
         lastAttempt,
+        favorite: favoriteIds.has(question.id),
         status: !lastAttempt ? 'unanswered' : lastAttempt.is_correct ? 'correct' : 'incorrect',
       };
     });
@@ -62,6 +68,12 @@ export function buildQuestionBankView({
   const filteredQuestions = scopedQuestions.filter((question) =>
     (status === 'all' || question.status === status)
     && (contentId === 'all' || question.syllabus_node_id === contentId)
+    && (!onlyFavorites || question.favorite)
+    && (!normalizedSearch || [
+      question.statement,
+      question.explanation,
+      question.syllabusNode?.title,
+    ].filter(Boolean).join(' ').toLocaleLowerCase('pt-BR').includes(normalizedSearch))
   );
 
   return { questions: filteredQuestions, allQuestions: scopedQuestions, contents, counts };

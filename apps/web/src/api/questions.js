@@ -2,9 +2,10 @@ import { supabase } from '@/lib/supabase';
 import { getStudyProfile } from '@/api/studyProfile.js';
 import { getMySyllabus } from '@/api/syllabus.js';
 import { filterSyllabusForProfile } from '@/api/specialtySelection.js';
+import { getMyQuestionFavorites } from '@/api/questionFavorites.js';
 
 export async function getMyQuestionBank() {
-  const [questionResult, attemptResult, profileResult, syllabusResult] = await Promise.all([
+  const [questionResult, attemptResult, profileResult, syllabusResult, favoriteResult] = await Promise.all([
     supabase.from('questions')
       .select('id, statement, syllabus_node_id, sort_order, syllabus_nodes(id,title,node_type,parent_id), question_options(id, label, option_text, sort_order)')
       .eq('diagnostic_eligible', false)
@@ -16,6 +17,7 @@ export async function getMyQuestionBank() {
       .order('id', { ascending: false }),
     getStudyProfile(),
     getMySyllabus(),
+    getMyQuestionFavorites(),
   ]);
 
   if (questionResult.error || attemptResult.error || profileResult.error || syllabusResult.error) {
@@ -38,8 +40,10 @@ export async function getMyQuestionBank() {
     data: {
       questions,
       attempts: attemptResult.data ?? [],
+      favorites: favoriteResult.data ?? [],
       visibleNodes,
       needsSpecialty,
+      favoritesUnavailable: Boolean(favoriteResult.error),
     },
     error: null,
   };

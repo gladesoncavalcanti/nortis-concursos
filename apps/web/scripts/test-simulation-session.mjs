@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
   buildSavedSimulationAnswers,
+  buildSimulationReportCard,
   findOpenSimulationSession,
   formatSimulationTime,
   getSimulationRemainingSeconds,
@@ -32,6 +33,18 @@ assert.equal(formatSimulationTime(1800), '30:00');
 assert.equal(formatSimulationTime(65), '01:05');
 assert.equal(formatSimulationTime(0), '00:00');
 assert.equal(formatSimulationTime(null), 'Sem limite de tempo');
+
+const report = buildSimulationReportCard([
+  { id: 'a', simulation_id: 'sim-1', status: 'completed', completed_at: '2026-08-11T10:00:00Z', correct_count: 6, question_count: 10 },
+  { id: 'b', simulation_id: 'sim-1', status: 'completed', completed_at: '2026-08-12T10:00:00Z', correct_count: 8, question_count: 10 },
+  { id: 'c', simulation_id: 'sim-2', status: 'completed', completed_at: '2026-08-12T10:00:00Z', correct_count: 1, question_count: 10 },
+], 'sim-1');
+assert.equal(report.attempts, 2);
+assert.equal(report.latest.id, 'b');
+assert.equal(report.accuracy, 80);
+assert.equal(report.previousAccuracy, 60);
+assert.equal(report.delta, 20);
+assert.equal(report.status, 'stable');
 
 const migrationPath = fileURLToPath(new URL('../../../supabase/migrations/20260811105713_improve_simulation_session_resume.sql', import.meta.url));
 const sql = readFileSync(migrationPath, 'utf8');
