@@ -13,9 +13,11 @@ import {
   Mail,
   ShieldCheck,
   Target,
+  Download,
   Users,
 } from 'lucide-react';
 import { getAdminDashboard } from '@/api/adminDashboard.js';
+import { SEDES_NURTURE_CAMPAIGN_STEPS } from '@/config/nurtureCampaigns.js';
 
 const formatDateTime = (value) => {
   if (!value) return '—';
@@ -59,6 +61,22 @@ const EmptyState = ({ children = 'Sem registros para exibir.' }) => (
   <p className="rounded-xl bg-muted p-4 text-sm text-muted-foreground">{children}</p>
 );
 
+const exportCsv = (filename, rows = []) => {
+  if (!rows.length) return;
+  const headers = Object.keys(rows[0]);
+  const csv = [
+    headers.join(','),
+    ...rows.map((row) => headers.map((header) => `"${String(row[header] ?? '').replaceAll('"', '""')}"`).join(',')),
+  ].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
 const AdminDashboardPage = () => {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -87,6 +105,27 @@ const AdminDashboardPage = () => {
       Number(summary.contest_interest_leads ?? 0),
     [summary]
   );
+  const operationalAlerts = useMemo(() => {
+    if (!dashboard) return [];
+    const alerts = [];
+    const activeEnrollments = Number(summary.active_enrollments ?? 0);
+    const questionAttempts = Number(summary.question_attempts ?? 0);
+    const contestLeads = Number(summary.contest_interest_leads ?? 0);
+    const emailOptIns = (dashboard.lead_nurture?.contest_summary ?? [])
+      .reduce((total, item) => total + Number(item.email_opt_in_total ?? 0), 0);
+
+    if (activeEnrollments > 0 && questionAttempts === 0) {
+      alerts.push('Há alunos com matrícula ativa, mas sem questões respondidas. Prioridade: onboarding e CTA para diagnóstico.');
+    }
+    if (contestLeads > 0 && emailOptIns === 0) {
+      alerts.push('Existem interessados no radar sem opt-in de contato. Prioridade: reforçar autorização explícita de avisos.');
+    }
+    if ((dashboard.enrollments_by_product ?? []).some((item) => Number(item.active_total ?? 0) > 0 && !item.product_slug)) {
+      alerts.push('Há matrícula sem slug de produto legível. Verificar cadastro do produto.');
+    }
+
+    return alerts;
+  }, [dashboard, summary]);
 
   return (
     <>
@@ -117,9 +156,19 @@ const AdminDashboardPage = () => {
             </div>
 
             {dashboard?.generated_at && (
-              <p className="rounded-full bg-muted px-4 py-2 text-xs text-muted-foreground">
-                Atualizado em {formatDateTime(dashboard.generated_at)}
-              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-xs font-semibold text-muted-foreground"
+                  onClick={() => exportCsv('nortis-contest-leads.csv', dashboard.recent_contest_interest_leads ?? [])}
+                >
+                  <Download className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                  Exportar radar
+                </button>
+                <p className="rounded-full bg-muted px-4 py-2 text-xs text-muted-foreground">
+                  Atualizado em {formatDateTime(dashboard.generated_at)}
+                </p>
+              </div>
             )}
           </div>
 
@@ -149,6 +198,20 @@ const AdminDashboardPage = () => {
                 <StatCard icon={BookOpen} label="Questões respondidas" value={summary.question_attempts} />
                 <StatCard icon={Activity} label="Minutos estudados" value={summary.study_minutes} />
               </div>
+
+              <Panel title="Alertas operacionais" description="Checklist interno para evitar prateleira vazia, lead parado ou promessa comercial sem lastro.">
+                {operationalAlerts.length ? (
+                  <ul className="space-y-2">
+                    {operationalAlerts.map((alert) => (
+                      <li key={alert} className="rounded-xl bg-amber-500/10 p-4 text-sm text-amber-800 dark:text-amber-200">
+                        {alert}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <EmptyState>Nenhum alerta crítico gerado pelos indicadores atuais.</EmptyState>
+                )}
+              </Panel>
 
               <div className="grid gap-8 lg:grid-cols-2">
                 <Panel title="Demanda por concurso" description="Interesses autenticados no Radar Nortis.">
@@ -197,6 +260,21 @@ const AdminDashboardPage = () => {
                   ) : (
                     <EmptyState />
                   )}
+                </Panel>
+
+                <Panel title="Régua de relacionamento SEDES" description="Playbook aprovado para execução futura. Hoje é orientação interna; não há disparo automático.">
+                  <div className="space-y-3">
+                    {SEDES_NURTURE_CAMPAIGN_STEPS.map((step) => (
+                      <article key={step.key} className="rounded-xl bg-muted p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <h3 className="font-semibold">{step.title}</h3>
+                          <span className="rounded-full bg-card px-3 py-1 text-xs font-bold uppercase text-muted-foreground">{step.channel}</span>
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground">{step.timing} · {step.summary}</p>
+                        <p className="mt-2 text-xs font-semibold text-[hsl(var(--accent))]">{step.cta} → {step.path}</p>
+                      </article>
+                    ))}
+                  </div>
                 </Panel>
 
                 <Panel title="Interesse na Sprint Discursiva" description="Agrupamento por categoria, especialidade e pacote.">

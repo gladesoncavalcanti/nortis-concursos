@@ -188,6 +188,24 @@ const ProductDetailPage = ({ setIsCartOpen }) => {
 
                   <PreLaunchNotice className="mb-7" />
 
+                  {isNexoSocial && (
+                    <section className="mb-7 rounded-xl border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 p-5">
+                      <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">
+                        Oferta de lançamento SEDES-DF
+                      </p>
+                      <h2 className="mt-2 text-lg font-bold text-foreground">Apostila + Central Nortis em um fluxo único</h2>
+                      <ul className="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+                        <li>• PDF digital Nexo Social.</li>
+                        <li>• Questões, simulados e revisão inteligente.</li>
+                        <li>• Plano semanal, flashcards e progresso.</li>
+                        <li>• Redação e biblioteca por especialidade.</li>
+                      </ul>
+                      <p className="mt-4 text-xs text-muted-foreground">
+                        O acesso gratuito provisório continua separado da compra paga. A compra libera o produto conforme confirmação do pagamento, sem promessa de aprovação ou nota oficial.
+                      </p>
+                    </section>
+                  )}
+
                   {product.variants.length > 1 && (
                     <div className="mb-8">
                       <label className="block text-sm font-medium text-foreground mb-3">Selecione a Opção</label>

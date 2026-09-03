@@ -20,7 +20,8 @@ const attempts = [
   { id: '3', question_id: 'q3', is_correct: false, answered_at: '2026-08-11T11:00:00Z' },
 ];
 
-const all = buildQuestionBankView({ questions, attempts, visibleNodes });
+const favorites = [{ question_id: 'q2', created_at: '2026-08-12T10:00:00Z' }];
+const all = buildQuestionBankView({ questions, attempts, favorites, visibleNodes });
 assert.deepEqual(all.questions.map((question) => question.id), ['q1', 'q2']);
 assert.equal(all.counts.all, 2);
 assert.equal(all.counts.correct, 1);
@@ -28,6 +29,7 @@ assert.equal(all.counts.incorrect, 0);
 assert.equal(all.counts.unanswered, 1);
 assert.equal(all.questions[0].status, 'correct');
 assert.equal(all.questions[0].lastAttempt.id, '2');
+assert.equal(all.questions[1].favorite, true);
 assert.deepEqual(all.contents.map((content) => content.title), ['Conteúdo A', 'Conteúdo geral']);
 
 const unanswered = buildQuestionBankView({ questions, attempts, visibleNodes, status: 'unanswered' });
@@ -38,6 +40,12 @@ assert.deepEqual(correct.questions.map((question) => question.id), ['q1']);
 
 const byContent = buildQuestionBankView({ questions, attempts, visibleNodes, contentId: 'a-1' });
 assert.deepEqual(byContent.questions.map((question) => question.id), ['q2']);
+
+const favoriteOnly = buildQuestionBankView({ questions, attempts, favorites, visibleNodes, onlyFavorites: true });
+assert.deepEqual(favoriteOnly.questions.map((question) => question.id), ['q2']);
+
+const searched = buildQuestionBankView({ questions, attempts, visibleNodes, searchText: 'conteúdo geral' });
+assert.deepEqual(searched.questions.map((question) => question.id), ['q1']);
 
 const emptyProfile = buildQuestionBankView({ questions, attempts, visibleNodes: [] });
 assert.equal(emptyProfile.counts.all, 0);

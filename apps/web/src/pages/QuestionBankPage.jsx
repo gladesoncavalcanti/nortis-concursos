@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Filter, HelpCircle, Loader2, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Filter, HelpCircle, Loader2, Search, Star, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { getMyQuestionBank, submitQuestionAttempt } from '@/api/questions.js';
 import { buildQuestionBankView } from '@/api/questionBankModel.js';
+import { setQuestionFavorite } from '@/api/questionFavorites.js';
 
 const STATUS_LABELS = {
   unanswered: 'Não respondida',
@@ -16,7 +17,7 @@ const QuestionBankPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filters, setFilters] = useState({ status: 'all', contentId: 'all' });
+  const [filters, setFilters] = useState({ status: 'all', contentId: 'all', searchText: '', onlyFavorites: false });
   const [currentId, setCurrentId] = useState(null);
   const [selected, setSelected] = useState({});
   const [results, setResults] = useState({});
@@ -72,6 +73,27 @@ const QuestionBankPage = () => {
     setSubmitting(null);
   };
 
+  const toggleFavorite = async (question) => {
+    if (!question) return;
+    const nextFavorite = !question.favorite;
+    setData((stored) => ({
+      ...stored,
+      favorites: nextFavorite
+        ? [{ question_id: question.id, created_at: new Date().toISOString() }, ...(stored.favorites ?? [])]
+        : (stored.favorites ?? []).filter((favorite) => favorite.question_id !== question.id),
+    }));
+    const { error: favoriteError } = await setQuestionFavorite(question.id, nextFavorite);
+    if (favoriteError) {
+      setError(favoriteError);
+      setData((stored) => ({
+        ...stored,
+        favorites: nextFavorite
+          ? (stored.favorites ?? []).filter((favorite) => favorite.question_id !== question.id)
+          : [{ question_id: question.id, created_at: new Date().toISOString() }, ...(stored.favorites ?? [])],
+      }));
+    }
+  };
+
   const goPrevious = () => {
     if (filteredIndex > 0) setCurrentId(view.questions[filteredIndex - 1].id);
   };
@@ -103,9 +125,31 @@ const QuestionBankPage = () => {
               <section className="mt-8 rounded-2xl bg-card p-6" aria-labelledby="question-filters-title">
                 <h2 id="question-filters-title" className="flex items-center gap-2 font-semibold"><Filter className="h-4 w-4" />Filtrar prática</h2>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <label className="text-sm font-medium sm:col-span-2">Buscar por assunto ou termo
+                    <div className="mt-2 flex items-center gap-2 rounded-lg border bg-background px-3">
+                      <Search className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <input
+                        className="min-w-0 flex-1 bg-transparent py-3 outline-none"
+                        value={filters.searchText}
+                        placeholder="Ex.: abordagem social, benefício eventual, saúde mental"
+                        onChange={(event) => changeFilter('searchText', event.target.value)}
+                      />
+                    </div>
+                  </label>
                   <label className="text-sm font-medium">Conteúdo<select className="mt-2 w-full rounded-lg border bg-background p-3" value={filters.contentId} onChange={(event) => changeFilter('contentId', event.target.value)}><option value="all">Todos os conteúdos</option>{view.contents.map((content) => <option key={content.id} value={content.id}>{content.title}</option>)}</select></label>
                   <label className="text-sm font-medium">Situação<select className="mt-2 w-full rounded-lg border bg-background p-3" value={filters.status} onChange={(event) => changeFilter('status', event.target.value)}><option value="all">Todas ({view.counts.all})</option><option value="unanswered">Não respondidas ({view.counts.unanswered})</option><option value="incorrect">Revisão necessária ({view.counts.incorrect})</option><option value="correct">Última resposta correta ({view.counts.correct})</option></select></label>
                 </div>
+                <label className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={filters.onlyFavorites}
+                    onChange={(event) => changeFilter('onlyFavorites', event.target.checked)}
+                  />
+                  Mostrar somente questões favoritas para revisão inteligente
+                </label>
+                {data?.favoritesUnavailable && (
+                  <p className="mt-3 text-xs text-muted-foreground">Favoritos serão ativados após aplicação da migration desta fatia.</p>
+                )}
               </section>
 
               {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}
@@ -113,7 +157,18 @@ const QuestionBankPage = () => {
                 : <article className="mt-6 rounded-2xl bg-card p-6">
                   <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-bold uppercase text-[hsl(var(--accent))]">
                     <span>{filteredIndex >= 0 ? `Questão ${filteredIndex + 1} de ${view.questions.length}` : `Resposta registrada · ${view.questions.length} restantes no filtro`}</span>
-                    <span>{STATUS_LABELS[current.status]}</span>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs text-foreground"
+                        onClick={() => toggleFavorite(current)}
+                        aria-pressed={current.favorite}
+                      >
+                        <Star className={`h-3.5 w-3.5 ${current.favorite ? 'fill-[hsl(var(--accent))] text-[hsl(var(--accent))]' : ''}`} aria-hidden="true" />
+                        {current.favorite ? 'Favorita' : 'Favoritar'}
+                      </button>
+                      <span>{STATUS_LABELS[current.status]}</span>
+                    </div>
                   </div>
                   <p className="mt-3 text-xs text-muted-foreground">{current.syllabusNode?.title}</p>
                   <h2 className="mt-2 text-lg font-semibold text-card-foreground">{current.statement}</h2>
