@@ -382,4 +382,153 @@ assert.doesNotMatch(
   'Migration do Lote 2 deve ser exclusivamente UPDATE por slug (idempotente), sem INSERT.'
 );
 
-console.log('Integridade editorial: 68 pares diagnóstico/prática, 6 pares cross-especialidade, 5 correções prioritárias e Lote 2 (8 questões) aprovados.');
+// Lote 3: qualidade editorial de alta confiança — duplicidade residual,
+// vazamento mútuo, viés de comprimento, pistas absolutas, fonte oficial
+// identificável em todo o catálogo e varredura geral de duplicidade
+// semântica (além dos pares já nomeados nos lotes anteriores).
+
+// 1) Duplicidade residual corrigida: pratica-cuidador-social-recusa-acolhimento
+// não pode mais repetir o cenário e a resposta de
+// pratica-agente-social-vinculo-autonomia.
+{
+  const a = questions.get('pratica-agente-social-vinculo-autonomia');
+  const b = questions.get('pratica-cuidador-social-recusa-acolhimento');
+  assert.ok(a && b, 'Par residual do Lote 3 ausente do catálogo efetivo.');
+  const statementSimilarity = jaccard(a.statement, b.statement);
+  const correctAnswerSimilarity = jaccard(a.options.get(a.correctLabel), b.options.get(b.correctLabel));
+  assert.ok(statementSimilarity <= 0.45, `Duplicidade residual não corrigida (enunciado ${statementSimilarity.toFixed(3)}).`);
+  assert.ok(correctAnswerSimilarity <= 0.45, `Duplicidade residual não corrigida (resposta ${correctAnswerSimilarity.toFixed(3)}).`);
+  assert.equal(b.subject_slug, '5-populacao-em-situacao-de-rua-e-nocoes-de-abordagem-e-acolhimento-social', 'pratica-cuidador-social-recusa-acolhimento: bloco oficial não pode mudar.');
+}
+
+// 2) Vazamento mútuo corrigido: nenhuma explicação pode conter a definição
+// completa (>=4 tokens) do crédito adicional da outra questão.
+{
+  const especial = questions.get('pratica-ciencias-contabeis-credito-especial');
+  const suplementar = questions.get('pratica-direito-legislacao-credito-suplementar');
+  assert.ok(especial && suplementar, 'Par de crédito adicional ausente do catálogo efetivo.');
+  assert.doesNotMatch(
+    normalize(especial.explanation),
+    /reforca dotacao( orcamentaria)? existente/,
+    'pratica-ciencias-contabeis-credito-especial: explicação ainda entrega a definição do crédito suplementar.'
+  );
+  assert.doesNotMatch(
+    normalize(suplementar.explanation),
+    /nao haja dotacao orcamentaria especifica/,
+    'pratica-direito-legislacao-credito-suplementar: explicação ainda entrega a definição do crédito especial.'
+  );
+}
+
+// 3) Gabarito preservado nas 20 questões tocadas pelo Lote 3 (nenhuma
+// correção deveria alterar a letra correta).
+const lote3PreservedLabels = new Map([
+  ['pratica-cuidador-social-recusa-acolhimento', 'B'],
+  ['pratica-ciencias-contabeis-credito-especial', 'B'],
+  ['pratica-direito-legislacao-credito-suplementar', 'B'],
+  ['diagnostico-economia-federalismo-fiscal-icms', 'C'],
+  ['diagnostico-ciencias-contabeis-dvp-resultado-patrimonial', 'D'],
+  ['diagnostico-nutricao-sisan-dhaa', 'B'],
+  ['diagnostico-nutricao-aleitamento-complementar', 'C'],
+  ['pratica-economia-pobreza-multidimensional', 'D'],
+  ['diagnostico-ciencias-contabeis-liquidez-corrente', 'B'],
+  ['diagnostico-administracao-projeto-operacao', 'C'],
+  ['diagnostico-estatistica-regressao-inclinacao', 'C'],
+  ['diagnostico-pedagogia-planejamento-participativo-paif', 'D'],
+  ['diagnostico-agente-social-paif', 'B'],
+  ['diagnostico-cuidador-social-acolhimento-provisorio', 'D'],
+  ['diagnostico-comunicacao-social-metrica-objetivo', 'C'],
+  ['diagnostico-educador-social-scfv', 'C'],
+  ['diagnostico-pedagogia-gestao-democratica', 'B'],
+  ['diagnostico-sociologia-indicadores-e-metodos', 'D'],
+  ['pratica-ciencias-contabeis-evidencia-auditoria', 'A'],
+  ['pratica-psicologia-envelhecimento-contextual', 'B'],
+]);
+for (const [slug, expectedLabel] of lote3PreservedLabels) {
+  const question = questions.get(slug);
+  assert.ok(question, `Questão ausente após a migration do Lote 3: ${slug}.`);
+  assert.equal(question.options.size, 4, `${slug}: deve continuar com exatamente 4 alternativas.`);
+  assert.equal(question.correctLabel, expectedLabel, `${slug}: gabarito não pode ter sido alterado pela correção editorial.`);
+  const correctLength = normalize(question.options.get(expectedLabel)).length;
+  const longestDistractor = Math.max(...[...question.options]
+    .filter(([label]) => label !== expectedLabel)
+    .map(([, optionText]) => normalize(optionText).length));
+  assert.ok(correctLength < longestDistractor, `${slug}: a alternativa correta não pode ser desproporcionalmente maior que os distratores.`);
+}
+
+// 4) Pistas absolutas removidas dos distratores das questões corrigidas por
+// esse critério (a correta nunca continha termo absoluto).
+const ABSOLUTE_CLUE = /\b(sempre|nunca|jamais|toda|todas|todos|nenhum|nenhuma|exclusivamente|obrigatoriamente|unicamente|somente|apenas|automaticamente|totalmente|completamente)\b/i;
+const absolutismFixed = [
+  'diagnostico-cuidador-social-acolhimento-provisorio',
+  'diagnostico-comunicacao-social-metrica-objetivo',
+  'diagnostico-educador-social-scfv',
+  'diagnostico-pedagogia-gestao-democratica',
+  'diagnostico-sociologia-indicadores-e-metodos',
+  'pratica-ciencias-contabeis-evidencia-auditoria',
+  'pratica-economia-pobreza-multidimensional',
+  'pratica-psicologia-envelhecimento-contextual',
+];
+for (const slug of absolutismFixed) {
+  const question = questions.get(slug);
+  const distractorsWithClue = [...question.options]
+    .filter(([label]) => label !== question.correctLabel)
+    .filter(([, optionText]) => ABSOLUTE_CLUE.test(optionText)).length;
+  assert.ok(
+    distractorsWithClue < 2,
+    `${slug}: ainda há ${distractorsWithClue} distratores com termo absoluto, formando pista de gabarito.`
+  );
+}
+
+// 5) Fonte oficial identificável em TODO o catálogo efetivo: toda questão
+// deve citar pelo menos uma norma/fonte além do próprio item do edital.
+for (const question of completeQuestions) {
+  const withoutAuthorship = (question.source_reference || '').replace(/Quest[aã]o autoral Nortis\.?\s*$/i, '').trim();
+  const externalSources = withoutAuthorship.split(';').map((part) => part.trim()).filter(Boolean).filter((part) => !/^edital/i.test(part));
+  assert.ok(
+    externalSources.length > 0,
+    `${question.slug}: fonte não identifica norma ou referência oficial além do item do edital.`
+  );
+}
+
+// 6) Varredura geral de duplicidade semântica em todo o catálogo efetivo
+// (além dos pares já nomeados): nenhum par de questões, de qualquer
+// especialidade ou camada, pode ter enunciado ou resposta correta com
+// similaridade acima de 0,45.
+for (let i = 0; i < completeQuestions.length; i += 1) {
+  for (let j = i + 1; j < completeQuestions.length; j += 1) {
+    const left = completeQuestions[i];
+    const right = completeQuestions[j];
+    const statementSimilarity = jaccard(left.statement, right.statement);
+    const correctAnswerSimilarity = jaccard(left.options.get(left.correctLabel), right.options.get(right.correctLabel));
+    assert.ok(
+      statementSimilarity <= 0.45,
+      `${left.slug} x ${right.slug}: enunciados com similaridade ${statementSimilarity.toFixed(3)} (> 0,45), duplicidade não coberta pelos pares nomeados.`
+    );
+    assert.ok(
+      correctAnswerSimilarity <= 0.45,
+      `${left.slug} x ${right.slug}: respostas com similaridade ${correctAnswerSimilarity.toFixed(3)} (> 0,45), duplicidade não coberta pelos pares nomeados.`
+    );
+  }
+}
+
+const qualityMigration = readFileSync(
+  `${migrationsDirectory}/20260812050000_fix_question_quality_issues.sql`,
+  'utf8'
+);
+assert.doesNotMatch(
+  qualityMigration,
+  /\b(drop|delete|truncate|create|alter|grant|revoke)\b/i,
+  'Migration do Lote 3 não pode conter comandos estruturais.'
+);
+assert.doesNotMatch(
+  qualityMigration,
+  /orders|payments|asaas|edge function|secret/i,
+  'Migration do Lote 3 não pode tocar checkout, pagamentos, Asaas, Edge Functions ou secrets.'
+);
+assert.doesNotMatch(
+  qualityMigration,
+  /insert\s+into/i,
+  'Migration do Lote 3 deve ser exclusivamente UPDATE por slug (idempotente), sem INSERT.'
+);
+
+console.log('Integridade editorial: 68 pares diagnóstico/prática, 6 pares cross-especialidade, 5 correções prioritárias, Lote 2 (8 questões), Lote 3 (20 questões) e varredura geral de duplicidade aprovados.');
